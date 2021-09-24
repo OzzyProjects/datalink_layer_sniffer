@@ -2,7 +2,7 @@
 
 Raw socket based Linux sniffer being able to sniff all TCP, IP, ICMP and IGMP packets.
 
-It binds an interface, after set up it in promiscuous mode.
+It binds to an interface, after set up it in promiscuous mode.
 
 Also being able to sniff some layer 3 packet like ARP, HOMEPLUG and some other one.
 
