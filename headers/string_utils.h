@@ -1,4 +1,9 @@
-/* some C standard functions reimplemented to make some experiments */
+/* 
+some C standard functions reimplemented to make some experiments 
+exemple : fake malloc that doesn't allocate dynamic memory but it is based on 1mb size static array
+other : memcpy etc... in inline GNU assembly
+i don't know if they are faster but i don't think so
+*/
 
 #ifndef STRUTILS
 #define STRUTILS
