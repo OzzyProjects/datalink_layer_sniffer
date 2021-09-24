@@ -18,7 +18,7 @@ just do **make**
 
 <ins>Use :</ins>
 
-./raw_sniffer -i [interface name]
+`./raw_sniffer -i [interface name]`
 
 or
 
@@ -26,6 +26,8 @@ or
 
 if no interface name is provided, it sniff by default on eno1. Easy to change
 
-You can see an example of output log in filename "example".
+You can see an example of output log in file named "example".
 
-It works on Debian Bullseye and Ubuntu.
+It works on Debian Bullseye and Ubuntu 20.04.
+
+I haven't checked yet for other versions or distros.
