@@ -58,6 +58,7 @@ int get_itf_index(int sock, const char* itf_name) {
         perror ("Error: Could not set flag IFF_PROMISC");
         return -1;
     }
+    
     printf ("DEBUG : entering promiscuous mode ok\n");
     
     if (ioctl(sock, SIOCGIFINDEX, &ifr) < 0){
@@ -68,7 +69,7 @@ int get_itf_index(int sock, const char* itf_name) {
     int opt = 1;
 
     if (setsockopt(sock, SOL_SOCKET, PACKET_MR_PROMISC,&opt, sizeof(opt)) < 0) {
-        printf("Server-setsockopt() error for SO_OOBINLINE\n");
+        printf("Server-setsockopt() error for PACKET_MR_PROMISC\n");
         return -1;
     }
 
@@ -77,7 +78,7 @@ int get_itf_index(int sock, const char* itf_name) {
         return -1;
     }
 
-    printf("DEBUG : setting setsockopt ok\n");
+    printf("DEBUG : setting setsockopt for PACKET_MR_PROMISC and SO_BINDTODEVICE ok\n");
 
 
     return ifr.ifr_ifindex;
