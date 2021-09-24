@@ -8,13 +8,13 @@ Among others, it uses the functions select(), FD_ISSET() to make it as low level
 
 Also being able to sniff some layer 3 packet like ARP, HOMEPLUG and some other one.
 
-Need to be root to run the program.
+**Need to be root to run the program**
 
 Some functions are defined but non implemented but it's easy to do it (exemple : fake malloc)
 
 <ins>Build :</ins>
 
-just do make
+just do **make**
 
 <ins>Use :</ins>
 
