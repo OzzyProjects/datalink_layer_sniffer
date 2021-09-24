@@ -1,3 +1,5 @@
+/* some C standard functions reimplemented to make some experiments */
+
 #ifndef STRUTILS
 #define STRUTILS
 
