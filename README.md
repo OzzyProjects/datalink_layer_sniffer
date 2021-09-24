@@ -1,6 +1,6 @@
 # Raw socket sniffer Linux
 
-Raw socket based sniffer being able to sniff all TCP, IP, ICMP and IGMP packets.
+Raw socket based Linux sniffer being able to sniff all TCP, IP, ICMP and IGMP packets.
 
 It binds an interface, after set up it in promiscuous mode.
 
@@ -8,10 +8,7 @@ Also being able to sniff some layer 3 packet like ARP, HOMEPLUG and some other o
 
 Build :
 
-just do
-
-make
-
+just do make
 
 Use :
 
@@ -21,8 +18,8 @@ or
 
 ./raw_sniffer
 
-if no interface name is provided, it sniff by default on eno1.
+if no interface name is provided, it sniff by default on eno1. Easy to change
 
-You can see an example of output in example file.
+You can see an example of output log in filename "example".
 
-Works on Debian Bullseye and Ubuntu.
+It works on Debian Bullseye and Ubuntu.
