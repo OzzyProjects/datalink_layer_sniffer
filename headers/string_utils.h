@@ -19,7 +19,10 @@ i don't know if they are faster but i don't think so
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
+// static array for fake malloc
 static unsigned char heap_memory[1024 * 1024]; //reserve 1 MB for malloc
+
+// next position
 static size_t next_index = 0;
 
 // fake malloc
@@ -81,6 +84,8 @@ FORCE_INLINE void __attribute__((nonnull)) copy_large(uint64_t *restrict dst, co
     while (offset--)
         *dst++ = *src++;
 }
+
+// memcpy reimplemented with aligned datas
 
 void __attribute__((nonnull)) *memcpy_s(void *restrict dst, const void *restrict src, size_t size){
 
