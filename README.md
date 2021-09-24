@@ -22,7 +22,7 @@ just do **make**
 
 or
 
-./raw_sniffer
+`./raw_sniffer`
 
 if no interface name is provided, it sniff by default on eno1. Easy to change
 
