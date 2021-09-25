@@ -26,7 +26,7 @@ static unsigned char heap_memory[1024 * 1024]; //reserve 1 MB for malloc
 static size_t next_index = 0;
 
 // fake malloc
-void *malloc_s(const size_t size){
+void *fake_malloc(const size_t size){
 
     void *mem_ptr;
 
