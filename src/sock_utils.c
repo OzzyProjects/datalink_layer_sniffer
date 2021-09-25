@@ -60,9 +60,11 @@ int get_itf_index(int sock, const char* itf_name) {
     }
 
     int opt = 1;
-
+    
+    // another trick to set up interface in promiscuous mode
+    
     if (setsockopt(sock, SOL_SOCKET, PACKET_MR_PROMISC,&opt, sizeof(opt)) < 0) {
-        printf("Server-setsockopt() error for SO_OOBINLINE\n");
+        printf("Server-setsockopt() error for PACKET_MR_PROMISC\n");
         return -1;
     }
 
