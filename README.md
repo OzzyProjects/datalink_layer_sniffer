@@ -14,11 +14,11 @@ Some functions are defined but non implemented but it's easy to do it (exemple :
 
 <ins>Build :</ins>
 
-`git clone https://github.com/OzzyProjects/raw_socket_sniffer.git`
+`sudo git clone https://github.com/OzzyProjects/raw_socket_sniffer.git`
 
 `cd ./raw_socket_sniffer`
 
-`make`
+`sudo make`
 
 <ins>Use :</ins>
 
