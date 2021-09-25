@@ -126,6 +126,10 @@ int main(int argc, char **argv){
             
             if (ret > 0){
 
+                // print current local time in hh:mm:ss
+                print_current_time();
+                
+                // process parsing
                 process_frame(buffer , ret);
 
                 printf("\n\nRaw data:\n");
