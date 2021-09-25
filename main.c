@@ -76,7 +76,8 @@ int main(int argc, char **argv){
     }
 
     
-    // create sock and initialize it
+    // create sock and initialize it with interface name
+
     int sock = init_sock(itf_spec);
 
     if (sock < 0){
@@ -85,7 +86,8 @@ int main(int argc, char **argv){
         return EXIT_FAILURE;
     }
 
-    // allocating big buffer for receive sock data
+    // allocating a big buffer for receive sock data
+
     buffer = (unsigned char *)malloc(BUFF_SIZE);
 
     if (buffer == NULL){
@@ -94,8 +96,8 @@ int main(int argc, char **argv){
         return EXIT_FAILURE;
     }
      
-    
     // setting file descriptor here for the socket
+
     fd_set read_fds, temp;
 
     FD_ZERO(&read_fds);
@@ -123,7 +125,7 @@ int main(int argc, char **argv){
 
                 process_frame(buffer , ret);
 
-                printf("\n\n\tRaw data:\n\n");
+                printf("\n\nRaw data:\n");
 
                 // print raw data in hex
                 for (int i = 0; i < ret; i++){
@@ -154,9 +156,10 @@ long get_user_input(int max_itf_nbr){
     while (fgets(buffer, sizeof(buffer), stdin) != NULL){
 
         number = strtol(buffer, &end, 10);
+
         if (end == buffer || *end !='\n' || number > max_itf_nbr || number < 0){
             printf("Not a valid input. Enter a number between 0 and %u\n", max_itf_nbr -1);
-            exit(-1);
+            exit(EXIT_FAILURE);
         } 
         else break;
     }
@@ -173,4 +176,3 @@ void free_double_pointer(void** double_ptr, int size){
     free(double_ptr);
 
 }
-
