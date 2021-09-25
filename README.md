@@ -22,11 +22,11 @@ Some functions are defined but non implemented but it's easy to do it (example :
 
 <ins>Use :</ins>
 
-`./raw_sniffer -i [interface name]`
+`./raw_sock -i [interface name]`
 
 or
 
-`./raw_sniffer`
+`./raw_sock`
 
 
 if no interface name is provided, it sniff by default on eno1. Easy to change
