@@ -20,7 +20,7 @@ Some functions are defined but non implemented but it's easy to do it (example :
 
 `sudo make`
 
-<ins>Use :</ins>
+<ins>Use (in root only) :</ins>
 
 `./raw_sock -i [interface name]`
 
