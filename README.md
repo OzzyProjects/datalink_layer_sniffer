@@ -14,7 +14,11 @@ Some functions are defined but non implemented but it's easy to do it (exemple :
 
 <ins>Build :</ins>
 
-just do **make**
+`git clone https://github.com/OzzyProjects/raw_socket_sniffer.git
+
+cd ./raw_socket_sniffer
+
+make``
 
 <ins>Use :</ins>
 
