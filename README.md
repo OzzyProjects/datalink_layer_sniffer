@@ -39,7 +39,7 @@ You can have the list of network interface names typing in your terminal
 
 `ip link show`
 
-It works on Debian Bullseye and Ubuntu 20.04.
+It works on Debian Buster/Bullseye and Ubuntu 20.04+.
 
 I haven't checked yet for other versions or distros.
 
