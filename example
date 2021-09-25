@@ -1,0 +1,2318 @@
+Using interface eno1 interface...
+DEBUG : entering promiscuous mode ok
+DEBUG : setting setsockopt ok
+DEBUG : interface index : 2
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 01-00-5E-00-00-FB 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 138  Bytes(size of Packet)
+   |-Identification    : 0
+   |-TTL      : 255
+   |-Protocol : 17
+   |-Checksum : 55485
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 5353
+   |-Destination Port : 5353
+   |-UDP Length       : 118
+   |-UDP Checksum     : 46198
+
+                        DATA Dump                         
+
+IP Header
+    45 00 00 8A 00 00 40 00 FF 11 D8 BD C0 A8 01 01         E.....@.........
+    E0 00 00 FB                                             ....
+UDP Header
+    40 00 FF 11 D8 BD C0 A8                                 @.......
+Data Payload
+    00 00 00 00 00 01 00 03 00 00 00 00 09 5F 73 65         ............._se
+    72 76 69 63 65 73 07 5F 64 6E 73 2D 73 64 04 5F         rvices._dns-sd._
+    75 64 70 05 6C 6F 63 61 6C 00 00 0C 00 01 C0 0C         udp.local.......
+    00 0C 00 01 00 00 11 94 00 0D 05 5F 6D 71 74 74         ..........._mqtt
+    04 5F 74 63 70 C0 23 C0 0C 00 0C 00 01 00 00 11         ._tcp.#.........
+    94 00 08 05 5F 68 74 74 70 C0 40 C0 0C 00 0C 00         ...._http.@.....
+    01 00 00 11 94 00 07 04 5F 73 73 77 C0 40               ........_ssw.@
+
+###########################################################
+
+Raw data:
+01 00 5E 00 00 FB E8 D2 FF E0 88 D0 08 00 45 00 00 8A 00 00 40 00 FF 11 D8 BD C0 A8 01 01 E0 00 00 FB 14 E9 14 E9 00 76 B4 76 00 00 00 00 00 01 00 03 00 00 00 00 09 5F 73 65 72 76 69 63 65 73 07 5F 64 6E 73 2D 73 64 04 5F 75 64 70 05 6C 6F 63 61 6C 00 00 0C 00 01 C0 0C 00 0C 00 01 00 00 11 94 00 0D 05 5F 6D 71 74 74 04 5F 74 63 70 C0 23 C0 0C 00 0C 00 01 00 00 11 94 00 08 05 5F 68 74 74 70 C0 40 C0 0C 00 0C 00 01 00 00 11 94 00 07 04 5F 73 73 77 C0 40 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 56  Bytes(size of Packet)
+   |-Identification    : 63266
+   |-TTL      : 64
+   |-Protocol : 17
+   |-Checksum : 29133
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 50849
+   |-Destination Port : 53
+   |-UDP Length       : 36
+   |-UDP Checksum     : 53754
+
+                        DATA Dump                         
+
+IP Header
+    45 00 00 38 F7 22 40 00 40 11 71 CD C0 A8 01 0D         E..8."@.@.q.....
+    08 08 08 08                                             ....
+UDP Header
+    40 00 40 11 71 CD C0 A8                                 @.@.q...
+Data Payload
+    0C 7E 01 00 00 01 00 00 00 00 00 00 06 67 6F 6F         .~...........goo
+    67 6C 65 03 63 6F 6D 00 00 01 00 01                     gle.com.....
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 38 F7 22 40 00 40 11 71 CD C0 A8 01 0D 08 08 08 08 C6 A1 00 35 00 24 D1 FA 0C 7E 01 00 00 01 00 00 00 00 00 00 06 67 6F 6F 67 6C 65 03 63 6F 6D 00 00 01 00 01 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 56  Bytes(size of Packet)
+   |-Identification    : 63267
+   |-TTL      : 64
+   |-Protocol : 17
+   |-Checksum : 29132
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 50849
+   |-Destination Port : 53
+   |-UDP Length       : 36
+   |-UDP Checksum     : 53754
+
+                        DATA Dump                         
+
+IP Header
+    45 00 00 38 F7 23 40 00 40 11 71 CC C0 A8 01 0D         E..8.#@.@.q.....
+    08 08 08 08                                             ....
+UDP Header
+    40 00 40 11 71 CC C0 A8                                 @.@.q...
+Data Payload
+    76 06 01 00 00 01 00 00 00 00 00 00 06 67 6F 6F         v............goo
+    67 6C 65 03 63 6F 6D 00 00 1C 00 01                     gle.com.....
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 38 F7 23 40 00 40 11 71 CC C0 A8 01 0D 08 08 08 08 C6 A1 00 35 00 24 D1 FA 76 06 01 00 00 01 00 00 00 00 00 00 06 67 6F 6F 67 6C 65 03 63 6F 6D 00 00 1C 00 01 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 72  Bytes(size of Packet)
+   |-Identification    : 26673
+   |-TTL      : 120
+   |-Protocol : 17
+   |-Checksum : 2223
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 53
+   |-Destination Port : 50849
+   |-UDP Length       : 52
+   |-UDP Checksum     : 22461
+
+                        DATA Dump                         
+
+
+***********************DNS Packet*************************
+
+DNS Header
+DNS query type
+   |-Opcode      : 0
+   |-R code : 0
+   |-Q count    : 1
+   |-Answer    : 1
+   |-Auth count    : 0
+   |-Additional    : 0
+
+###########################################################
+IP Header
+    45 00 00 48 68 31 00 00 78 11 08 AF 08 08 08 08         E..Hh1..x.......
+    C0 A8 01 0D                                             ....
+UDP Header
+    00 00 78 11 08 AF 08 08                                 ..x.....
+Data Payload
+    0C 7E 81 80 00 01 00 01 00 00 00 00 06 67 6F 6F         .~.€.........goo
+    67 6C 65 03 63 6F 6D 00 00 01 00 01 C0 0C 00 01         gle.com.........
+    00 01 00 00 00 D8 00 04 D8 3A D5 4E                     .........:.N
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 48 68 31 00 00 78 11 08 AF 08 08 08 08 C0 A8 01 0D 00 35 C6 A1 00 34 57 BD 0C 7E 81 80 00 01 00 01 00 00 00 00 06 67 6F 6F 67 6C 65 03 63 6F 6D 00 00 01 00 01 C0 0C 00 01 00 01 00 00 00 D8 00 04 D8 3A D5 4E 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 84  Bytes(size of Packet)
+   |-Identification    : 1984
+   |-TTL      : 120
+   |-Protocol : 17
+   |-Checksum : 26900
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 53
+   |-Destination Port : 50849
+   |-UDP Length       : 64
+   |-UDP Checksum     : 62627
+
+                        DATA Dump                         
+
+
+***********************DNS Packet*************************
+
+DNS Header
+DNS query type
+   |-Opcode      : 0
+   |-R code : 0
+   |-Q count    : 1
+   |-Answer    : 1
+   |-Auth count    : 0
+   |-Additional    : 0
+
+###########################################################
+IP Header
+    45 00 00 54 07 C0 00 00 78 11 69 14 08 08 08 08         E..T....x.i.....
+    C0 A8 01 0D                                             ....
+UDP Header
+    00 00 78 11 69 14 08 08                                 ..x.i...
+Data Payload
+    76 06 81 80 00 01 00 01 00 00 00 00 06 67 6F 6F         v..€.........goo
+    67 6C 65 03 63 6F 6D 00 00 1C 00 01 C0 0C 00 1C         gle.com.........
+    00 01 00 00 01 2C 00 10 2A 00 14 50 40 07 08 07         .....,..*..P@...
+    00 00 00 00 00 00 20 0E                                 ...... .
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 54 07 C0 00 00 78 11 69 14 08 08 08 08 C0 A8 01 0D 00 35 C6 A1 00 40 F4 A3 76 06 81 80 00 01 00 01 00 00 00 00 06 67 6F 6F 67 6C 65 03 63 6F 6D 00 00 1C 00 01 C0 0C 00 1C 00 01 00 00 01 2C 00 10 2A 00 14 50 40 07 08 07 00 00 00 00 00 00 20 0E 
+
+***********************ICMP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 84  Bytes(size of Packet)
+   |-Identification    : 34094
+   |-TTL      : 64
+   |-Protocol : 1
+   |-Checksum : 17980
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+ICMP Header
+   |-Type : 8   |-Code : 0
+   |-Checksum : 38488
+   |-ID       : 4961
+   |-Sequence : 1
+   |-Gateway : 16802067
+   |-Mysterious : 4961
+
+                        DATA Dump                         
+IP Header
+    E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00         ......,.].4"..E.
+    00 54 85 2E                                             .T..
+UDP Header
+    40 00 40 01 46 3C C0 A8                                 @.@.F<..
+Data Payload
+    5D 2D 4F 61 00 00 00 00 DE E3 04 00 00 00 00 00         ]-Oa............
+    10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F         ................
+    20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F          !"#$%&'()*+,-./
+    30 31 32 33 34 35 36 37                                 01234567
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 54 85 2E 40 00 40 01 46 3C C0 A8 01 0D D8 3A D5 4E 08 00 96 58 13 61 00 01 5D 2D 4F 61 00 00 00 00 DE E3 04 00 00 00 00 00 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 
+
+***********************ICMP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 84  Bytes(size of Packet)
+   |-Identification    : 0
+   |-TTL      : 115
+   |-Protocol : 1
+   |-Checksum : 55402
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+ICMP Header
+   |-Type : 0  (ICMP Echo Reply)
+   |-Code : 0
+   |-Checksum : 40536
+   |-ID       : 4961
+   |-Sequence : 1
+   |-Gateway : 16802067
+   |-Mysterious : 4961
+
+                        DATA Dump                         
+IP Header
+    2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00         ,.].4"........E.
+    00 54 00 00                                             .T..
+UDP Header
+    00 00 73 01 D8 6A D8 3A                                 ..s..j.:
+Data Payload
+    5D 2D 4F 61 00 00 00 00 DE E3 04 00 00 00 00 00         ]-Oa............
+    10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F         ................
+    20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F          !"#$%&'()*+,-./
+    30 31 32 33 34 35 36 37                                 01234567
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 54 00 00 00 00 73 01 D8 6A D8 3A D5 4E C0 A8 01 0D 00 00 9E 58 13 61 00 01 5D 2D 4F 61 00 00 00 00 DE E3 04 00 00 00 00 00 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 72  Bytes(size of Packet)
+   |-Identification    : 63270
+   |-TTL      : 64
+   |-Protocol : 17
+   |-Checksum : 29113
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 43313
+   |-Destination Port : 53
+   |-UDP Length       : 52
+   |-UDP Checksum     : 53770
+
+                        DATA Dump                         
+
+IP Header
+    45 00 00 48 F7 26 40 00 40 11 71 B9 C0 A8 01 0D         E..H.&@.@.q.....
+    08 08 08 08                                             ....
+UDP Header
+    40 00 40 11 71 B9 C0 A8                                 @.@.q...
+Data Payload
+    21 CB 01 00 00 01 00 00 00 00 00 00 02 37 38 03         !............78.
+    32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64         213.58.216.in-ad
+    64 72 04 61 72 70 61 00 00 0C 00 01                     dr.arpa.....
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 48 F7 26 40 00 40 11 71 B9 C0 A8 01 0D 08 08 08 08 A9 31 00 35 00 34 D2 0A 21 CB 01 00 00 01 00 00 00 00 00 00 02 37 38 03 32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64 64 72 04 61 72 70 61 00 00 0C 00 01 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 171  Bytes(size of Packet)
+   |-Identification    : 34672
+   |-TTL      : 121
+   |-Protocol : 17
+   |-Checksum : 59404
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 53
+   |-Destination Port : 43313
+   |-UDP Length       : 151
+   |-UDP Checksum     : 46069
+
+                        DATA Dump                         
+
+
+***********************DNS Packet*************************
+
+DNS Header
+DNS query type
+   |-Opcode      : 0
+   |-R code : 0
+   |-Q count    : 1
+   |-Answer    : 3
+   |-Auth count    : 0
+   |-Additional    : 0
+
+###########################################################
+IP Header
+    45 00 00 AB 87 70 00 00 79 11 E8 0C 08 08 08 08         E....p..y.......
+    C0 A8 01 0D                                             ....
+UDP Header
+    00 00 79 11 E8 0C 08 08                                 ..y.....
+Data Payload
+    21 CB 81 80 00 01 00 03 00 00 00 00 02 37 38 03         !..€.........78.
+    32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64         213.58.216.in-ad
+    64 72 04 61 72 70 61 00 00 0C 00 01 C0 0C 00 0C         dr.arpa.........
+    00 01 00 00 4D 03 00 1B 0F 6C 68 72 32 35 73 30         ....M....lhr25s0
+    31 2D 69 6E 2D 66 31 34 05 31 65 31 30 30 03 6E         1-in-f14.1e100.n
+    65 74 00 C0 0C 00 0C 00 01 00 00 4D 03 00 12 0F         et.........M....
+    6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 37 38 C0         lhr25s01-in-f78.
+    48 C0 0C 00 0C 00 01 00 00 4D 03 00 12 0F 70 61         H........M....pa
+    72 32 31 73 31 38 2D 69 6E 2D 66 31 34 C0 48            r21s18-in-f14.H
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 AB 87 70 00 00 79 11 E8 0C 08 08 08 08 C0 A8 01 0D 00 35 A9 31 00 97 B3 F5 21 CB 81 80 00 01 00 03 00 00 00 00 02 37 38 03 32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64 64 72 04 61 72 70 61 00 00 0C 00 01 C0 0C 00 0C 00 01 00 00 4D 03 00 1B 0F 6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 31 34 05 31 65 31 30 30 03 6E 65 74 00 C0 0C 00 0C 00 01 00 00 4D 03 00 12 0F 6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 37 38 C0 48 C0 0C 00 0C 00 01 00 00 4D 03 00 12 0F 70 61 72 32 31 73 31 38 2D 69 6E 2D 66 31 34 C0 48 
+
+***********************ICMP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 84  Bytes(size of Packet)
+   |-Identification    : 34284
+   |-TTL      : 64
+   |-Protocol : 1
+   |-Checksum : 17790
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+ICMP Header
+   |-Type : 8   |-Code : 0
+   |-Checksum : 16723
+   |-ID       : 4961
+   |-Sequence : 2
+   |-Gateway : 33579283
+   |-Mysterious : 4961
+
+                        DATA Dump                         
+IP Header
+    E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00         ......,.].4"..E.
+    00 54 85 EC                                             .T..
+UDP Header
+    40 00 40 01 45 7E C0 A8                                 @.@.E~..
+Data Payload
+    5E 2D 4F 61 00 00 00 00 32 E8 04 00 00 00 00 00         ^-Oa....2.......
+    10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F         ................
+    20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F          !"#$%&'()*+,-./
+    30 31 32 33 34 35 36 37                                 01234567
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 54 85 EC 40 00 40 01 45 7E C0 A8 01 0D D8 3A D5 4E 08 00 41 53 13 61 00 02 5E 2D 4F 61 00 00 00 00 32 E8 04 00 00 00 00 00 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 
+
+***********************ICMP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 84  Bytes(size of Packet)
+   |-Identification    : 0
+   |-TTL      : 115
+   |-Protocol : 1
+   |-Checksum : 55402
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+ICMP Header
+   |-Type : 0  (ICMP Echo Reply)
+   |-Code : 0
+   |-Checksum : 18771
+   |-ID       : 4961
+   |-Sequence : 2
+   |-Gateway : 33579283
+   |-Mysterious : 4961
+
+                        DATA Dump                         
+IP Header
+    2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00         ,.].4"........E.
+    00 54 00 00                                             .T..
+UDP Header
+    00 00 73 01 D8 6A D8 3A                                 ..s..j.:
+Data Payload
+    5E 2D 4F 61 00 00 00 00 32 E8 04 00 00 00 00 00         ^-Oa....2.......
+    10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F         ................
+    20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F          !"#$%&'()*+,-./
+    30 31 32 33 34 35 36 37                                 01234567
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 54 00 00 00 00 73 01 D8 6A D8 3A D5 4E C0 A8 01 0D 00 00 49 53 13 61 00 02 5E 2D 4F 61 00 00 00 00 32 E8 04 00 00 00 00 00 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 72  Bytes(size of Packet)
+   |-Identification    : 63326
+   |-TTL      : 64
+   |-Protocol : 17
+   |-Checksum : 29057
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 53410
+   |-Destination Port : 53
+   |-UDP Length       : 52
+   |-UDP Checksum     : 53770
+
+                        DATA Dump                         
+
+IP Header
+    45 00 00 48 F7 5E 40 00 40 11 71 81 C0 A8 01 0D         E..H.^@.@.q.....
+    08 08 08 08                                             ....
+UDP Header
+    40 00 40 11 71 81 C0 A8                                 @.@.q...
+Data Payload
+    D6 C1 01 00 00 01 00 00 00 00 00 00 02 37 38 03         .............78.
+    32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64         213.58.216.in-ad
+    64 72 04 61 72 70 61 00 00 0C 00 01                     dr.arpa.....
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 48 F7 5E 40 00 40 11 71 81 C0 A8 01 0D 08 08 08 08 D0 A2 00 35 00 34 D2 0A D6 C1 01 00 00 01 00 00 00 00 00 00 02 37 38 03 32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64 64 72 04 61 72 70 61 00 00 0C 00 01 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 171  Bytes(size of Packet)
+   |-Identification    : 7625
+   |-TTL      : 120
+   |-Protocol : 17
+   |-Checksum : 21172
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 53
+   |-Destination Port : 53410
+   |-UDP Length       : 151
+   |-UDP Checksum     : 55694
+
+                        DATA Dump                         
+
+
+***********************DNS Packet*************************
+
+DNS Header
+DNS query type
+   |-Opcode      : 0
+   |-R code : 0
+   |-Q count    : 1
+   |-Answer    : 3
+   |-Auth count    : 0
+   |-Additional    : 0
+
+###########################################################
+IP Header
+    45 00 00 AB 1D C9 00 00 78 11 52 B4 08 08 08 08         E.......x.R.....
+    C0 A8 01 0D                                             ....
+UDP Header
+    00 00 78 11 52 B4 08 08                                 ..x.R...
+Data Payload
+    D6 C1 81 80 00 01 00 03 00 00 00 00 02 37 38 03         ...€.........78.
+    32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64         213.58.216.in-ad
+    64 72 04 61 72 70 61 00 00 0C 00 01 C0 0C 00 0C         dr.arpa.........
+    00 01 00 00 4D 02 00 1B 0F 6C 68 72 32 35 73 30         ....M....lhr25s0
+    31 2D 69 6E 2D 66 31 34 05 31 65 31 30 30 03 6E         1-in-f14.1e100.n
+    65 74 00 C0 0C 00 0C 00 01 00 00 4D 02 00 12 0F         et.........M....
+    6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 37 38 C0         lhr25s01-in-f78.
+    48 C0 0C 00 0C 00 01 00 00 4D 02 00 12 0F 70 61         H........M....pa
+    72 32 31 73 31 38 2D 69 6E 2D 66 31 34 C0 48            r21s18-in-f14.H
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 AB 1D C9 00 00 78 11 52 B4 08 08 08 08 C0 A8 01 0D 00 35 D0 A2 00 97 D9 8E D6 C1 81 80 00 01 00 03 00 00 00 00 02 37 38 03 32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64 64 72 04 61 72 70 61 00 00 0C 00 01 C0 0C 00 0C 00 01 00 00 4D 02 00 1B 0F 6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 31 34 05 31 65 31 30 30 03 6E 65 74 00 C0 0C 00 0C 00 01 00 00 4D 02 00 12 0F 6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 37 38 C0 48 C0 0C 00 0C 00 01 00 00 4D 02 00 12 0F 70 61 72 32 31 73 31 38 2D 69 6E 2D 66 31 34 C0 48 
+
+***********************ICMP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 84  Bytes(size of Packet)
+   |-Identification    : 34370
+   |-TTL      : 64
+   |-Protocol : 1
+   |-Checksum : 17704
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+ICMP Header
+   |-Type : 8   |-Code : 0
+   |-Checksum : 20557
+   |-ID       : 4961
+   |-Sequence : 3
+   |-Gateway : 50356499
+   |-Mysterious : 4961
+
+                        DATA Dump                         
+IP Header
+    E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00         ......,.].4"..E.
+    00 54 86 42                                             .T.B
+UDP Header
+    40 00 40 01 45 28 C0 A8                                 @.@.E(..
+Data Payload
+    5F 2D 4F 61 00 00 00 00 22 ED 04 00 00 00 00 00         _-Oa....".......
+    10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F         ................
+    20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F          !"#$%&'()*+,-./
+    30 31 32 33 34 35 36 37                                 01234567
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 54 86 42 40 00 40 01 45 28 C0 A8 01 0D D8 3A D5 4E 08 00 50 4D 13 61 00 03 5F 2D 4F 61 00 00 00 00 22 ED 04 00 00 00 00 00 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 
+
+***********************ICMP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 84  Bytes(size of Packet)
+   |-Identification    : 0
+   |-TTL      : 115
+   |-Protocol : 1
+   |-Checksum : 55402
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+ICMP Header
+   |-Type : 0  (ICMP Echo Reply)
+   |-Code : 0
+   |-Checksum : 22605
+   |-ID       : 4961
+   |-Sequence : 3
+   |-Gateway : 50356499
+   |-Mysterious : 4961
+
+                        DATA Dump                         
+IP Header
+    2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00         ,.].4"........E.
+    00 54 00 00                                             .T..
+UDP Header
+    00 00 73 01 D8 6A D8 3A                                 ..s..j.:
+Data Payload
+    5F 2D 4F 61 00 00 00 00 22 ED 04 00 00 00 00 00         _-Oa....".......
+    10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F         ................
+    20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F          !"#$%&'()*+,-./
+    30 31 32 33 34 35 36 37                                 01234567
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 54 00 00 00 00 73 01 D8 6A D8 3A D5 4E C0 A8 01 0D 00 00 58 4D 13 61 00 03 5F 2D 4F 61 00 00 00 00 22 ED 04 00 00 00 00 00 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 72  Bytes(size of Packet)
+   |-Identification    : 63377
+   |-TTL      : 64
+   |-Protocol : 17
+   |-Checksum : 29006
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 35454
+   |-Destination Port : 53
+   |-UDP Length       : 52
+   |-UDP Checksum     : 53770
+
+                        DATA Dump                         
+
+IP Header
+    45 00 00 48 F7 91 40 00 40 11 71 4E C0 A8 01 0D         E..H..@.@.qN....
+    08 08 08 08                                             ....
+UDP Header
+    40 00 40 11 71 4E C0 A8                                 @.@.qN..
+Data Payload
+    63 FE 01 00 00 01 00 00 00 00 00 00 02 37 38 03         c............78.
+    32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64         213.58.216.in-ad
+    64 72 04 61 72 70 61 00 00 0C 00 01                     dr.arpa.....
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 48 F7 91 40 00 40 11 71 4E C0 A8 01 0D 08 08 08 08 8A 7E 00 35 00 34 D2 0A 63 FE 01 00 00 01 00 00 00 00 00 00 02 37 38 03 32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64 64 72 04 61 72 70 61 00 00 0C 00 01 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 171  Bytes(size of Packet)
+   |-Identification    : 41695
+   |-TTL      : 120
+   |-Protocol : 17
+   |-Checksum : 52637
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 53
+   |-Destination Port : 35454
+   |-UDP Length       : 151
+   |-UDP Checksum     : 10584
+
+                        DATA Dump                         
+
+
+***********************DNS Packet*************************
+
+DNS Header
+DNS query type
+   |-Opcode      : 0
+   |-R code : 0
+   |-Q count    : 1
+   |-Answer    : 3
+   |-Auth count    : 0
+   |-Additional    : 0
+
+###########################################################
+IP Header
+    45 00 00 AB A2 DF 00 00 78 11 CD 9D 08 08 08 08         E.......x.......
+    C0 A8 01 0D                                             ....
+UDP Header
+    00 00 78 11 CD 9D 08 08                                 ..x.....
+Data Payload
+    63 FE 81 80 00 01 00 03 00 00 00 00 02 37 38 03         c..€.........78.
+    32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64         213.58.216.in-ad
+    64 72 04 61 72 70 61 00 00 0C 00 01 C0 0C 00 0C         dr.arpa.........
+    00 01 00 00 3D 3F 00 1B 0F 70 61 72 32 31 73 31         ....=?...par21s1
+    38 2D 69 6E 2D 66 31 34 05 31 65 31 30 30 03 6E         8-in-f14.1e100.n
+    65 74 00 C0 0C 00 0C 00 01 00 00 3D 3F 00 12 0F         et.........=?...
+    6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 37 38 C0         lhr25s01-in-f78.
+    48 C0 0C 00 0C 00 01 00 00 3D 3F 00 12 0F 6C 68         H........=?...lh
+    72 32 35 73 30 31 2D 69 6E 2D 66 31 34 C0 48            r25s01-in-f14.H
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 AB A2 DF 00 00 78 11 CD 9D 08 08 08 08 C0 A8 01 0D 00 35 8A 7E 00 97 29 58 63 FE 81 80 00 01 00 03 00 00 00 00 02 37 38 03 32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64 64 72 04 61 72 70 61 00 00 0C 00 01 C0 0C 00 0C 00 01 00 00 3D 3F 00 1B 0F 70 61 72 32 31 73 31 38 2D 69 6E 2D 66 31 34 05 31 65 31 30 30 03 6E 65 74 00 C0 0C 00 0C 00 01 00 00 3D 3F 00 12 0F 6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 37 38 C0 48 C0 0C 00 0C 00 01 00 00 3D 3F 00 12 0F 6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 31 34 C0 48 
+
+***********************ICMP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 84  Bytes(size of Packet)
+   |-Identification    : 34427
+   |-TTL      : 64
+   |-Protocol : 1
+   |-Checksum : 17647
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+ICMP Header
+   |-Type : 8   |-Code : 0
+   |-Checksum : 34885
+   |-ID       : 4961
+   |-Sequence : 4
+   |-Gateway : 67133715
+   |-Mysterious : 4961
+
+                        DATA Dump                         
+IP Header
+    E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00         ......,.].4"..E.
+    00 54 86 7B                                             .T.{
+UDP Header
+    40 00 40 01 44 EF C0 A8                                 @.@.D...
+Data Payload
+    60 2D 4F 61 00 00 00 00 E9 F3 04 00 00 00 00 00         `-Oa............
+    10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F         ................
+    20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F          !"#$%&'()*+,-./
+    30 31 32 33 34 35 36 37                                 01234567
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 54 86 7B 40 00 40 01 44 EF C0 A8 01 0D D8 3A D5 4E 08 00 88 45 13 61 00 04 60 2D 4F 61 00 00 00 00 E9 F3 04 00 00 00 00 00 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 
+
+***********************ICMP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 84  Bytes(size of Packet)
+   |-Identification    : 0
+   |-TTL      : 115
+   |-Protocol : 1
+   |-Checksum : 55402
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+ICMP Header
+   |-Type : 0  (ICMP Echo Reply)
+   |-Code : 0
+   |-Checksum : 36933
+   |-ID       : 4961
+   |-Sequence : 4
+   |-Gateway : 67133715
+   |-Mysterious : 4961
+
+                        DATA Dump                         
+IP Header
+    2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00         ,.].4"........E.
+    00 54 00 00                                             .T..
+UDP Header
+    00 00 73 01 D8 6A D8 3A                                 ..s..j.:
+Data Payload
+    60 2D 4F 61 00 00 00 00 E9 F3 04 00 00 00 00 00         `-Oa............
+    10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F         ................
+    20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F          !"#$%&'()*+,-./
+    30 31 32 33 34 35 36 37                                 01234567
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 54 00 00 00 00 73 01 D8 6A D8 3A D5 4E C0 A8 01 0D 00 00 90 45 13 61 00 04 60 2D 4F 61 00 00 00 00 E9 F3 04 00 00 00 00 00 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 72  Bytes(size of Packet)
+   |-Identification    : 63472
+   |-TTL      : 64
+   |-Protocol : 17
+   |-Checksum : 28911
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 56578
+   |-Destination Port : 53
+   |-UDP Length       : 52
+   |-UDP Checksum     : 53770
+
+                        DATA Dump                         
+
+IP Header
+    45 00 00 48 F7 F0 40 00 40 11 70 EF C0 A8 01 0D         E..H..@.@.p.....
+    08 08 08 08                                             ....
+UDP Header
+    40 00 40 11 70 EF C0 A8                                 @.@.p...
+Data Payload
+    B0 1A 01 00 00 01 00 00 00 00 00 00 02 37 38 03         .............78.
+    32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64         213.58.216.in-ad
+    64 72 04 61 72 70 61 00 00 0C 00 01                     dr.arpa.....
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 48 F7 F0 40 00 40 11 70 EF C0 A8 01 0D 08 08 08 08 DD 02 00 35 00 34 D2 0A B0 1A 01 00 00 01 00 00 00 00 00 00 02 37 38 03 32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64 64 72 04 61 72 70 61 00 00 0C 00 01 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 171  Bytes(size of Packet)
+   |-Identification    : 59886
+   |-TTL      : 120
+   |-Protocol : 17
+   |-Checksum : 34446
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 53
+   |-Destination Port : 56578
+   |-UDP Length       : 151
+   |-UDP Checksum     : 29976
+
+                        DATA Dump                         
+
+
+***********************DNS Packet*************************
+
+DNS Header
+DNS query type
+   |-Opcode      : 0
+   |-R code : 0
+   |-Q count    : 1
+   |-Answer    : 3
+   |-Auth count    : 0
+   |-Additional    : 0
+
+###########################################################
+IP Header
+    45 00 00 AB E9 EE 00 00 78 11 86 8E 08 08 08 08         E.......x.......
+    C0 A8 01 0D                                             ....
+UDP Header
+    00 00 78 11 86 8E 08 08                                 ..x.....
+Data Payload
+    B0 1A 81 80 00 01 00 03 00 00 00 00 02 37 38 03         ...€.........78.
+    32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64         213.58.216.in-ad
+    64 72 04 61 72 70 61 00 00 0C 00 01 C0 0C 00 0C         dr.arpa.........
+    00 01 00 00 4D C0 00 1B 0F 6C 68 72 32 35 73 30         ....M....lhr25s0
+    31 2D 69 6E 2D 66 37 38 05 31 65 31 30 30 03 6E         1-in-f78.1e100.n
+    65 74 00 C0 0C 00 0C 00 01 00 00 4D C0 00 12 0F         et.........M....
+    70 61 72 32 31 73 31 38 2D 69 6E 2D 66 31 34 C0         par21s18-in-f14.
+    48 C0 0C 00 0C 00 01 00 00 4D C0 00 12 0F 6C 68         H........M....lh
+    72 32 35 73 30 31 2D 69 6E 2D 66 31 34 C0 48            r25s01-in-f14.H
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 AB E9 EE 00 00 78 11 86 8E 08 08 08 08 C0 A8 01 0D 00 35 DD 02 00 97 75 18 B0 1A 81 80 00 01 00 03 00 00 00 00 02 37 38 03 32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64 64 72 04 61 72 70 61 00 00 0C 00 01 C0 0C 00 0C 00 01 00 00 4D C0 00 1B 0F 6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 37 38 05 31 65 31 30 30 03 6E 65 74 00 C0 0C 00 0C 00 01 00 00 4D C0 00 12 0F 70 61 72 32 31 73 31 38 2D 69 6E 2D 66 31 34 C0 48 C0 0C 00 0C 00 01 00 00 4D C0 00 12 0F 6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 31 34 C0 48 
+
+***********************ICMP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 84  Bytes(size of Packet)
+   |-Identification    : 34636
+   |-TTL      : 64
+   |-Protocol : 1
+   |-Checksum : 17438
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+ICMP Header
+   |-Type : 8   |-Code : 0
+   |-Checksum : 5439
+   |-ID       : 4961
+   |-Sequence : 5
+   |-Gateway : 83910931
+   |-Mysterious : 4961
+
+                        DATA Dump                         
+IP Header
+    E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00         ......,.].4"..E.
+    00 54 87 4C                                             .T.L
+UDP Header
+    40 00 40 01 44 1E C0 A8                                 @.@.D...
+Data Payload
+    61 2D 4F 61 00 00 00 00 5B F9 04 00 00 00 00 00         a-Oa....[.......
+    10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F         ................
+    20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F          !"#$%&'()*+,-./
+    30 31 32 33 34 35 36 37                                 01234567
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 54 87 4C 40 00 40 01 44 1E C0 A8 01 0D D8 3A D5 4E 08 00 15 3F 13 61 00 05 61 2D 4F 61 00 00 00 00 5B F9 04 00 00 00 00 00 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 
+
+***********************ICMP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 84  Bytes(size of Packet)
+   |-Identification    : 0
+   |-TTL      : 115
+   |-Protocol : 1
+   |-Checksum : 55402
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+ICMP Header
+   |-Type : 0  (ICMP Echo Reply)
+   |-Code : 0
+   |-Checksum : 7487
+   |-ID       : 4961
+   |-Sequence : 5
+   |-Gateway : 83910931
+   |-Mysterious : 4961
+
+                        DATA Dump                         
+IP Header
+    2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00         ,.].4"........E.
+    00 54 00 00                                             .T..
+UDP Header
+    00 00 73 01 D8 6A D8 3A                                 ..s..j.:
+Data Payload
+    61 2D 4F 61 00 00 00 00 5B F9 04 00 00 00 00 00         a-Oa....[.......
+    10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F         ................
+    20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F          !"#$%&'()*+,-./
+    30 31 32 33 34 35 36 37                                 01234567
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 54 00 00 00 00 73 01 D8 6A D8 3A D5 4E C0 A8 01 0D 00 00 1D 3F 13 61 00 05 61 2D 4F 61 00 00 00 00 5B F9 04 00 00 00 00 00 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 72  Bytes(size of Packet)
+   |-Identification    : 63579
+   |-TTL      : 64
+   |-Protocol : 17
+   |-Checksum : 28804
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 57392
+   |-Destination Port : 53
+   |-UDP Length       : 52
+   |-UDP Checksum     : 53770
+
+                        DATA Dump                         
+
+IP Header
+    45 00 00 48 F8 5B 40 00 40 11 70 84 C0 A8 01 0D         E..H.[@.@.p.....
+    08 08 08 08                                             ....
+UDP Header
+    40 00 40 11 70 84 C0 A8                                 @.@.p...
+Data Payload
+    BC FB 01 00 00 01 00 00 00 00 00 00 02 37 38 03         .............78.
+    32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64         213.58.216.in-ad
+    64 72 04 61 72 70 61 00 00 0C 00 01                     dr.arpa.....
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 48 F8 5B 40 00 40 11 70 84 C0 A8 01 0D 08 08 08 08 E0 30 00 35 00 34 D2 0A BC FB 01 00 00 01 00 00 00 00 00 00 02 37 38 03 32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64 64 72 04 61 72 70 61 00 00 0C 00 01 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 171  Bytes(size of Packet)
+   |-Identification    : 60992
+   |-TTL      : 121
+   |-Protocol : 17
+   |-Checksum : 33084
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 53
+   |-Destination Port : 57392
+   |-UDP Length       : 151
+   |-UDP Checksum     : 53705
+
+                        DATA Dump                         
+
+
+***********************DNS Packet*************************
+
+DNS Header
+DNS query type
+   |-Opcode      : 0
+   |-R code : 0
+   |-Q count    : 1
+   |-Answer    : 3
+   |-Auth count    : 0
+   |-Additional    : 0
+
+###########################################################
+IP Header
+    45 00 00 AB EE 40 00 00 79 11 81 3C 08 08 08 08         E....@..y..<....
+    C0 A8 01 0D                                             ....
+UDP Header
+    00 00 79 11 81 3C 08 08                                 ..y..<..
+Data Payload
+    BC FB 81 80 00 01 00 03 00 00 00 00 02 37 38 03         ...€.........78.
+    32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64         213.58.216.in-ad
+    64 72 04 61 72 70 61 00 00 0C 00 01 C0 0C 00 0C         dr.arpa.........
+    00 01 00 00 47 0D 00 1B 0F 6C 68 72 32 35 73 30         ....G....lhr25s0
+    31 2D 69 6E 2D 66 37 38 05 31 65 31 30 30 03 6E         1-in-f78.1e100.n
+    65 74 00 C0 0C 00 0C 00 01 00 00 47 0D 00 12 0F         et.........G....
+    70 61 72 32 31 73 31 38 2D 69 6E 2D 66 31 34 C0         par21s18-in-f14.
+    48 C0 0C 00 0C 00 01 00 00 47 0D 00 12 0F 6C 68         H........G....lh
+    72 32 35 73 30 31 2D 69 6E 2D 66 31 34 C0 48            r25s01-in-f14.H
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 AB EE 40 00 00 79 11 81 3C 08 08 08 08 C0 A8 01 0D 00 35 E0 30 00 97 D1 C9 BC FB 81 80 00 01 00 03 00 00 00 00 02 37 38 03 32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64 64 72 04 61 72 70 61 00 00 0C 00 01 C0 0C 00 0C 00 01 00 00 47 0D 00 1B 0F 6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 37 38 05 31 65 31 30 30 03 6E 65 74 00 C0 0C 00 0C 00 01 00 00 47 0D 00 12 0F 70 61 72 32 31 73 31 38 2D 69 6E 2D 66 31 34 C0 48 C0 0C 00 0C 00 01 00 00 47 0D 00 12 0F 6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 31 34 C0 48 
+
+ARP frame there!
+ARP Header
+hardware type : 1
+protocol type : 2048
+opcode : 1
+source mac address : E8-D2-FF-E0-88-D0
+dest mac address : 00-00-00-00-00-00
+source ip address : X.X.X.X
+dest ip address : X.X.X.X
+
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 06 00 01 08 00 06 04 00 01 E8 D2 FF E0 88 D0 C0 A8 01 01 00 00 00 00 00 00 C0 A8 01 0D 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+ARP frame there!
+ARP Header
+hardware type : 1
+protocol type : 2048
+opcode : 2
+source mac address : 2C-F0-5D-E3-34-22
+dest mac address : E8-D2-FF-E0-88-D0
+source ip address : X.X.X.X
+dest ip address : X.X.X.X
+
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 06 00 01 08 00 06 04 00 02 2C F0 5D E3 34 22 C0 A8 01 0D E8 D2 FF E0 88 D0 C0 A8 01 01 
+
+***********************ICMP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 84  Bytes(size of Packet)
+   |-Identification    : 34865
+   |-TTL      : 64
+   |-Protocol : 1
+   |-Checksum : 17209
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+ICMP Header
+   |-Type : 8   |-Code : 0
+   |-Checksum : 1078
+   |-ID       : 4961
+   |-Sequence : 6
+   |-Gateway : 100688147
+   |-Mysterious : 4961
+
+                        DATA Dump                         
+IP Header
+    E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00         ......,.].4"..E.
+    00 54 88 31                                             .T.1
+UDP Header
+    40 00 40 01 43 39 C0 A8                                 @.@.C9..
+Data Payload
+    62 2D 4F 61 00 00 00 00 6B 01 05 00 00 00 00 00         b-Oa....k.......
+    10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F         ................
+    20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F          !"#$%&'()*+,-./
+    30 31 32 33 34 35 36 37                                 01234567
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 54 88 31 40 00 40 01 43 39 C0 A8 01 0D D8 3A D5 4E 08 00 04 36 13 61 00 06 62 2D 4F 61 00 00 00 00 6B 01 05 00 00 00 00 00 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 
+
+***********************ICMP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 84  Bytes(size of Packet)
+   |-Identification    : 0
+   |-TTL      : 115
+   |-Protocol : 1
+   |-Checksum : 55402
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+ICMP Header
+   |-Type : 0  (ICMP Echo Reply)
+   |-Code : 0
+   |-Checksum : 3126
+   |-ID       : 4961
+   |-Sequence : 6
+   |-Gateway : 100688147
+   |-Mysterious : 4961
+
+                        DATA Dump                         
+IP Header
+    2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00         ,.].4"........E.
+    00 54 00 00                                             .T..
+UDP Header
+    00 00 73 01 D8 6A D8 3A                                 ..s..j.:
+Data Payload
+    62 2D 4F 61 00 00 00 00 6B 01 05 00 00 00 00 00         b-Oa....k.......
+    10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F         ................
+    20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F          !"#$%&'()*+,-./
+    30 31 32 33 34 35 36 37                                 01234567
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 54 00 00 00 00 73 01 D8 6A D8 3A D5 4E C0 A8 01 0D 00 00 0C 36 13 61 00 06 62 2D 4F 61 00 00 00 00 6B 01 05 00 00 00 00 00 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 72  Bytes(size of Packet)
+   |-Identification    : 63717
+   |-TTL      : 64
+   |-Protocol : 17
+   |-Checksum : 28666
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 57922
+   |-Destination Port : 53
+   |-UDP Length       : 52
+   |-UDP Checksum     : 53770
+
+                        DATA Dump                         
+
+IP Header
+    45 00 00 48 F8 E5 40 00 40 11 6F FA C0 A8 01 0D         E..H..@.@.o.....
+    08 08 08 08                                             ....
+UDP Header
+    40 00 40 11 6F FA C0 A8                                 @.@.o...
+Data Payload
+    62 5A 01 00 00 01 00 00 00 00 00 00 02 37 38 03         bZ...........78.
+    32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64         213.58.216.in-ad
+    64 72 04 61 72 70 61 00 00 0C 00 01                     dr.arpa.....
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 48 F8 E5 40 00 40 11 6F FA C0 A8 01 0D 08 08 08 08 E2 42 00 35 00 34 D2 0A 62 5A 01 00 00 01 00 00 00 00 00 00 02 37 38 03 32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64 64 72 04 61 72 70 61 00 00 0C 00 01 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 171  Bytes(size of Packet)
+   |-Identification    : 51279
+   |-TTL      : 120
+   |-Protocol : 17
+   |-Checksum : 43053
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 53
+   |-Destination Port : 57922
+   |-UDP Length       : 151
+   |-UDP Checksum     : 11354
+
+                        DATA Dump                         
+
+
+***********************DNS Packet*************************
+
+DNS Header
+DNS query type
+   |-Opcode      : 0
+   |-R code : 0
+   |-Q count    : 1
+   |-Answer    : 3
+   |-Auth count    : 0
+   |-Additional    : 0
+
+###########################################################
+IP Header
+    45 00 00 AB C8 4F 00 00 78 11 A8 2D 08 08 08 08         E....O..x..-....
+    C0 A8 01 0D                                             ....
+UDP Header
+    00 00 78 11 A8 2D 08 08                                 ..x..-..
+Data Payload
+    62 5A 81 80 00 01 00 03 00 00 00 00 02 37 38 03         bZ.€.........78.
+    32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64         213.58.216.in-ad
+    64 72 04 61 72 70 61 00 00 0C 00 01 C0 0C 00 0C         dr.arpa.........
+    00 01 00 00 47 0C 00 1B 0F 6C 68 72 32 35 73 30         ....G....lhr25s0
+    31 2D 69 6E 2D 66 37 38 05 31 65 31 30 30 03 6E         1-in-f78.1e100.n
+    65 74 00 C0 0C 00 0C 00 01 00 00 47 0C 00 12 0F         et.........G....
+    70 61 72 32 31 73 31 38 2D 69 6E 2D 66 31 34 C0         par21s18-in-f14.
+    48 C0 0C 00 0C 00 01 00 00 47 0C 00 12 0F 6C 68         H........G....lh
+    72 32 35 73 30 31 2D 69 6E 2D 66 31 34 C0 48            r25s01-in-f14.H
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 AB C8 4F 00 00 78 11 A8 2D 08 08 08 08 C0 A8 01 0D 00 35 E2 42 00 97 2C 5A 62 5A 81 80 00 01 00 03 00 00 00 00 02 37 38 03 32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64 64 72 04 61 72 70 61 00 00 0C 00 01 C0 0C 00 0C 00 01 00 00 47 0C 00 1B 0F 6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 37 38 05 31 65 31 30 30 03 6E 65 74 00 C0 0C 00 0C 00 01 00 00 47 0C 00 12 0F 70 61 72 32 31 73 31 38 2D 69 6E 2D 66 31 34 C0 48 C0 0C 00 0C 00 01 00 00 47 0C 00 12 0F 6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 31 34 C0 48 
+
+***********************ICMP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 84  Bytes(size of Packet)
+   |-Identification    : 34898
+   |-TTL      : 64
+   |-Protocol : 1
+   |-Checksum : 17176
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+ICMP Header
+   |-Type : 8   |-Code : 0
+   |-Checksum : 26416
+   |-ID       : 4961
+   |-Sequence : 7
+   |-Gateway : 117465363
+   |-Mysterious : 4961
+
+                        DATA Dump                         
+IP Header
+    E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00         ......,.].4"..E.
+    00 54 88 52                                             .T.R
+UDP Header
+    40 00 40 01 43 18 C0 A8                                 @.@.C...
+Data Payload
+    63 2D 4F 61 00 00 00 00 07 06 05 00 00 00 00 00         c-Oa............
+    10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F         ................
+    20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F          !"#$%&'()*+,-./
+    30 31 32 33 34 35 36 37                                 01234567
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 54 88 52 40 00 40 01 43 18 C0 A8 01 0D D8 3A D5 4E 08 00 67 30 13 61 00 07 63 2D 4F 61 00 00 00 00 07 06 05 00 00 00 00 00 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 
+
+***********************ICMP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 84  Bytes(size of Packet)
+   |-Identification    : 0
+   |-TTL      : 115
+   |-Protocol : 1
+   |-Checksum : 55402
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+ICMP Header
+   |-Type : 0  (ICMP Echo Reply)
+   |-Code : 0
+   |-Checksum : 28464
+   |-ID       : 4961
+   |-Sequence : 7
+   |-Gateway : 117465363
+   |-Mysterious : 4961
+
+                        DATA Dump                         
+IP Header
+    2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00         ,.].4"........E.
+    00 54 00 00                                             .T..
+UDP Header
+    00 00 73 01 D8 6A D8 3A                                 ..s..j.:
+Data Payload
+    63 2D 4F 61 00 00 00 00 07 06 05 00 00 00 00 00         c-Oa............
+    10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F         ................
+    20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F          !"#$%&'()*+,-./
+    30 31 32 33 34 35 36 37                                 01234567
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 54 00 00 00 00 73 01 D8 6A D8 3A D5 4E C0 A8 01 0D 00 00 6F 30 13 61 00 07 63 2D 4F 61 00 00 00 00 07 06 05 00 00 00 00 00 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 72  Bytes(size of Packet)
+   |-Identification    : 63831
+   |-TTL      : 64
+   |-Protocol : 17
+   |-Checksum : 28552
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 47929
+   |-Destination Port : 53
+   |-UDP Length       : 52
+   |-UDP Checksum     : 53770
+
+                        DATA Dump                         
+
+IP Header
+    45 00 00 48 F9 57 40 00 40 11 6F 88 C0 A8 01 0D         E..H.W@.@.o.....
+    08 08 08 08                                             ....
+UDP Header
+    40 00 40 11 6F 88 C0 A8                                 @.@.o...
+Data Payload
+    D3 20 01 00 00 01 00 00 00 00 00 00 02 37 38 03         . ...........78.
+    32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64         213.58.216.in-ad
+    64 72 04 61 72 70 61 00 00 0C 00 01                     dr.arpa.....
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 48 F9 57 40 00 40 11 6F 88 C0 A8 01 0D 08 08 08 08 BB 39 00 35 00 34 D2 0A D3 20 01 00 00 01 00 00 00 00 00 00 02 37 38 03 32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64 64 72 04 61 72 70 61 00 00 0C 00 01 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 171  Bytes(size of Packet)
+   |-Identification    : 28189
+   |-TTL      : 121
+   |-Protocol : 17
+   |-Checksum : 352
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 53
+   |-Destination Port : 47929
+   |-UDP Length       : 151
+   |-UDP Checksum     : 30685
+
+                        DATA Dump                         
+
+
+***********************DNS Packet*************************
+
+DNS Header
+DNS query type
+   |-Opcode      : 0
+   |-R code : 0
+   |-Q count    : 1
+   |-Answer    : 3
+   |-Auth count    : 0
+   |-Additional    : 0
+
+###########################################################
+IP Header
+    45 00 00 AB 6E 1D 00 00 79 11 01 60 08 08 08 08         E...n...y..`....
+    C0 A8 01 0D                                             ....
+UDP Header
+    00 00 79 11 01 60 08 08                                 ..y..`..
+Data Payload
+    D3 20 81 80 00 01 00 03 00 00 00 00 02 37 38 03         . .€.........78.
+    32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64         213.58.216.in-ad
+    64 72 04 61 72 70 61 00 00 0C 00 01 C0 0C 00 0C         dr.arpa.........
+    00 01 00 00 4D BE 00 1B 0F 6C 68 72 32 35 73 30         ....M....lhr25s0
+    31 2D 69 6E 2D 66 37 38 05 31 65 31 30 30 03 6E         1-in-f78.1e100.n
+    65 74 00 C0 0C 00 0C 00 01 00 00 4D BE 00 12 0F         et.........M....
+    70 61 72 32 31 73 31 38 2D 69 6E 2D 66 31 34 C0         par21s18-in-f14.
+    48 C0 0C 00 0C 00 01 00 00 4D BE 00 12 0F 6C 68         H........M....lh
+    72 32 35 73 30 31 2D 69 6E 2D 66 31 34 C0 48            r25s01-in-f14.H
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 AB 6E 1D 00 00 79 11 01 60 08 08 08 08 C0 A8 01 0D 00 35 BB 39 00 97 77 DD D3 20 81 80 00 01 00 03 00 00 00 00 02 37 38 03 32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64 64 72 04 61 72 70 61 00 00 0C 00 01 C0 0C 00 0C 00 01 00 00 4D BE 00 1B 0F 6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 37 38 05 31 65 31 30 30 03 6E 65 74 00 C0 0C 00 0C 00 01 00 00 4D BE 00 12 0F 70 61 72 32 31 73 31 38 2D 69 6E 2D 66 31 34 C0 48 C0 0C 00 0C 00 01 00 00 4D BE 00 12 0F 6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 31 34 C0 48 
+
+***********************ICMP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 84  Bytes(size of Packet)
+   |-Identification    : 35128
+   |-TTL      : 64
+   |-Protocol : 1
+   |-Checksum : 16946
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+ICMP Header
+   |-Type : 8   |-Code : 0
+   |-Checksum : 36396
+   |-ID       : 4961
+   |-Sequence : 8
+   |-Gateway : 134242579
+   |-Mysterious : 4961
+
+                        DATA Dump                         
+IP Header
+    E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00         ......,.].4"..E.
+    00 54 89 38                                             .T.8
+UDP Header
+    40 00 40 01 42 32 C0 A8                                 @.@.B2..
+Data Payload
+    64 2D 4F 61 00 00 00 00 DF 08 05 00 00 00 00 00         d-Oa............
+    10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F         ................
+    20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F          !"#$%&'()*+,-./
+    30 31 32 33 34 35 36 37                                 01234567
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 54 89 38 40 00 40 01 42 32 C0 A8 01 0D D8 3A D5 4E 08 00 8E 2C 13 61 00 08 64 2D 4F 61 00 00 00 00 DF 08 05 00 00 00 00 00 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 
+
+***********************ICMP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 84  Bytes(size of Packet)
+   |-Identification    : 0
+   |-TTL      : 115
+   |-Protocol : 1
+   |-Checksum : 55402
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+ICMP Header
+   |-Type : 0  (ICMP Echo Reply)
+   |-Code : 0
+   |-Checksum : 38444
+   |-ID       : 4961
+   |-Sequence : 8
+   |-Gateway : 134242579
+   |-Mysterious : 4961
+
+                        DATA Dump                         
+IP Header
+    2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00         ,.].4"........E.
+    00 54 00 00                                             .T..
+UDP Header
+    00 00 73 01 D8 6A D8 3A                                 ..s..j.:
+Data Payload
+    64 2D 4F 61 00 00 00 00 DF 08 05 00 00 00 00 00         d-Oa............
+    10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F         ................
+    20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F          !"#$%&'()*+,-./
+    30 31 32 33 34 35 36 37                                 01234567
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 54 00 00 00 00 73 01 D8 6A D8 3A D5 4E C0 A8 01 0D 00 00 96 2C 13 61 00 08 64 2D 4F 61 00 00 00 00 DF 08 05 00 00 00 00 00 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F 30 31 32 33 34 35 36 37 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 72  Bytes(size of Packet)
+   |-Identification    : 63930
+   |-TTL      : 64
+   |-Protocol : 17
+   |-Checksum : 28453
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 33686
+   |-Destination Port : 53
+   |-UDP Length       : 52
+   |-UDP Checksum     : 53770
+
+                        DATA Dump                         
+
+IP Header
+    45 00 00 48 F9 BA 40 00 40 11 6F 25 C0 A8 01 0D         E..H..@.@.o%....
+    08 08 08 08                                             ....
+UDP Header
+    40 00 40 11 6F 25 C0 A8                                 @.@.o%..
+Data Payload
+    1E 4E 01 00 00 01 00 00 00 00 00 00 02 37 38 03         .N...........78.
+    32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64         213.58.216.in-ad
+    64 72 04 61 72 70 61 00 00 0C 00 01                     dr.arpa.....
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 48 F9 BA 40 00 40 11 6F 25 C0 A8 01 0D 08 08 08 08 83 96 00 35 00 34 D2 0A 1E 4E 01 00 00 01 00 00 00 00 00 00 02 37 38 03 32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64 64 72 04 61 72 70 61 00 00 0C 00 01 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 171  Bytes(size of Packet)
+   |-Identification    : 27018
+   |-TTL      : 121
+   |-Protocol : 17
+   |-Checksum : 1523
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 53
+   |-Destination Port : 33686
+   |-UDP Length       : 151
+   |-UDP Checksum     : 20676
+
+                        DATA Dump                         
+
+
+***********************DNS Packet*************************
+
+DNS Header
+DNS query type
+   |-Opcode      : 0
+   |-R code : 0
+   |-Q count    : 1
+   |-Answer    : 3
+   |-Auth count    : 0
+   |-Additional    : 0
+
+###########################################################
+IP Header
+    45 00 00 AB 69 8A 00 00 79 11 05 F3 08 08 08 08         E...i...y.......
+    C0 A8 01 0D                                             ....
+UDP Header
+    00 00 79 11 05 F3 08 08                                 ..y.....
+Data Payload
+    1E 4E 81 80 00 01 00 03 00 00 00 00 02 37 38 03         .N.€.........78.
+    32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64         213.58.216.in-ad
+    64 72 04 61 72 70 61 00 00 0C 00 01 C0 0C 00 0C         dr.arpa.........
+    00 01 00 00 4E 49 00 1B 0F 70 61 72 32 31 73 31         ....NI...par21s1
+    38 2D 69 6E 2D 66 31 34 05 31 65 31 30 30 03 6E         8-in-f14.1e100.n
+    65 74 00 C0 0C 00 0C 00 01 00 00 4E 49 00 12 0F         et.........NI...
+    6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 37 38 C0         lhr25s01-in-f78.
+    48 C0 0C 00 0C 00 01 00 00 4E 49 00 12 0F 6C 68         H........NI...lh
+    72 32 35 73 30 31 2D 69 6E 2D 66 31 34 C0 48            r25s01-in-f14.H
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 AB 69 8A 00 00 79 11 05 F3 08 08 08 08 C0 A8 01 0D 00 35 83 96 00 97 50 C4 1E 4E 81 80 00 01 00 03 00 00 00 00 02 37 38 03 32 31 33 02 35 38 03 32 31 36 07 69 6E 2D 61 64 64 72 04 61 72 70 61 00 00 0C 00 01 C0 0C 00 0C 00 01 00 00 4E 49 00 1B 0F 70 61 72 32 31 73 31 38 2D 69 6E 2D 66 31 34 05 31 65 31 30 30 03 6E 65 74 00 C0 0C 00 0C 00 01 00 00 4E 49 00 12 0F 6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 37 38 C0 48 C0 0C 00 0C 00 01 00 00 4E 49 00 12 0F 6C 68 72 32 35 73 30 31 2D 69 6E 2D 66 31 34 C0 48 
+
+ETHERTYPE_IEEE1905_1 frame there!
+
+Ethernet Header
+   |-Destination Address : 01-80-C2-00-00-13 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 893a 
+
+
+Raw data:
+01 80 C2 00 00 13 E8 D2 FF E0 88 D0 89 3A 00 00 00 00 0E 3A 00 80 01 00 06 E8 D2 FF E0 88 D0 02 00 06 E8 D2 FF E0 88 D0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+
+***********************TCP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 78  Bytes(size of Packet)
+   |-Identification    : 39587
+   |-TTL      : 51
+   |-Protocol : 6
+   |-Checksum : 60645
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+TCP Header
+   |-Source Port      : 443
+   |-Destination Port : 38716
+   |-Sequence Number    : 73815162
+   |-Acknowledge Number : 2085915
+   |-Header Length      : 8 DWORDS or 32 BYTES
+   |-Urgent Flag          : 0
+   |-Acknowledgement Flag : 1
+   |-Push Flag            : 1
+   |-Reset Flag           : 0
+   |-Synchronise Flag     : 0
+   |-Finish Flag          : 0
+   |-Window         : 70
+   |-Checksum       : 38078
+   |-Urgent Pointer : 0
+
+                        DATA Dump                         
+IP Header
+    45 00 00 4E 9A A3 40 00 33 06 EC E5 8C 52 72 19         E..N..@.3....Rr.
+    C0 A8 01 0D                                             ....
+TCP Header
+    40 00 33 06 EC E5 8C 52 72 19 C0 A8 01 0D 01 BB         @.3....Rr.......
+    97 3C 04 66 54 7A 00 1F D4 1B 80 18 00 46 94 BE         .<.fTz....€..F..
+Data Payload
+    17 03 03 00 15 73 B1 C0 79 59 98 28 9F D2 86 31         .....s..yY.(...1
+    14 E8 D1 BC 7C 60 A7 B6 B4 FE                           ....|`....
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 4E 9A A3 40 00 33 06 EC E5 8C 52 72 19 C0 A8 01 0D 01 BB 97 3C 04 66 54 7A 00 1F D4 1B 80 18 00 46 94 BE 00 00 01 01 08 0A DC 05 B6 B5 DF 4B 10 E4 17 03 03 00 15 73 B1 C0 79 59 98 28 9F D2 86 31 14 E8 D1 BC 7C 60 A7 B6 B4 FE 
+
+
+***********************TCP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 82  Bytes(size of Packet)
+   |-Identification    : 41952
+   |-TTL      : 64
+   |-Protocol : 6
+   |-Checksum : 54948
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+TCP Header
+   |-Source Port      : 38716
+   |-Destination Port : 443
+   |-Sequence Number    : 2085915
+   |-Acknowledge Number : 73815188
+   |-Header Length      : 8 DWORDS or 32 BYTES
+   |-Urgent Flag          : 0
+   |-Acknowledgement Flag : 1
+   |-Push Flag            : 1
+   |-Reset Flag           : 0
+   |-Synchronise Flag     : 0
+   |-Finish Flag          : 0
+   |-Window         : 501
+   |-Checksum       : 49253
+   |-Urgent Pointer : 0
+
+                        DATA Dump                         
+IP Header
+    45 00 00 52 A3 E0 40 00 40 06 D6 A4 C0 A8 01 0D         E..R..@.@.......
+    8C 52 72 19                                             .Rr.
+TCP Header
+    40 00 40 06 D6 A4 C0 A8 01 0D 8C 52 72 19 97 3C         @.@........Rr..<
+    01 BB 00 1F D4 1B 04 66 54 94 80 18 01 F5 C0 65         .......fT.€....e
+Data Payload
+    17 03 03 00 19 89 A1 EF 43 90 FB 51 6E 4D 03 3A         ........C..QnM.:
+    AC F6 F2 D6 D5 DB 15 C8 B1 2A B7 62 D0 91               .........*.b..
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 52 A3 E0 40 00 40 06 D6 A4 C0 A8 01 0D 8C 52 72 19 97 3C 01 BB 00 1F D4 1B 04 66 54 94 80 18 01 F5 C0 65 00 00 01 01 08 0A DF 4B FB 45 DC 05 B6 B5 17 03 03 00 19 89 A1 EF 43 90 FB 51 6E 4D 03 3A AC F6 F2 D6 D5 DB 15 C8 B1 2A B7 62 D0 91 
+
+
+***********************TCP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 52  Bytes(size of Packet)
+   |-Identification    : 39588
+   |-TTL      : 51
+   |-Protocol : 6
+   |-Checksum : 60670
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+TCP Header
+   |-Source Port      : 443
+   |-Destination Port : 38716
+   |-Sequence Number    : 73815188
+   |-Acknowledge Number : 2085945
+   |-Header Length      : 8 DWORDS or 32 BYTES
+   |-Urgent Flag          : 0
+   |-Acknowledgement Flag : 1
+   |-Push Flag            : 0
+   |-Reset Flag           : 0
+   |-Synchronise Flag     : 0
+   |-Finish Flag          : 0
+   |-Window         : 70
+   |-Checksum       : 33390
+   |-Urgent Pointer : 0
+
+                        DATA Dump                         
+IP Header
+    45 00 00 34 9A A4 40 00 33 06 EC FE 8C 52 72 19         E..4..@.3....Rr.
+    C0 A8 01 0D                                             ....
+TCP Header
+    40 00 33 06 EC FE 8C 52 72 19 C0 A8 01 0D 01 BB         @.3....Rr.......
+    97 3C 04 66 54 94 00 1F D4 39 80 10 00 46 82 6E         .<.fT....9€..F.n
+Data Payload
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 34 9A A4 40 00 33 06 EC FE 8C 52 72 19 C0 A8 01 0D 01 BB 97 3C 04 66 54 94 00 1F D4 39 80 10 00 46 82 6E 00 00 01 01 08 0A DC 05 B7 05 DF 4B FB 45 
+
+ETHERTYPE_IEEE1905_1 frame there!
+
+Ethernet Header
+   |-Destination Address : 01-80-C2-00-00-13 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 893a 
+
+
+Raw data:
+01 80 C2 00 00 13 E8 D2 FF E0 88 D0 89 3A 00 00 00 00 0E 3D 00 80 01 00 06 E8 D2 FF E0 88 D0 02 00 06 E8 D2 FF E0 88 D0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+ETHERTYPE_HOMEPLUG frame there!
+
+Ethernet Header
+   |-Destination Address : FF-FF-FF-FF-FF-FF 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 887b 
+
+
+Raw data:
+FF FF FF FF FF FF E8 D2 FF E0 88 D0 88 7B 01 02 04 00 04 87 10 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 79  Bytes(size of Packet)
+   |-Identification    : 65507
+   |-TTL      : 64
+   |-Protocol : 17
+   |-Checksum : 43253
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 44490
+   |-Destination Port : 53
+   |-UDP Length       : 59
+   |-UDP Checksum     : 53777
+
+                        DATA Dump                         
+
+IP Header
+    45 00 00 4F FF E3 00 00 40 11 A8 F5 C0 A8 01 0D         E..O....@.......
+    08 08 08 08                                             ....
+UDP Header
+    00 00 40 11 A8 F5 C0 A8                                 ..@.....
+Data Payload
+    09 E5 01 20 00 01 00 00 00 00 00 01 06 67 6F 6F         ... .........goo
+    67 6C 65 03 63 6F 6D 00 00 01 00 01 00 00 29 10         gle.com.......).
+    00 00 00 00 00 00 0C 00 0A 00 08 1C D8 71 35 33         .............q53
+    78 D7 86                                                x..
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 4F FF E3 00 00 40 11 A8 F5 C0 A8 01 0D 08 08 08 08 AD CA 00 35 00 3B D2 11 09 E5 01 20 00 01 00 00 00 00 00 01 06 67 6F 6F 67 6C 65 03 63 6F 6D 00 00 01 00 01 00 00 29 10 00 00 00 00 00 00 0C 00 0A 00 08 1C D8 71 35 33 78 D7 86 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 83  Bytes(size of Packet)
+   |-Identification    : 49510
+   |-TTL      : 121
+   |-Protocol : 17
+   |-Checksum : 44654
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 53
+   |-Destination Port : 44490
+   |-UDP Length       : 63
+   |-UDP Checksum     : 7524
+
+                        DATA Dump                         
+
+
+***********************DNS Packet*************************
+
+DNS Header
+DNS query type
+   |-Opcode      : 0
+   |-R code : 0
+   |-Q count    : 1
+   |-Answer    : 1
+   |-Auth count    : 0
+   |-Additional    : 1
+
+###########################################################
+IP Header
+    45 00 00 53 C1 66 00 00 79 11 AE 6E 08 08 08 08         E..S.f..y..n....
+    C0 A8 01 0D                                             ....
+UDP Header
+    00 00 79 11 AE 6E 08 08                                 ..y..n..
+Data Payload
+    09 E5 81 80 00 01 00 01 00 00 00 01 06 67 6F 6F         ...€.........goo
+    67 6C 65 03 63 6F 6D 00 00 01 00 01 C0 0C 00 01         gle.com.........
+    00 01 00 00 00 29 00 04 8E FA 4B EE 00 00 29 02         .....)....K...).
+    00 00 00 00 00 00 00                                    .......
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 53 C1 66 00 00 79 11 AE 6E 08 08 08 08 C0 A8 01 0D 00 35 AD CA 00 3F 1D 64 09 E5 81 80 00 01 00 01 00 00 00 01 06 67 6F 6F 67 6C 65 03 63 6F 6D 00 00 01 00 01 C0 0C 00 01 00 01 00 00 00 29 00 04 8E FA 4B EE 00 00 29 02 00 00 00 00 00 00 00 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : E8-D2-FF-E0-88-D0 
+   |-Source Address      : 2C-F0-5D-E3-34-22 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 79  Bytes(size of Packet)
+   |-Identification    : 161
+   |-TTL      : 64
+   |-Protocol : 17
+   |-Checksum : 43064
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 54354
+   |-Destination Port : 53
+   |-UDP Length       : 59
+   |-UDP Checksum     : 53777
+
+                        DATA Dump                         
+
+IP Header
+    45 00 00 4F 00 A1 00 00 40 11 A8 38 C0 A8 01 0D         E..O....@..8....
+    08 08 08 08                                             ....
+UDP Header
+    00 00 40 11 A8 38 C0 A8                                 ..@..8..
+Data Payload
+    AE 27 01 20 00 01 00 00 00 00 00 01 06 67 6F 6F         .'. .........goo
+    67 6C 65 03 63 6F 6D 00 00 01 00 01 00 00 29 10         gle.com.......).
+    00 00 00 00 00 00 0C 00 0A 00 08 C8 F5 4E AB AB         .............N..
+    3D EC AC                                                =..
+
+###########################################################
+
+Raw data:
+E8 D2 FF E0 88 D0 2C F0 5D E3 34 22 08 00 45 00 00 4F 00 A1 00 00 40 11 A8 38 C0 A8 01 0D 08 08 08 08 D4 52 00 35 00 3B D2 11 AE 27 01 20 00 01 00 00 00 00 00 01 06 67 6F 6F 67 6C 65 03 63 6F 6D 00 00 01 00 01 00 00 29 10 00 00 00 00 00 00 0C 00 0A 00 08 C8 F5 4E AB AB 3D EC AC 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 2C-F0-5D-E3-34-22 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 83  Bytes(size of Packet)
+   |-Identification    : 38268
+   |-TTL      : 121
+   |-Protocol : 17
+   |-Checksum : 55896
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 53
+   |-Destination Port : 54354
+   |-UDP Length       : 63
+   |-UDP Checksum     : 21123
+
+                        DATA Dump                         
+
+
+***********************DNS Packet*************************
+
+DNS Header
+DNS query type
+   |-Opcode      : 0
+   |-R code : 0
+   |-Q count    : 1
+   |-Answer    : 1
+   |-Auth count    : 0
+   |-Additional    : 1
+
+###########################################################
+IP Header
+    45 00 00 53 95 7C 00 00 79 11 DA 58 08 08 08 08         E..S.|..y..X....
+    C0 A8 01 0D                                             ....
+UDP Header
+    00 00 79 11 DA 58 08 08                                 ..y..X..
+Data Payload
+    AE 27 81 80 00 01 00 01 00 00 00 01 06 67 6F 6F         .'.€.........goo
+    67 6C 65 03 63 6F 6D 00 00 01 00 01 C0 0C 00 01         gle.com.........
+    00 01 00 00 00 3F 00 04 8E FA 4B EE 00 00 29 02         .....?....K...).
+    00 00 00 00 00 00 00                                    .......
+
+###########################################################
+
+Raw data:
+2C F0 5D E3 34 22 E8 D2 FF E0 88 D0 08 00 45 00 00 53 95 7C 00 00 79 11 DA 58 08 08 08 08 C0 A8 01 0D 00 35 D4 52 00 3F 52 83 AE 27 81 80 00 01 00 01 00 00 00 01 06 67 6F 6F 67 6C 65 03 63 6F 6D 00 00 01 00 01 C0 0C 00 01 00 01 00 00 00 3F 00 04 8E FA 4B EE 00 00 29 02 00 00 00 00 00 00 00 
+
+ETHERTYPE_IEEE1905_1 frame there!
+
+Ethernet Header
+   |-Destination Address : 01-80-C2-00-00-13 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 893a 
+
+
+Raw data:
+01 80 C2 00 00 13 E8 D2 FF E0 88 D0 89 3A 00 00 00 00 0E 3B 00 80 01 00 06 E8 D2 FF E0 88 D0 02 00 06 E8 D2 FF E0 88 D0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+
+***********************UDP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 01-00-5E-00-00-FB 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 5 DWORDS or 20 Bytes
+   |-Type Of Service   : 0
+   |-IP Total Length   : 138  Bytes(size of Packet)
+   |-Identification    : 0
+   |-TTL      : 255
+   |-Protocol : 17
+   |-Checksum : 55485
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+UDP Header
+   |-Source Port      : 5353
+   |-Destination Port : 5353
+   |-UDP Length       : 118
+   |-UDP Checksum     : 46198
+
+                        DATA Dump                         
+
+IP Header
+    45 00 00 8A 00 00 40 00 FF 11 D8 BD C0 A8 01 01         E.....@.........
+    E0 00 00 FB                                             ....
+UDP Header
+    40 00 FF 11 D8 BD C0 A8                                 @.......
+Data Payload
+    00 00 00 00 00 01 00 03 00 00 00 00 09 5F 73 65         ............._se
+    72 76 69 63 65 73 07 5F 64 6E 73 2D 73 64 04 5F         rvices._dns-sd._
+    75 64 70 05 6C 6F 63 61 6C 00 00 0C 00 01 C0 0C         udp.local.......
+    00 0C 00 01 00 00 11 94 00 0D 05 5F 6D 71 74 74         ..........._mqtt
+    04 5F 74 63 70 C0 23 C0 0C 00 0C 00 01 00 00 11         ._tcp.#.........
+    94 00 08 05 5F 68 74 74 70 C0 40 C0 0C 00 0C 00         ...._http.@.....
+    01 00 00 11 94 00 07 04 5F 73 73 77 C0 40               ........_ssw.@
+
+###########################################################
+
+Raw data:
+01 00 5E 00 00 FB E8 D2 FF E0 88 D0 08 00 45 00 00 8A 00 00 40 00 FF 11 D8 BD C0 A8 01 01 E0 00 00 FB 14 E9 14 E9 00 76 B4 76 00 00 00 00 00 01 00 03 00 00 00 00 09 5F 73 65 72 76 69 63 65 73 07 5F 64 6E 73 2D 73 64 04 5F 75 64 70 05 6C 6F 63 61 6C 00 00 0C 00 01 C0 0C 00 0C 00 01 00 00 11 94 00 0D 05 5F 6D 71 74 74 04 5F 74 63 70 C0 23 C0 0C 00 0C 00 01 00 00 11 94 00 08 05 5F 68 74 74 70 C0 40 C0 0C 00 0C 00 01 00 00 11 94 00 07 04 5F 73 73 77 C0 40 
+
+ETHERTYPE_IEEE1905_1 frame there!
+
+Ethernet Header
+   |-Destination Address : 01-80-C2-00-00-13 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 893a 
+
+
+Raw data:
+01 80 C2 00 00 13 E8 D2 FF E0 88 D0 89 3A 00 00 00 00 0E 3E 00 80 01 00 06 E8 D2 FF E0 88 D0 02 00 06 E8 D2 FF E0 88 D0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+
+***********************IGMP Packet*************************
+
+Ethernet Header
+   |-Destination Address : 01-00-5E-00-00-01 
+   |-Source Address      : E8-D2-FF-E0-88-D0 
+   |-Protocol            : 800 
+
+IP Header
+   |-IP Version        : 4
+   |-IP Header Length  : 6 DWORDS or 24 Bytes
+   |-Type Of Service   : 128
+   |-IP Total Length   : 32  Bytes(size of Packet)
+   |-Identification    : 0
+   |-TTL      : 1
+   |-Protocol : 2
+   |-Checksum : 17069
+   |-Source IP        : X.X.X.X
+   |-Destination IP   : X.X.X.X
+
+IGMP Header
+   |-Type : 11
+   |-Code : 64
+   |-Checksum : ee9b
+   |-Group : X.X.X.X
+
+###########################################################
+
+Raw data:
+01 00 5E 00 00 01 E8 D2 FF E0 88 D0 08 00 46 80 00 20 00 00 40 00 01 02 42 AD C0 A8 01 01 E0 00 00 01 94 04 00 00 11 64 EE 9B 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+Exiting program : ok
