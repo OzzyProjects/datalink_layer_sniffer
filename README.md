@@ -31,7 +31,7 @@ or
 
 
 
-if no interface name is provided, it sniff by default on eno1. Easy to change
+**if no interface name is provided, it sniff by default on eno1**. Easy to change
 
 You can see an example of output log in file named "example".
 
