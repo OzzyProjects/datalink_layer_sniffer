@@ -5,8 +5,8 @@ other : memcpy etc... in inline GNU assembly
 i don't know if they are faster but i don't think so
 */
 
-#ifndef STRUTILS
-#define STRUTILS
+#ifndef STRUTILS_H
+#define STRUTILS_H
 
 #include <stdint.h>
 #include <assert.h>
