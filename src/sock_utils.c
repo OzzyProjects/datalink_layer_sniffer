@@ -25,13 +25,7 @@ int get_itf_list(char** itf_list, int nbr){
         }
     } 
 
-    if (itf_nbr < nbr){
-        char** temp = realloc(itf_list, sizeof(char*) * itf_nbr);
-        if (temp == NULL)
-            return -1;
-        else
-            itf_list = temp;
-    }
+    freeifaddrs(ifaddr);
 
     return itf_nbr; 
 } 
@@ -58,7 +52,6 @@ int get_itf_index(int sock, const char* itf_name) {
         perror ("Error: Could not set flag IFF_PROMISC");
         return -1;
     }
-    
     printf ("DEBUG : entering promiscuous mode ok\n");
     
     if (ioctl(sock, SIOCGIFINDEX, &ifr) < 0){
@@ -69,7 +62,7 @@ int get_itf_index(int sock, const char* itf_name) {
     int opt = 1;
 
     if (setsockopt(sock, SOL_SOCKET, PACKET_MR_PROMISC,&opt, sizeof(opt)) < 0) {
-        printf("Server-setsockopt() error for PACKET_MR_PROMISC\n");
+        printf("Server-setsockopt() error for SO_OOBINLINE\n");
         return -1;
     }
 
@@ -78,7 +71,7 @@ int get_itf_index(int sock, const char* itf_name) {
         return -1;
     }
 
-    printf("DEBUG : setting setsockopt for PACKET_MR_PROMISC and SO_BINDTODEVICE ok\n");
+    printf("DEBUG : setting setsockopt ok\n");
 
 
     return ifr.ifr_ifindex;
@@ -112,7 +105,7 @@ int init_sock(const char *itf){
     int itf_index = get_itf_index(sock, itf);
     assert(itf_index != -1);
 
-    printf("DEBUG : itf index : %d\n", itf_index);
+    printf("DEBUG : interface index : %d\n", itf_index);
 
     assert(bind_sock(sock, itf_index) == 0);
 
@@ -122,29 +115,29 @@ int init_sock(const char *itf){
 
 uint16_t in_cksum(uint16_t *addr, int len){
 
-  int nleft = len;
-  uint32_t sum = 0;
-  uint16_t *w = addr;
-  uint16_t answer = 0;
+    int nleft = len;
+    uint32_t sum = 0;
+    uint16_t *w = addr;
+    uint16_t answer = 0;
 
-  // Adding 16 bits sequentially in sum
-  while (nleft > 1) {
-    sum += *w;
-    nleft -= 2;
-    w++;
-  }
+    // Adding 16 bits sequentially in sum
+    while (nleft > 1) {
+        sum += *w;
+        nleft -= 2;
+        w++;
+    }
 
-  // If an odd byte is left
-  if (nleft == 1) {
-    *(unsigned char *) (&answer) = *(unsigned char *) w;
-    sum += answer;
-  }
+    // If an odd byte is left
+    if (nleft == 1) {
+        *(unsigned char *) (&answer) = *(unsigned char *) w;
+        sum += answer;
+    }
 
-  sum = (sum >> 16) + (sum & 0xffff);
-  sum += (sum >> 16);
-  answer = ~sum;
+    sum = (sum >> 16) + (sum & 0xffff);
+    sum += (sum >> 16);
+    answer = ~sum;
 
-  return answer;
+    return answer;
 }
 
 void process_frame(unsigned char* buffer, int size){
@@ -184,11 +177,11 @@ void process_frame(unsigned char* buffer, int size){
     }
 }
 
-void process_ip_packet(unsigned char* buffer, int size)
-{
+void process_ip_packet(unsigned char* buffer, int size){
+
     //Get the IP Header part of this packet , excluding the ethernet header
     struct iphdr *iph = (struct iphdr*)(buffer + ETH2_HEADER_LEN);
-    printf("ip protocol : %x\n", iph->protocol);
+
     switch (iph->protocol)
     {
         case 1:  //ICMP Protocol
@@ -342,8 +335,8 @@ void print_tcp_packet(unsigned char* buffer, int size)
     printf("\n###########################################################");
 }
 
-void print_dns_packet(unsigned char* buffer, int size)
-{
+void print_dns_packet(unsigned char* buffer, int size){
+    
     unsigned short iphdrlen;
     
     struct iphdr *iph = (struct iphdr *)( buffer  + ETH2_HEADER_LEN);
@@ -356,6 +349,12 @@ void print_dns_packet(unsigned char* buffer, int size)
     printf("\n\n***********************DNS Packet*************************\n");  
         
     printf("\nDNS Header\n");
+
+    if (dndh->qr)
+        printf("DNS query type\n");
+    else
+        printf("DNS response type\n");
+
     printf("   |-Opcode      : %u\n",dndh->opcode);
     printf("   |-R code : %u\n",dndh->rcode);
     printf("   |-Q count    : %u\n",ntohs(dndh->q_count)); 
