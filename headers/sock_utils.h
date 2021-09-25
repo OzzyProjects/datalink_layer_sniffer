@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <assert.h>
 #include <unistd.h>
+#include <time.h>
 
 #include <sys/time.h>
 #include <sys/socket.h>
@@ -26,6 +27,8 @@
 #include <netinet/ip.h>
 #include <linux/if_arp.h> 
 #include <netinet/igmp.h>
+
+#define FORCE_INLINE __attribute__((always_inline)) inline
 
 #define ___my_swab16(x) \
     ((u_int16_t)( \
@@ -150,5 +153,13 @@ void print_dns_packet(unsigned char*, int);
 
 void print_data(unsigned char* , int);
 uint16_t in_cksum(uint16_t *addr, int len);
+
+FORCE_INLINE void print_current_time(){
+
+    time_t now = time(NULL);
+    struct tm *tm_struct = localtime(&now);
+    printf("\n[LOCAL TIME %02d:%02d:%02d]", tm_struct->tm_hour , tm_struct->tm_min , tm_struct->tm_sec);
+
+}
 
 #endif
