@@ -18,7 +18,7 @@ Some functions are defined but non implemented but it's easy to do it (exemple :
 
 cd ./raw_socket_sniffer
 
-make``
+make`
 
 <ins>Use :</ins>
 
