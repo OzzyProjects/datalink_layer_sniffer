@@ -6,7 +6,7 @@ It binds to an network interface with her name, after set up it in promiscuous m
 
 Among others, it uses the functions select(), FD_ISSET() to make it as low level as possible.
 
-**Also being able to sniff some layer 3 packets like ARP, HOMEPLUG, ETHERTYPE_IEEE1905_1 and other ones.**
+**Also being able to sniff some layer 3 packets like ARP, HOMEPLUG, ETHERTYPE IEEE1905 1a and other ones.**
 
 **Need to be root to run the program**
 
