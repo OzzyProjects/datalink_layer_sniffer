@@ -3,36 +3,80 @@
 #include "sock_utils.h"
 #include "string_utils.h"
 
-static volatile int keep_running = 1;
-
 // default interface name if no option selected
-const char* itf_default_name = "eno1";
 
-// get SIGINT to proper exit
-static inline void int_handler(){
+const char* ITF_DEFAULT_NAME = "eno1";
 
-    keep_running = 0;
+// dynamic allocated array that will receive datas
+
+static unsigned char* buffer = NULL;
+
+// get SIGINT to proper exit freeing memory
+
+static inline void int_handler(int signum){
+
+    free(buffer);
+    printf("Exiting program : ok\n");
+    exit(EXIT_SUCCESS);
 }
+
+long get_user_input(int);
+void free_double_pointer(void**, int); 
 
 int main(int argc, char **argv){
 
+    // set the signal handler to catch Ctrl + c interrupt
     signal(SIGINT, int_handler);
 
-    char itf_spec[IFNAMSIZ + 1];
+    char itf_spec[IFNAMSIZ];
+    char **itf_list = NULL;
 
+    // -i option : provide interface name to bind to
     if (argc == 3 && (strcmp(argv[1], "-i") == 0 || strcmp(argv[1], "--interface") == 0)){
-        safe_strcpy(itf_spec, IFNAMSIZ + 1, argv[2]);
+
+        safe_strcpy(itf_spec, IFNAMSIZ, argv[2]);
         printf("Using interface %s interface...\n", itf_spec);
     }
-    else if (argc == 2){
-        printf("selecting interface from list TODO\n");
-        return EXIT_SUCCESS;
+
+    // -l option : select interface from list
+    else if (argc == 2 && (strcmp(argv[1], "-l") == 0 || strcmp(argv[1], "--list") == 0)){
+
+        itf_list = (char**)malloc(sizeof(char*) * ITF_MAX_NBR);
+
+        if (itf_list == NULL){
+            perror("error while allocating array\n");
+            return EXIT_FAILURE;
+        }
+
+        int nbr_itf = get_itf_list(itf_list, ITF_MAX_NBR);
+
+        if (nbr_itf <= 0){
+            perror("error while getting interface list or no interface is available\n");
+            return EXIT_FAILURE;
+        }
+
+        printf("DEBUG : get interfaces list ok\n");
+
+        printf("\nList of available interfaces :\n");
+        for(int i = 0; i < nbr_itf; i++){
+            printf("\t | [%u] interface name : %s\n", i, itf_list[i]);
+        }
+
+        long itf_nbr = get_user_input(nbr_itf);
+        printf("Using interface %s to bind with...\n", itf_list[itf_nbr]);
+        safe_strcpy(itf_spec, IFNAMSIZ, itf_list[itf_nbr]);
+
+        free_double_pointer((void**)itf_list, nbr_itf); 
+
     }
+    // no option : default interface name eno1
     else{
         printf("Using default eno 1 interface...\n");
-        strcpy(itf_spec, itf_default_name);
+        safe_strcpy(itf_spec, strlen(ITF_DEFAULT_NAME), ITF_DEFAULT_NAME);
     }
 
+    
+    // create sock and initialize it
     int sock = init_sock(itf_spec);
 
     if (sock < 0){
@@ -42,7 +86,7 @@ int main(int argc, char **argv){
     }
 
     // allocating big buffer for receive sock data
-    unsigned char *buffer = (unsigned char *)malloc(BUFF_SIZE);
+    buffer = (unsigned char *)malloc(BUFF_SIZE);
 
     if (buffer == NULL){
         perror("error : failed to allocate buffer\n");
@@ -50,13 +94,15 @@ int main(int argc, char **argv){
         return EXIT_FAILURE;
     }
      
+    
+    // setting file descriptor here for the socket
     fd_set read_fds, temp;
 
     FD_ZERO(&read_fds);
     FD_ZERO(&temp);
     FD_SET(sock,&read_fds);
 
-    while(keep_running) {
+    while(1) {
 
         temp = read_fds;
 
@@ -71,7 +117,7 @@ int main(int argc, char **argv){
 
             memset(buffer, 0x00, BUFF_SIZE);
 
-            // receiving and  processing data
+            // receiving and processing data
             ret = recv(sock, buffer, BUFF_SIZE-1, MSG_TRUNC);
             if (ret > 0){
 
@@ -89,10 +135,42 @@ int main(int argc, char **argv){
     }
 
 
-    printf("Exit : ok\n");
-    free(buffer);
     close(sock);
 
     return EXIT_SUCCESS;
 
 }
+
+// get user input for interface number choice
+
+long get_user_input(int max_itf_nbr){
+
+    char* end = NULL;
+    char buffer[255];
+    long number = 0;
+
+    printf("Choose an interface to bind to [number]: \n");
+
+    while (fgets(buffer, sizeof(buffer), stdin) != NULL){
+
+        number = strtol(buffer, &end, 10);
+        if (end == buffer || *end !='\n' || number > max_itf_nbr || number < 0){
+            printf("Not a valid input. Enter a number between 0 and %u\n", max_itf_nbr -1);
+            exit(-1);
+        } 
+        else break;
+    }
+
+    return number;
+}
+
+// releases any double pointer dynamically allocated
+
+void free_double_pointer(void** double_ptr, int size){
+
+    for(int i = 0; i < size; i++)
+        free(double_ptr[i]);
+    free(double_ptr);
+
+}
+
