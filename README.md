@@ -16,7 +16,7 @@ Some functions are defined but non implemented but it's easy to do it (example :
 
 `sudo git clone https://github.com/OzzyProjects/raw_socket_sniffer.git`
 
-`cd ./raw_socket_sniffer`
+`cd /raw_socket_sniffer`
 
 `sudo make`
 
