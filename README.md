@@ -10,7 +10,7 @@ Also being able to sniff some layer 3 packet like ARP, HOMEPLUG and some other o
 
 **Need to be root to run the program**
 
-Some functions are defined but non implemented but it's easy to do it (exemple : fake malloc)
+Some functions are defined but non implemented but it's easy to do it (example : fake malloc)
 
 <ins>Build commands :</ins>
 
