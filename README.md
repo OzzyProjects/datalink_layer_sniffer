@@ -40,3 +40,5 @@ You can have the list of network interface names typing in your terminal
 It works on Debian Bullseye and Ubuntu 20.04.
 
 I haven't checked yet for other versions or distros.
+
+You can also check the complete valgrind memcheck report. No memory leaks or other memory problems.
