@@ -11,6 +11,7 @@
 #include <ctype.h>
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
+#define STRING_MIN_SIZE 8
 
 static unsigned char heap_memory[1024 * 1024]; //reserve 1 MB for malloc
 static size_t next_index = 0;
@@ -242,11 +243,9 @@ FORCE_INLINE char __attribute__((nonnull)) *strcpy_asm(char *restrict dst, const
     return dst;
 }
 
-// replace all non printable chars from 0x1 to 0x8 by a point
+unsigned char __attribute__((nonnull)) *print_url(unsigned char *restrict str){
 
-char __attribute__((nonnull)) *clean_str(char *restrict str){
-
-    unsigned char* tmp = (unsigned char*)str;
+    unsigned char* tmp = str;
 
     while(*str){
         if (*str < 0x9)
@@ -257,24 +256,22 @@ char __attribute__((nonnull)) *clean_str(char *restrict str){
     return tmp;
 }
 
-// print clear strings like urls, DNS domains etc...
+void __attribute__((nonnull)) print_strings(unsigned char *restrict buffer, int size){
 
-void __attribute__((nonnull)) print_strings(char *restrict buffer, int size){
-
-    unsigned char* tmp = (unsigned char*)buffer;
+    unsigned char* tmp = buffer;
     int i = 0;
 
     while(i < size){
-        if (isprint(*tmp) || (*tmp < 0x9 && *tmp)){
+        if (isprint(*tmp)){
             unsigned char* substr = tmp;
             int j = 0;
             while(isprint(*tmp) || (*tmp < 0x9 && *tmp)){
                 tmp++;
                 j++;
             }
-            if (j > 5){
+            if (j > STRING_MIN_SIZE){
                 *(substr + j) = '\0';
-                printf("%s\n", clean_str(substr));
+                printf("%s\n", print_url(substr));
             }
             i += j;
         }
