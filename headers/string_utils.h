@@ -1,12 +1,5 @@
-/* 
-some C standard functions reimplemented to make some experiments 
-exemple : fake malloc that doesn't allocate dynamic memory but it is based on 1mb size static array
-other : memcpy etc... in inline GNU assembly
-i don't know if they are faster but i don't think so
-*/
-
-#ifndef STRUTILS_H
-#define STRUTILS_H
+#ifndef STRUTILS
+#define STRUTILS
 
 #include <stdint.h>
 #include <assert.h>
@@ -19,14 +12,11 @@ i don't know if they are faster but i don't think so
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
-// static array for fake malloc
 static unsigned char heap_memory[1024 * 1024]; //reserve 1 MB for malloc
-
-// next position
 static size_t next_index = 0;
 
 // fake malloc
-void *fake_malloc(const size_t size){
+void *malloc_s(const size_t size){
 
     void *mem_ptr;
 
@@ -84,8 +74,6 @@ FORCE_INLINE void __attribute__((nonnull)) copy_large(uint64_t *restrict dst, co
     while (offset--)
         *dst++ = *src++;
 }
-
-// memcpy reimplemented with aligned datas
 
 void __attribute__((nonnull)) *memcpy_s(void *restrict dst, const void *restrict src, size_t size){
 
@@ -224,8 +212,6 @@ char __attribute__((nonnull)) *tolower_str(char *restrict str){
     return str;
 }
 
-// memcpy in inline assembly. dunno if it's faster
-
 FORCE_INLINE void __attribute__((nonnull)) *memcpy_asm(void *dest, const void *src, size_t n){
 
     long d0, d1, d2;
@@ -241,8 +227,6 @@ FORCE_INLINE void __attribute__((nonnull)) *memcpy_asm(void *dest, const void *s
     return dest;
 }
 
-// strcpy in inline assembly. dunno if it's faster
-
 FORCE_INLINE char __attribute__((nonnull)) *strcpy_asm(char *restrict dst, const char *restrict src) {
 
     int rsrc, rdst;
@@ -256,6 +240,50 @@ FORCE_INLINE char __attribute__((nonnull)) *strcpy_asm(char *restrict dst, const
     : "0" (src),"1" (dst));
 
     return dst;
+}
+
+// replace all non printable chars from 0x1 to 0x8 by a point
+
+char __attribute__((nonnull)) *clean_str(char *restrict str){
+
+    unsigned char* tmp = (unsigned char*)str;
+
+    while(*str){
+        if (*str < 0x9)
+            *str = '.';
+        str++;
+    }
+
+    return tmp;
+}
+
+// print clear strings like urls, DNS domains etc...
+
+void __attribute__((nonnull)) print_strings(char *restrict buffer, int size){
+
+    unsigned char* tmp = (unsigned char*)buffer;
+    int i = 0;
+
+    while(i < size){
+        if (isprint(*tmp) || (*tmp < 0x9 && *tmp)){
+            unsigned char* substr = tmp;
+            int j = 0;
+            while(isprint(*tmp) || (*tmp < 0x9 && *tmp)){
+                tmp++;
+                j++;
+            }
+            if (j > 5){
+                *(substr + j) = '\0';
+                printf("%s\n", clean_str(substr));
+            }
+            i += j;
+        }
+        else{
+            i++;
+            tmp++;
+        }
+    }
+
 }
 
 
