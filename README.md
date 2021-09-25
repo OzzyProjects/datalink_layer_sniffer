@@ -27,7 +27,7 @@ Some functions are defined but non implemented but it's easy to do it (example :
 or
 
 `./raw_sock`
-**My Bold Text, in red color.**{: style="color: red; opacity: 0.80;" }
+
 
 **if no interface name is provided, it sniff by default on eno1**. Easy to change
 
