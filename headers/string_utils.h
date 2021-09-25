@@ -224,6 +224,8 @@ char __attribute__((nonnull)) *tolower_str(char *restrict str){
     return str;
 }
 
+// memcpy in inline assembly. dunno if it's faster
+
 FORCE_INLINE void __attribute__((nonnull)) *memcpy_asm(void *dest, const void *src, size_t n){
 
     long d0, d1, d2;
@@ -238,6 +240,8 @@ FORCE_INLINE void __attribute__((nonnull)) *memcpy_asm(void *dest, const void *s
   
     return dest;
 }
+
+// strcpy in inline assembly. dunno if it's faster
 
 FORCE_INLINE char __attribute__((nonnull)) *strcpy_asm(char *restrict dst, const char *restrict src) {
 
