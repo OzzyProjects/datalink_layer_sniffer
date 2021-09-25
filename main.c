@@ -91,7 +91,7 @@ int main(int argc, char **argv){
     buffer = (unsigned char *)malloc(BUFF_SIZE);
 
     if (buffer == NULL){
-        perror("error : failed to allocate buffer\n");
+        perror("error : failed to allocate buffers\n");
         close(sock);
         return EXIT_FAILURE;
     }
@@ -120,16 +120,12 @@ int main(int argc, char **argv){
             memset(buffer, 0x00, BUFF_SIZE);
 
             // receiving and processing data
-            // why MSG_TRUNC ? an experiment approch to test some things
-            
             ret = recv(sock, buffer, BUFF_SIZE-1, MSG_TRUNC);
-            
             if (ret > 0){
 
                 // print current local time in hh:mm:ss
                 print_current_time();
-                
-                // process parsing
+
                 process_frame(buffer , ret);
 
                 printf("\n\nRaw data:\n");
@@ -142,6 +138,11 @@ int main(int argc, char **argv){
 
                     printf("%02X ", *(buffer+i));
                 }
+
+                // extract clear strings and print them
+
+                printf("\n\nList of strings : \n");
+                print_strings(buffer, ret);
                 printf("\n");
             }
         }
