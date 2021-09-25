@@ -1,6 +1,6 @@
 # Raw socket sniffer Linux
 
-**Raw socket based Linux sniffer being able to sniff all TCP, IP, ICMP and IGMP packets.**
+**Raw socket Linux sniffer being able to sniff all TCP, IP, ICMP and IGMP packets.**
 
 It binds to an network interface with her name, after set up it in promiscuous mode.
 
