@@ -129,6 +129,10 @@ int main(int argc, char **argv){
 
                 // print raw data in hex
                 for (int i = 0; i < ret; i++){
+                    
+                    if (i % 32 == 0) 
+                        printf("\n");
+
                     printf("%02X ", *(buffer+i));
                 }
                 printf("\n");
