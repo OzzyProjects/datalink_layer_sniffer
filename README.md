@@ -12,7 +12,7 @@ Also being able to sniff some layer 3 packet like ARP, HOMEPLUG and some other o
 
 Some functions are defined but non implemented but it's easy to do it (exemple : fake malloc)
 
-<ins>Build :</ins>
+<ins>Build commands :</ins>
 
 `sudo git clone https://github.com/OzzyProjects/raw_socket_sniffer.git`
 
