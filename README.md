@@ -46,3 +46,6 @@ I haven't checked yet for other versions or distros.
 You can also check the complete valgrind memcheck report. No memory leaks or other memory problems.
 
 ![](valgrind/valgrind.png)
+
+
+**TODO : code a kernel module with buffer sockets or/and take a serious interest at libpcap to reach data link layer level**
