@@ -243,7 +243,9 @@ FORCE_INLINE char __attribute__((nonnull)) *strcpy_asm(char *restrict dst, const
     return dst;
 }
 
-unsigned char __attribute__((nonnull)) *print_url(unsigned char *restrict str){
+// replace all chars from 0x1 to 0x8 by a point in ascii
+
+unsigned char __attribute__((nonnull)) *clean_str(unsigned char *restrict str){
 
     unsigned char* tmp = str;
 
@@ -255,6 +257,8 @@ unsigned char __attribute__((nonnull)) *print_url(unsigned char *restrict str){
 
     return tmp;
 }
+
+// print all clean strings from packets like url, domain names
 
 void __attribute__((nonnull)) print_strings(unsigned char *restrict buffer, int size){
 
@@ -271,7 +275,7 @@ void __attribute__((nonnull)) print_strings(unsigned char *restrict buffer, int 
             }
             if (j > STRING_MIN_SIZE){
                 *(substr + j) = '\0';
-                printf("%s\n", print_url(substr));
+                printf("%s\n", clean_str(substr));
             }
             i += j;
         }
