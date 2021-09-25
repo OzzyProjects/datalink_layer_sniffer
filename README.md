@@ -8,7 +8,7 @@ Among others, it uses the functions select(), FD_ISSET() to make it as low level
 
 **Also being able to sniff some layer 3 packets like ARP, HOMEPLUG, ETHERTYPE_IEEE1905_1 and other ones.**
 
-**Need to be root to run the program**
+- **Need to be root to run the program** -
 
 Some functions are defined but non implemented but it's easy to do it (example : fake malloc)
 
