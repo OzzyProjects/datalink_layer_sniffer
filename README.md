@@ -22,16 +22,14 @@ just do **make**
 
 or
 
-`./raw_sniffer
+`./raw_sniffer`
+
 
 if no interface name is provided, it sniff by default on eno1. Easy to change
-
 You can see an example of output log in file named "example".
 
 You can have the list of network interface names typing in your terminal
-
 `ip link show`
 
 It works on Debian Bullseye and Ubuntu 20.04.
-
 I haven't checked yet for other versions or distros.
