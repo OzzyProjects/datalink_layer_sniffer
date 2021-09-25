@@ -126,15 +126,6 @@ typedef struct dnshdr {
 
 } dnshdr;
 
-
-typedef struct {
-
-    struct ethhdr eth;
-    uint16_t padding;
-    unsigned char buffer[64]; 
-    
-} perso;
-
 int get_itf_list(char**, int);
 int get_itf_index(int, const char*); 
 int init_sock(const char*);
