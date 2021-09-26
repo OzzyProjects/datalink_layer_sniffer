@@ -11,6 +11,9 @@
 #include <ctype.h>
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
+
+// minimum lenght for a revelant string
+
 #define STRING_MIN_SIZE 8
 
 #undef isalpha
