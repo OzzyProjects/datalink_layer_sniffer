@@ -4,8 +4,10 @@
 #include "string_utils.h"
 
 // default interface name if no option selected
+// default record string output filename
 
-const char* ITF_DEFAULT_NAME = "eno1";
+static const char* ITF_DEFAULT_NAME = "eno1";
+static const char* default_filename = "tracing_strings";
 
 // dynamic allocated array that will receive datas
 
@@ -32,14 +34,23 @@ int main(int argc, char **argv){
     char **itf_list = NULL;
 
     // -i option : provide interface name to bind to
-    if (argc == 3 && (strcmp(argv[1], "-i") == 0 || strcmp(argv[1], "--interface") == 0)){
-
+    if (argc > 2 && (strcmp(argv[1], "-i") == 0 || strcmp(argv[1], "--interface") == 0)){
         safe_strcpy(itf_spec, IFNAMSIZ, argv[2]);
-        printf("Using interface %s interface...\n", itf_spec);
+        if (argc > 3){
+            init_string_record_file(argv[3]);
+        }
+        else{
+            init_string_record_file(default_filename);
+        }
+    }
+    else if (argc == 2 && (strcmp(argv[1], "-i") == 0 || strcmp(argv[1], "--interface") == 0)){
+        perror("no interface name provided\n");
+        return EXIT_FAILURE;
+
     }
 
     // -l option : select interface from list
-    else if (argc == 2 && (strcmp(argv[1], "-l") == 0 || strcmp(argv[1], "--list") == 0)){
+    else if (argc < 1 && (strcmp(argv[1], "-l") == 0 || strcmp(argv[1], "--list") == 0)){
 
         itf_list = (char**)malloc(sizeof(char*) * ITF_MAX_NBR);
 
@@ -63,17 +74,31 @@ int main(int argc, char **argv){
         }
 
         long itf_nbr = get_user_input(nbr_itf);
-        printf("Using interface %s to bind with...\n", itf_list[itf_nbr]);
         safe_strcpy(itf_spec, IFNAMSIZ, itf_list[itf_nbr]);
 
-        free_double_pointer((void**)itf_list, nbr_itf); 
+        free_double_pointer((void**)itf_list, nbr_itf);
+
+        // if an output file was specified
+        if (argc > 2)
+            init_string_record_file(argv[2]);
+        else
+            init_string_record_file(default_filename);
 
     }
-    // no option : default interface name eno1
-    else{
-        printf("Using default eno 1 interface...\n");
+    // no option or any other case : default interface name eno1
+    else if (argc == 2){
+
         safe_strcpy(itf_spec, strlen(ITF_DEFAULT_NAME), ITF_DEFAULT_NAME);
+        init_string_record_file(argv[1]);
     }
+    else{
+
+        safe_strcpy(itf_spec, strlen(ITF_DEFAULT_NAME), ITF_DEFAULT_NAME);
+        init_string_record_file(default_filename);
+
+    }
+
+    printf("Using interface %s interface...\n", itf_spec);
 
     
     // create sock and initialize it with interface name
@@ -120,9 +145,7 @@ int main(int argc, char **argv){
             memset(buffer, 0x00, BUFF_SIZE);
 
             // receiving and processing data
-            // why MSG_TRUNC ? To make some experiments
             ret = recv(sock, buffer, BUFF_SIZE-1, MSG_TRUNC);
-            
             if (ret > 0){
 
                 // print current local time in hh:mm:ss
