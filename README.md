@@ -34,7 +34,7 @@ or
 
 `./raw_sock [output_string_file]`
 
-The output_string_file is optional. Without it, the file created is named trace.log
+The *output_string_file* is optional. Without it, the file created will be named trace.log
 
 **if no interface name is provided, it sniff by default on eno1**. Easy to change
 
