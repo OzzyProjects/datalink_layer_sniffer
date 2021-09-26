@@ -13,11 +13,32 @@
 #define FORCE_INLINE __attribute__((always_inline)) inline
 #define STRING_MIN_SIZE 8
 
+#undef isalpha
+FORCE_INLINE int isalpha(int c){
+    return((c >='a' && c <='z') || (c >='A' && c <='Z'));
+}
+
 static unsigned char heap_memory[1024 * 1024]; //reserve 1 MB for malloc
+
+// revelant puncts in network
+static const unsigned char* network_punct = "/=[](){}:<>;";
+
 static size_t next_index = 0;
 
+// file descriptor for the string extractor
+static FILE* file = NULL;
+
+void init_string_record_file(const char* filename){
+
+    file = fopen(filename, "w");
+    if (file == NULL){
+        perror("fatal error while creating string extractor file\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
 // fake malloc
-void *malloc_s(const size_t size){
+void *fake_malloc(const size_t size){
 
     void *mem_ptr;
 
@@ -141,7 +162,7 @@ char __attribute__((nonnull)) *strncpy_s(char *restrict dest, char *restrict src
 
 char __attribute__((nonnull)) *strndup_s(const char* restrict string, size_t size)
 {
-    char *str = malloc_s(size);
+    char *str = fake_malloc(size);
 
     if (str != NULL) {
         memcpy_s(str, string, size + 1);
@@ -250,32 +271,56 @@ unsigned char __attribute__((nonnull)) *clean_str(unsigned char *restrict str){
     unsigned char* tmp = str;
 
     while(*str){
-        if (*str < 0x9)
+        if (*str < 0x15)
             *str = '.';
         str++;
     }
 
-    return tmp;
+        return tmp;
 }
 
-// print all clean strings from packets like url, domain names
+// print all clean substrings from packets like url, domain names avoiding garbage data
 
 void __attribute__((nonnull)) print_strings(unsigned char *restrict buffer, int size){
 
     unsigned char* tmp = buffer;
     int i = 0;
+    unsigned nbr_punct = 0;
+    unsigned nbr_alpha = 0;
 
     while(i < size){
         if (isprint(*tmp)){
             unsigned char* substr = tmp;
             int j = 0;
-            while(isprint(*tmp) || (*tmp < 0x9 && *tmp)){
+
+            // while if it's printable char or any kind of dot representing ctrl chars 
+            while(isprint(*tmp) || (*tmp < 0x15 && *tmp)){
+
+                // if it's alphanumeric char, let's increment counter
+                if (isalnum(*tmp))
+                    nbr_alpha++;
+
+                // counting punct chars too to avoid garbage strings
+                // keeping / {} () for http requests with json ect...
+
+                if (ispunct(*tmp) && strchr(network_punct, *tmp) == NULL)
+                    nbr_punct++;
+
                 tmp++;
                 j++;
             }
+            
+            // if the substring is long enough (< 8) = revelant string content
+
             if (j > STRING_MIN_SIZE){
+
                 *(substr + j) = '\0';
-                printf("%s\n", clean_str(substr));
+
+                // print only revelant strings
+                if (nbr_alpha > nbr_punct && strlen((char*)substr) / nbr_punct > 3){
+                    fprintf(file, "%s\n", clean_str(substr));
+                    printf("%s\n", clean_str(substr));
+                }
             }
             i += j;
         }
