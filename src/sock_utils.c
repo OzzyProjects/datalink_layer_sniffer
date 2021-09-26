@@ -452,8 +452,6 @@ void print_icmp_packet(unsigned char* buffer , int size){
         
     printf("Data Payload\n");    
     
-    //Move the pointer ahead and reduce the size of string
-    //why i cannot no more capture icmp ?
     print_data(buffer + header_size, size-header_size);
     
     printf("\n###########################################################");
