@@ -2,7 +2,7 @@
 
 **Raw socket Linux sniffer being able to sniff all TCP, IP, ICMP and IGMP packets.**
 
-It works also as a string extractor, displaying in output file revelant strings
+**It works also as a string extractor, displaying in output file revelant strings**
 
 It grabs all revelant strings from packets : url, domain names, json requests etc...
 
