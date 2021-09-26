@@ -2,6 +2,12 @@
 
 **Raw socket Linux sniffer being able to sniff all TCP, IP, ICMP and IGMP packets.**
 
+It works also as a string extractor, displaying in output file revelant strings
+
+It grabs all revelant strings from packets : url, domain names, json requests etc...
+
+You can see an example in file named string_log
+
 It binds to an network interface with her name, after set up it in promiscuous mode.
 
 Among others, it uses the functions select(), FD_ISSET() to make it as low level as possible.
@@ -22,12 +28,13 @@ Some functions are defined but non implemented but it's easy to do it (example :
 
 + <ins>Use (in root only) :</ins>
 
-`./raw_sock -i [interface name]`
+`./raw_sock -i [interface name] [output_string_file]`
 
 or
 
-`./raw_sock`
+`./raw_sock [output_string_file]`
 
+The output_string_file is optional. Without it, the file created is named trace.log
 
 **if no interface name is provided, it sniff by default on eno1**. Easy to change
 
