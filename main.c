@@ -120,7 +120,9 @@ int main(int argc, char **argv){
             memset(buffer, 0x00, BUFF_SIZE);
 
             // receiving and processing data
+            // why MSG_TRUNC ? To make some experiments
             ret = recv(sock, buffer, BUFF_SIZE-1, MSG_TRUNC);
+            
             if (ret > 0){
 
                 // print current local time in hh:mm:ss
