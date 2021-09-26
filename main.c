@@ -85,7 +85,8 @@ int main(int argc, char **argv){
             init_string_record_file(default_filename);
 
     }
-    // no option or any other case : default interface name eno1
+    
+    // no option or any other case : default interface name eno1 and default file output is trace.log
     else if (argc == 2){
 
         safe_strcpy(itf_spec, strlen(ITF_DEFAULT_NAME), ITF_DEFAULT_NAME);
