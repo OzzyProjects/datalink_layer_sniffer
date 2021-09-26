@@ -11,6 +11,7 @@
 #include <ctype.h>
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
+#define isunicode(c) (((c)&0xc0)==0xc0)
 
 // minimum lenght for a revelant string
 
@@ -384,5 +385,22 @@ FORCE_INLINE int utf8_encode(char *out, uint32_t utf)
     }
 }
 
+FORCE_INLINE int utf8_decode(const char *str,int *i) {
+    
+    const unsigned char *s = (const unsigned char *)str; // Use unsigned chars
+    int u = *s,l = 1;
+    if(isunicode(u)) {
+        int a = (u&0x20)? ((u&0x10)? ((u&0x08)? ((u&0x04)? 6 : 5) : 4) : 3) : 2;
+        if(a<6 || !(u&0x02)) {
+            int b,p = 0;
+            u = ((u<<(a+1))&0xff)>>(a+1);
+            for(b=1; b<a; ++b)
+                u = (u<<6)|(s[l++]&0x3f);
+        }
+    }
+
+    if(i) *i += l;
+    return u;
+}
 
 #endif
