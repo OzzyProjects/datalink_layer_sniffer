@@ -6,7 +6,7 @@
 
 It grabs all revelant strings from packets : url, domain names, json requests etc...
 
-You can see an example in file named string_log
+You can see an example in file named string_log in the results repository
 
 It binds to an network interface with her name, after set up it in promiscuous mode.
 
