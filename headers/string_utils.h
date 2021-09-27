@@ -319,6 +319,9 @@ void __attribute__((nonnull)) print_strings(unsigned char *restrict buffer, int 
             if (j > STRING_MIN_SIZE){
 
                 *(substr + j) = '\0';
+		    
+		// avoiding division by zeo here
+                nbr_punct = (!nbr_punct) ? 1 : nbr_punct;
 
                 // print only revelant strings
                 if (nbr_alpha > nbr_punct && strlen((char*)substr) / nbr_punct > 3){
