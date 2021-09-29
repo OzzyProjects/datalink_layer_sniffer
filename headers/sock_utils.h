@@ -27,6 +27,9 @@
 #include <netinet/ip.h>
 #include <linux/if_arp.h> 
 #include <netinet/igmp.h>
+#include <netinet/icmp6.h>
+
+/********************* Usefull macros *********************/
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
@@ -43,8 +46,7 @@
     (((u_int32_t)(x) & (u_int32_t)0xff000000UL) >> 24) ))
 
 #define ETHERTYPE_IEEE1905_1    0x893a
-#define ETHERTYPE_HOMEPLUG     0x887b
-#define ETHERTYPE_HOMEPLUG_POWERLINE    0x88e1
+
 #define ETH_P_ALL   0x0003
 
 #define BUFF_SIZE 65536
@@ -52,22 +54,57 @@
 #define HW_TYPE 1
 #define MAC_LENGTH 6
 #define IPV4_LENGTH 4
-#define ARP_REQUEST 0x01
-#define ARP_REPLY 0x02
+#define ARP_REQUEST 0x1
+#define ARP_REPLY 0x2
 #define ITF_MAX_NBR 0x10
 #define MTU 1472
 
-typedef struct {
+// HOMEPLUG PROTOCOLS
+#define ETHERTYPE_HOMEPLUG     0x887b
+#define ETHERTYPE_HOMEPLUG_POWERLINE    0x88e1
+#define HOMEPLUG_AV_REQ_BRIDGE 0x6020
 
-    char src_addr[100];
-    char dest_addr[100];
-    u_int32_t type;
-    char *payload;
-    u_int32_t payload_size;
+// LLTD PROTOCOL
+#define ETHERTYPE_LLDT  0x88d9
 
-} icmp_packet;
+#define IPV6_ICMP   0x003A
 
-typedef struct {
+/********************* OSI Layer 3 protocols structs *********************/
+
+// IPv6 Header 
+
+typedef struct ipv6_header {
+
+    unsigned int
+        version : 4,
+        traffic_class : 8,
+        flow_label : 20;
+
+    uint16_t length;
+    uint8_t  next_header;
+    uint8_t  hop_limit;
+
+    struct in6_addr src;
+    struct in6_addr dst;
+
+} __attribute__((packed)) ipv6_header;
+
+// ICMPv6 Header
+
+typedef struct icmp6_header{
+
+    uint8_t type;
+    uint8_t code;
+    uint16_t cksum;
+
+    // for id and seqno fields 
+    uint32_t data;
+
+} __attribute__((packed)) icmp6_header;
+
+// ARP Header
+
+typedef struct arp_header{
 
     uint16_t hardware_type;
     uint16_t protocol_type;
@@ -81,7 +118,9 @@ typedef struct {
 
 } __attribute__((packed)) arp_header;
 
-typedef struct icmpheader {
+// ICMPv4 Header
+
+typedef struct icmp_header {
 
     u_int8_t type;
     u_int8_t code;
@@ -92,8 +131,11 @@ typedef struct icmpheader {
         {
             u_int16_t id;
             u_int16_t sequence;
+
         } echo;
-            u_int32_t gateway;
+
+        u_int32_t gateway;
+        
         struct frag
         {
             u_int16_t __unused;
@@ -101,9 +143,50 @@ typedef struct icmpheader {
         } frag;
     } un;
 
-} icmpheader;
+} icmp_header;
 
-typedef struct dnshdr {
+/********************* OSI Layer 2 protocols structs *********************/
+
+// LLTD Header 
+
+typedef struct {
+
+    uint8_t version;
+    uint8_t service_type;
+    uint8_t reserved;
+    uint8_t function;
+    unsigned char real_dest[MAC_LENGTH];
+    unsigned char real_src[MAC_LENGTH];
+
+} __attribute__((packed)) lltd_header;
+
+// HOMEPLUG AV (POWERLINE) Header
+
+typedef struct {
+
+    uint8_t protocol;
+    uint16_t type;
+    uint8_t frag;
+
+} __attribute__((packed)) homeplug_av_header;
+
+
+// HOMEPLUG Standard Header
+
+typedef struct {
+
+    uint8_t ctrl_field;
+    uint8_t mac_entry;
+    uint8_t entry_length;
+    unsigned char spe_vendor[3];
+
+} __attribute__((packed)) homeplug_header;
+
+/********************* OSI Layer 7 protocols structs *********************/
+
+// DNS Header 
+
+typedef struct {
 
     unsigned short id;
  
@@ -124,7 +207,9 @@ typedef struct dnshdr {
     unsigned short auth_count;
     unsigned short add_count;
 
-} dnshdr;
+} __attribute__((packed)) dns_header;
+
+/************************************* Functions declarations *************************************/
 
 int get_itf_list(char**, int);
 int get_itf_index(int, const char*); 
@@ -133,24 +218,26 @@ int bind_sock(int, int);
 void print_ethernet_header(unsigned char*, int);
 void process_ip_packet(unsigned char* , int);
 void process_frame(unsigned char* , int);
-void process_arp_packet(unsigned char*);
+void print_arp_packet(unsigned char*);
 void print_ip_header(unsigned char* , int);
+void print_ip6_header(unsigned char*, int);
 void print_tcp_packet(unsigned char * , int );
 void print_udp_packet(unsigned char * , int );
 void print_icmp_packet(unsigned char* , int );
 void print_igmp_packet(unsigned char*, int);
 
+void print_homeplug_av_header(unsigned char*);
+void print_homeplug_header(unsigned char*);
+
+void print_lltd_header(unsigned char*);
+
 void print_dns_packet(unsigned char*, int);
+
+void print_icmpv6_packet(unsigned char*, int, int);
 
 void print_data(unsigned char* , int);
 uint16_t in_cksum(uint16_t *addr, int len);
 
-FORCE_INLINE void print_current_time(){
-
-    time_t now = time(NULL);
-    struct tm *tm_struct = localtime(&now);
-    printf("\n[LOCAL TIME %02d:%02d:%02d]", tm_struct->tm_hour , tm_struct->tm_min , tm_struct->tm_sec);
-
-}
+void print_current_time();
 
 #endif
