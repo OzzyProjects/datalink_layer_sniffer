@@ -14,14 +14,7 @@ static const char* default_filename = "tracing_strings";
 static unsigned char* buffer = NULL;
 
 // get SIGINT to proper exit freeing memory
-
-static inline void int_handler(int signum){
-
-    free(buffer);
-    printf("Exiting program : ok\n");
-    exit(EXIT_SUCCESS);
-}
-
+void int_handler(int);
 long get_user_input(int);
 void free_double_pointer(void**, int); 
 
@@ -213,4 +206,11 @@ void free_double_pointer(void** double_ptr, int size){
         free(double_ptr[i]);
     free(double_ptr);
 
+}
+
+void int_handler(int signum){
+
+    free(buffer);
+    printf("Exiting program : ok\n");
+    exit(EXIT_SUCCESS);
 }
