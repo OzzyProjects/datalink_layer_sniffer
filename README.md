@@ -2,7 +2,7 @@
 
 **WORK IN PROGRESS**
 
-**Raw socket Linux sniffer being able to sniff all TCP, IP, ICMP, ARP, IGMP and some frames from OSI Layer 2.**
+**Raw socket Linux sniffer being able to sniff all TCP, IP, ICMP, ARP, IGMP and some frames from OSI Layer 3.**
 
 **It works also as a string extractor, displaying in output file revelant strings**
 
@@ -14,7 +14,7 @@ It binds to an network interface with her name, after set up it in promiscuous m
 
 Among others, it uses the functions select(), FD_ISSET() to make it as low level as possible.
 
-**Also being able to sniff some layer 3 packets like ARP, HOMEPLUG, HOMEPLUG POWERLINE, ETHERTYPE IEEE 1905 1a and other ones.**
+**Also being able to sniff some layer 2 packets like ARP, HOMEPLUG, HOMEPLUG POWERLINE, ETHERTYPE IEEE 1905 1a and other ones.**
 
 **Need to be root to run the program**
 
