@@ -11,10 +11,10 @@
 #include <ctype.h>
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
+
 #define isunicode(c) (((c)&0xc0)==0xc0)
 
 // minimum lenght for a revelant string
-
 #define STRING_MIN_SIZE 8
 
 #undef isalpha
@@ -22,12 +22,15 @@ FORCE_INLINE int isalpha(int c){
     return((c >='a' && c <='z') || (c >='A' && c <='Z'));
 }
 
-static unsigned char heap_memory[1024 * 1024]; //reserve 1 MB for malloc
+// reserve 1 MB for malloc
+// normaly created/allocated in bss/data segment
+static unsigned char heap_memory[1024 * 1024];
+
+// index of last element in the fake "heap memory"
+static size_t next_index = 0;
 
 // revelant puncts in network
-static const unsigned char* network_punct = "/=[](){}:<>;";
-
-static size_t next_index = 0;
+static const char* network_punct = "/=[](){}:<>;";
 
 // file descriptor for the string extractor
 static FILE* file = NULL;
@@ -41,7 +44,8 @@ void init_string_record_file(const char* filename){
     }
 }
 
-// fake malloc
+// fake malloc allocating nothing on the heap
+
 void *fake_malloc(const size_t size){
 
     void *mem_ptr;
@@ -55,7 +59,7 @@ void *fake_malloc(const size_t size){
     return mem_ptr;
 }
 
-FORCE_INLINE void __attribute__((nonnull)) copy_small(uint8_t *restrict dst, const uint8_t *restrict src, size_t n){
+void __attribute__((nonnull)) copy_small(uint8_t *restrict dst, const uint8_t *restrict src, size_t n){
 
     if (n >= 8){
         *(uint64_t *restrict)dst = *(const uint64_t *restrict)src;
@@ -78,7 +82,7 @@ FORCE_INLINE void __attribute__((nonnull)) copy_small(uint8_t *restrict dst, con
         *dst = *src;
 }
 
-FORCE_INLINE void __attribute__((nonnull)) copy_large(uint64_t *restrict dst, const uint64_t *restrict src, size_t n){
+void __attribute__((nonnull)) copy_large(uint64_t *restrict dst, const uint64_t *restrict src, size_t n){
     
     size_t chunks, offset;
 
@@ -176,19 +180,20 @@ char __attribute__((nonnull)) *strndup_s(const char* restrict string, size_t siz
     return str;
 }
 
-FORCE_INLINE size_t __attribute__((nonnull)) strlen_s(const char *restrict str){
+size_t __attribute__((nonnull)) strlen_s(const char *restrict str){
 
-    size_t sum = 0;
+    
+    size_t length = 0;
+    char* tmp = str;
 
-    while (*str++) {
-        if (sum == 1024) return 0;
-        sum++;
+    while (*tmp++) {
+        length++;
     }
 
-    return sum;
+    return length;
 }
 
-FORCE_INLINE int __attribute__((nonnull)) strncmp_s(const char *restrict str1, const char *restrict str2, size_t size){
+int __attribute__((nonnull)) strncmp_s(const char *restrict str1, const char *restrict str2, size_t size){
     
     while (size-- && *str1 == *str2){ 
         ++str1; 
@@ -238,7 +243,9 @@ char __attribute__((nonnull)) *tolower_str(char *restrict str){
     return str;
 }
 
-FORCE_INLINE void __attribute__((nonnull)) *memcpy_asm(void *dest, const void *src, size_t n){
+// memcpy in inline assembly, just for the fun
+
+void __attribute__((nonnull)) *memcpy_asm(void *dest, const void *src, size_t n){
 
     long d0, d1, d2;
      
@@ -253,7 +260,9 @@ FORCE_INLINE void __attribute__((nonnull)) *memcpy_asm(void *dest, const void *s
     return dest;
 }
 
-FORCE_INLINE char __attribute__((nonnull)) *strcpy_asm(char *restrict dst, const char *restrict src) {
+// the same for strcpy
+
+char __attribute__((nonnull)) *strcpy_asm(char *restrict dst, const char *restrict src) {
 
     int rsrc, rdst;
 
@@ -268,7 +277,25 @@ FORCE_INLINE char __attribute__((nonnull)) *strcpy_asm(char *restrict dst, const
     return dst;
 }
 
-// replace all chars from 0x1 to 0x8 by a point in ascii
+// remove duplicate a char passed by argument to the function in the string
+
+unsigned char __attribute__((nonnull)) *remove_dup(unsigned char* input, unsigned char to_remove){
+
+    unsigned char* tmp = input, *older = input;
+    unsigned char* output = tmp;
+
+    while (*older) {
+        // if the older char == next char or if it's the first char, let's increment older char
+        if ((*older == *tmp && *tmp == to_remove) || *older == *output)
+            ++older;
+        else
+            *++tmp = *older++;
+    }
+
+    return output;
+}
+
+// replace ASCII non printable chars (from 0x1 to 0x15) by a dot
 
 unsigned char __attribute__((nonnull)) *clean_str(unsigned char *restrict str){
 
@@ -280,10 +307,10 @@ unsigned char __attribute__((nonnull)) *clean_str(unsigned char *restrict str){
         str++;
     }
 
-        return tmp;
+    return remove_dup(tmp, '.');
 }
 
-// print all clean substrings from packets like url, domain names avoiding garbage data
+// print all clean substrings from packets like url, domain names avoiding garbage datas
 
 void __attribute__((nonnull)) print_strings(unsigned char *restrict buffer, int size){
 
@@ -395,7 +422,7 @@ FORCE_INLINE int utf8_decode(const char *str,int *i) {
     if(isunicode(u)) {
         int a = (u&0x20)? ((u&0x10)? ((u&0x08)? ((u&0x04)? 6 : 5) : 4) : 3) : 2;
         if(a<6 || !(u&0x02)) {
-            int b,p = 0;
+            int b;
             u = ((u<<(a+1))&0xff)>>(a+1);
             for(b=1; b<a; ++b)
                 u = (u<<6)|(s[l++]&0x3f);
