@@ -118,6 +118,19 @@ typedef struct arp_header{
 
 } __attribute__((packed)) arp_header;
 
+// IEEE 1905 1a Header
+
+typedef struct ieee_1905_header {
+
+    uint8_t msg_version;
+    uint8_t reserved;
+    uint16_t msg_type;
+    uint16_t msg_id;
+    uint8_t frag_id;
+    uint8_t last_frag;
+
+} __attribute__((packed)) ieee_1905_header;
+
 // ICMPv4 Header
 
 typedef struct icmp_header {
@@ -215,6 +228,8 @@ int get_itf_list(char**, int);
 int get_itf_index(int, const char*); 
 int init_sock(const char*);
 int bind_sock(int, int);
+int setup_promiscuous_mode(int, int);
+
 void print_ethernet_header(unsigned char*, int);
 void process_ip_packet(unsigned char* , int);
 void process_frame(unsigned char* , int);
