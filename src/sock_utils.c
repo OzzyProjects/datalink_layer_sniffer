@@ -193,6 +193,19 @@ void print_lltd_header(unsigned char* buffer){
         lltd_hdr->real_src[2],lltd_hdr->real_src[3],lltd_hdr->real_src[4],lltd_hdr->real_src[5]);
 }
 
+
+void print_ieee_1905_header(unsigned char* buffer, int size){
+
+    ieee_1905_header* ieee_hdr = (ieee_1905_header*)(buffer + ETH2_HEADER_LEN);
+
+    printf("\nIEEE 1905.1 Header\n\n");
+    printf("   |-Message version    : %x\n", ieee_hdr->msg_version);
+    printf("   |-Message type       : %x\n", ntohs(ieee_hdr->msg_type));
+    printf("   |-Message ID         : %x\n", ntohs(ieee_hdr->msg_id));
+
+    /* TODO : parse TLV */  
+}
+
 void print_igmp_packet(unsigned char* buffer, int size){
 
     unsigned short iphdrlen;
