@@ -513,53 +513,58 @@ int get_itf_list(char** itf_list, int nbr){
     return itf_nbr; 
 } 
 
-// get interface index and set some options 
+// set up the socket in promiscuous too
+
+int setup_promiscuous_mode(int sock, int device_index){
+
+    struct packet_mreq mreq;
+    memset(&mreq,0,sizeof(mreq));
+
+    mreq.mr_ifindex = device_index;
+    mreq.mr_type = PACKET_MR_PROMISC;
+    
+    if (setsockopt(sock, SOL_PACKET, PACKET_ADD_MEMBERSHIP, (void*)&mreq, sizeof(mreq)) < 0) {
+        perror("setsockopt error while adding PACKET_ADD_MEMBERSHIP option\n");
+        return -1;
+    }
+
+    printf("\nDEBUG\t\t: promiscuous mode successfully enabled\n\n");
+
+    return 1;
+}
+
+// get interface index and set some options to make a nice sock
 
 int get_itf_index(int sock, const char* itf_name) {
     
     struct ifreq ifr;
     memset(&ifr, 0, sizeof(ifr));
 
-    if (strlen(itf_name) > IFNAMSIZ) {
-        return -1;
-    }
-
     strncpy(ifr.ifr_name, itf_name, sizeof(ifr.ifr_name));
 
-    if (ioctl(sock, SIOCGIFFLAGS, &ifr) < 0){
-        perror ("Error: Could not retrive the flags from the device.\n");
-        return -1;
-    }
-
     /* Set the old flags plus the IFF_PROMISC flag */
+
     ifr.ifr_flags |= IFF_PROMISC;
+
     if (ioctl (sock, SIOCSIFFLAGS, &ifr) < 0){
         perror ("Error: Could not set flag IFF_PROMISC");
         return -1;
     }
-    printf ("DEBUG : entering promiscuous mode ok\n");
     
     if (ioctl(sock, SIOCGIFINDEX, &ifr) < 0){
         perror("error while getting interface index\n");
         return -1;
     }
 
-    int opt = 1;
-    
-    // another trick to set up interface in promiscuous mode
-    
-    if (setsockopt(sock, SOL_SOCKET, PACKET_MR_PROMISC,&opt, sizeof(opt)) < 0) {
-        printf("Server-setsockopt() error for PACKET_MR_PROMISC\n");
-        return -1;
-    }
 
     if (setsockopt(sock, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) < 0) {
-        perror("Server-setsockopt() error for SO_BINDTODEVICE");
+        perror("setsockopt error while adding SO_BINDTODEVICE\n");
         return -1;
     }
 
-    printf("DEBUG : setting setsockopt ok\n");
+    printf("\nDEBUG\t\t: setting setsockopt options DONE !\n\n");
 
+    assert(setup_promiscuous_mode(sock, ifr.ifr_ifindex) > 0);
 
     return ifr.ifr_ifindex;
 }
