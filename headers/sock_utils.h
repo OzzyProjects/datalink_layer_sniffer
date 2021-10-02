@@ -45,8 +45,6 @@
     (((u_int32_t)(x) & (u_int32_t)0x00ff0000UL) >>  8) | \
     (((u_int32_t)(x) & (u_int32_t)0xff000000UL) >> 24) ))
 
-#define ETHERTYPE_IEEE1905_1    0x893a
-
 #define ETH_P_ALL   0x0003
 
 #define BUFF_SIZE 65536
@@ -54,20 +52,101 @@
 #define HW_TYPE 1
 #define MAC_LENGTH 6
 #define IPV4_LENGTH 4
-#define ARP_REQUEST 0x1
-#define ARP_REPLY 0x2
 #define ITF_MAX_NBR 0x10
 #define MTU 1472
 
-// HOMEPLUG PROTOCOLS
-#define ETHERTYPE_HOMEPLUG     0x887b
-#define ETHERTYPE_HOMEPLUG_POWERLINE    0x88e1
-#define HOMEPLUG_AV_REQ_BRIDGE 0x6020
+/********************* OSI Layer 2 protocols structs *********************/
 
-// LLTD PROTOCOL
-#define ETHERTYPE_LLDT  0x88d9
+// IEEE 1905 1a Header
 
-#define IPV6_ICMP   0x003A
+typedef struct ieee_1905_header {
+
+    uint8_t msg_version;
+    uint8_t reserved;
+    uint16_t msg_type;
+    uint16_t msg_id;
+    uint8_t frag_id;
+    uint8_t last_frag;
+
+} __attribute__((packed)) ieee_1905_header;
+
+// LLTD Header 
+
+typedef struct lltd_header {
+
+    uint8_t version;
+    uint8_t service_type;
+    uint8_t reserved;
+    uint8_t function;
+    unsigned char real_dest[MAC_LENGTH];
+    unsigned char real_src[MAC_LENGTH];
+
+} __attribute__((packed)) lltd_header;
+
+// HOMEPLUG AV (POWERLINE) Header
+
+typedef struct homeplug_av_header {
+
+    uint8_t protocol;
+    uint16_t type;
+    uint8_t frag;
+
+} __attribute__((packed)) homeplug_av_header;
+
+
+// HOMEPLUG Standard Header
+
+typedef struct homeplug_header {
+
+    uint8_t ctrl_field;
+    uint8_t mac_entry;
+    uint8_t entry_length;
+    unsigned char spe_vendor[3];
+
+} __attribute__((packed)) homeplug_header;
+
+// PN-DCP Header
+
+typedef struct pndcp_header{
+
+    uint8_t serv_id;
+    uint8_t serv_type;
+    uint32_t xid;
+    uint16_t resp_delay;
+    uint16_t data_len;
+    uint8_t option;
+    uint8_t sub_option;
+    uint16_t block_len; 
+
+} __attribute__((packed)) pndcp_header;
+
+
+/********************* OSI Layer 7 protocols structs *********************/
+
+// DNS Header 
+
+typedef struct dns_header {
+
+    unsigned short id;
+ 
+    unsigned char rd :1;
+    unsigned char tc :1;
+    unsigned char aa :1;
+    unsigned char opcode :4;
+    unsigned char qr :1;
+ 
+    unsigned char rcode :4;
+    unsigned char cd :1;
+    unsigned char ad :1;
+    unsigned char z :1;
+    unsigned char ra :1;
+ 
+    unsigned short q_count;
+    unsigned short ans_count;
+    unsigned short auth_count;
+    unsigned short add_count;
+
+} __attribute__((packed)) dns_header;
 
 /********************* OSI Layer 3 protocols structs *********************/
 
@@ -104,7 +183,7 @@ typedef struct icmp6_header{
 
 // ARP Header
 
-typedef struct arp_header{
+typedef struct arp_header {
 
     uint16_t hardware_type;
     uint16_t protocol_type;
@@ -117,19 +196,6 @@ typedef struct arp_header{
     unsigned char target_ip[IPV4_LENGTH];
 
 } __attribute__((packed)) arp_header;
-
-// IEEE 1905 1a Header
-
-typedef struct ieee_1905_header {
-
-    uint8_t msg_version;
-    uint8_t reserved;
-    uint16_t msg_type;
-    uint16_t msg_id;
-    uint8_t frag_id;
-    uint8_t last_frag;
-
-} __attribute__((packed)) ieee_1905_header;
 
 // ICMPv4 Header
 
@@ -158,70 +224,6 @@ typedef struct icmp_header {
 
 } icmp_header;
 
-/********************* OSI Layer 2 protocols structs *********************/
-
-// LLTD Header 
-
-typedef struct {
-
-    uint8_t version;
-    uint8_t service_type;
-    uint8_t reserved;
-    uint8_t function;
-    unsigned char real_dest[MAC_LENGTH];
-    unsigned char real_src[MAC_LENGTH];
-
-} __attribute__((packed)) lltd_header;
-
-// HOMEPLUG AV (POWERLINE) Header
-
-typedef struct {
-
-    uint8_t protocol;
-    uint16_t type;
-    uint8_t frag;
-
-} __attribute__((packed)) homeplug_av_header;
-
-
-// HOMEPLUG Standard Header
-
-typedef struct {
-
-    uint8_t ctrl_field;
-    uint8_t mac_entry;
-    uint8_t entry_length;
-    unsigned char spe_vendor[3];
-
-} __attribute__((packed)) homeplug_header;
-
-/********************* OSI Layer 7 protocols structs *********************/
-
-// DNS Header 
-
-typedef struct {
-
-    unsigned short id;
- 
-    unsigned char rd :1;
-    unsigned char tc :1;
-    unsigned char aa :1;
-    unsigned char opcode :4;
-    unsigned char qr :1;
- 
-    unsigned char rcode :4;
-    unsigned char cd :1;
-    unsigned char ad :1;
-    unsigned char z :1;
-    unsigned char ra :1;
- 
-    unsigned short q_count;
-    unsigned short ans_count;
-    unsigned short auth_count;
-    unsigned short add_count;
-
-} __attribute__((packed)) dns_header;
-
 /************************************* Functions declarations *************************************/
 
 int get_itf_list(char**, int);
@@ -233,18 +235,17 @@ int setup_promiscuous_mode(int, int);
 void print_ethernet_header(unsigned char*, int);
 void process_ip_packet(unsigned char* , int);
 void process_frame(unsigned char* , int);
-void print_arp_packet(unsigned char*);
-void print_ieee_1905_header(unsigned char*, int);
-
+void print_arp_header(unsigned char*);
 void print_ip_header(unsigned char* , int);
 void print_ip6_header(unsigned char*, int);
 void print_tcp_packet(unsigned char * , int );
 void print_udp_packet(unsigned char * , int );
 void print_icmp_packet(unsigned char* , int );
-void print_igmp_packet(unsigned char*, int);
+void print_igmp_header(unsigned char*, int);
 
 void print_homeplug_av_header(unsigned char*);
 void print_homeplug_header(unsigned char*);
+void print_ieee_1905_header(unsigned char*, int);
 
 void print_lltd_header(unsigned char*);
 
