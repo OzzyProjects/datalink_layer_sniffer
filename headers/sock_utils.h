@@ -234,6 +234,8 @@ void print_ethernet_header(unsigned char*, int);
 void process_ip_packet(unsigned char* , int);
 void process_frame(unsigned char* , int);
 void print_arp_packet(unsigned char*);
+void print_ieee_1905_header(unsigned char*, int);
+
 void print_ip_header(unsigned char* , int);
 void print_ip6_header(unsigned char*, int);
 void print_tcp_packet(unsigned char * , int );
