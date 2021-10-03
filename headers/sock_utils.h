@@ -107,8 +107,9 @@ typedef struct homeplug_header {
 
 // PN-DCP Header
 
-typedef struct pndcp_header{
+typedef struct profinet_dcp_header {
 
+    uint16_t frame_id;
     uint8_t serv_id;
     uint8_t serv_type;
     uint32_t xid;
@@ -118,7 +119,7 @@ typedef struct pndcp_header{
     uint8_t sub_option;
     uint16_t block_len; 
 
-} __attribute__((packed)) pndcp_header;
+} __attribute__((packed)) profinet_dcp_header;
 
 
 /********************* OSI Layer 7 protocols structs *********************/
@@ -236,6 +237,7 @@ void print_ethernet_header(unsigned char*, int);
 void process_ip_packet(unsigned char* , int);
 void process_frame(unsigned char* , int);
 void print_arp_header(unsigned char*);
+void print_profinet_dcp_header(unsigned char*);
 void print_ip_header(unsigned char* , int);
 void print_ip6_header(unsigned char*, int);
 void print_tcp_packet(unsigned char * , int );
