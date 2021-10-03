@@ -2,35 +2,36 @@
 #define PARSING_H
 
 // HOMEPLUG PROTOCOLS
-#define ETHERTYPE_HOMEPLUG     0x887b
+#define ETHERTYPE_HOMEPLUG     			0x887b
 #define ETHERTYPE_HOMEPLUG_POWERLINE    0x88e1
-#define HOMEPLUG_AV_REQ_BRIDGE 0x6020
+#define HOMEPLUG_AV_REQ_BRIDGE 			0x6020
 
 // LLTD PROTOCOL
 #define ETHERTYPE_LLDT  0x88d9
-
 #define ETHERTYPE_IEEE1905_1    0x893a
+#define ETHERTYPE_PROFINET_DCP			0x8892
 
 #define IPV6_ICMP   0x003A
 
+// Profinet values for service id field
+#define PROFINET_DCP_SERVICE_ID_GET        0x03
+#define PROFINET_DCP_SERVICE_ID_SET        0x04
+#define PROFINET_DCP_SERVICE_ID_IDENTIFY   0x05
+#define PROFINET_DCP_SERVICE_ID_HELLO      0x06
 
-// PN-DCP values for service id field
-#define PNDCP_SERVICE_ID_GET        0x03
-#define PNDCP_SERVICE_ID_SET        0x04
-#define PNDCP_SERVICE_ID_IDENTIFY   0x05
-#define PNDCP_SERVICE_ID_HELLO      0x06
+// Profinet values for service type field
+#define PROFINET_DCP_SERVICE_TYPE_REQUEST              0x00
+#define PROFINET_DCP_SERVICE_TYPE_RESPONSE_SUCCESS     0x01
+#define PROFINET_DCP_SERVICE_TYPE_RESPONSE_UNSUPPORTED 0x05
 
-#define PNDCP_SERVICE_TYPE_REQUEST              0x00
-#define PNDCP_SERVICE_TYPE_RESPONSE_SUCCESS     0x01
-#define PNDCP_SERVICE_TYPE_RESPONSE_UNSUPPORTED 0x05
-
-#define PNDCP_OPTION_IP                 0x01
-#define PNDCP_OPTION_DEVICE             0x02
-#define PNDCP_OPTION_DHCP               0x03
-#define PNDCP_OPTION_RESERVED           0x04
-#define PNDCP_OPTION_CONTROL            0x05
-#define PNDCP_OPTION_DEVICEINITIATIVE   0x06
-#define PNDCP_OPTION_ALL				0xff
+// Profinet values for option field
+#define PROFINET_DCP_OPTION_IP                 0x01
+#define PROFINET_DCP_OPTION_DEVICE             0x02
+#define PROFINET_DCP_OPTION_DHCP               0x03
+#define PROFINET_DCP_OPTION_RESERVED           0x04
+#define PROFINET_DCP_OPTION_CONTROL            0x05
+#define PROFINET_DCP_OPTION_DEVICEINITIATIVE   0x06
+#define PROFINET_DCP_OPTION_ALL				0xff
 
 // LLTD values  for function field
 #define LLTD_FUNCTION_DISCOVER 		0x0
@@ -58,10 +59,11 @@ void parse_arp_opcode_field(uint8_t);
 void parse_lltd_function_field(uint8_t);
 void parse_lltd_service_type_field(uint8_t);
 
-void parse_pndcp_service_id_field(uint8_t);
-void parse_pndcp_service_type_field(uint8_t);
-void parse_pndcp_option_field(uint8_t);
+void parse_profinet_dcp_service_id_field(uint8_t);
+void parse_profinet_dcp_service_type_field(uint8_t);
+void parse_profinet_dcp_option_field(uint8_t);
 
 void parse_igmp_message_type_field(uint8_t);
 
 #endif
+
