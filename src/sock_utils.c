@@ -1,4 +1,4 @@
-##include "sock_utils.h"
+#include "sock_utils.h"
 #include "parsing.h"
 
 /************************************* IN PROGRESS *************************************/
@@ -71,6 +71,12 @@ void process_frame(unsigned char* buffer, int size){
             print_lltd_header(buffer);
             break;
 
+        case ETHERTYPE_PROFINET_DCP:
+            printf("\nPROFINET_DCP frame there!\n");
+            print_ethernet_header(buffer, size);
+            print_profinet_dcp_header(buffer);
+            break;
+
         case ETHERTYPE_IP:
             printf("\nIP frame there!\n");
             process_ip_packet(buffer, size);
@@ -126,7 +132,7 @@ void print_ethernet_header(unsigned char* buffer, int size){
     printf("\nEthernet Header\n\n");
     printf("   |-Destination Address : %.2X-%.2X-%.2X-%.2X-%.2X-%.2X \n", eth->h_dest[0] , eth->h_dest[1] , eth->h_dest[2] , eth->h_dest[3] , eth->h_dest[4] , eth->h_dest[5] );
     printf("   |-Source Address      : %.2X-%.2X-%.2X-%.2X-%.2X-%.2X \n", eth->h_source[0] , eth->h_source[1] , eth->h_source[2] , eth->h_source[3] , eth->h_source[4] , eth->h_source[5] );
-    printf("   |-Protocol            : %x \n", ntohs(eth->h_proto));
+    printf("   |-Protocol            : %x\n", ntohs(eth->h_proto));
 }
 
 void print_arp_header(unsigned char* buffer){
@@ -202,19 +208,20 @@ void print_lltd_header(unsigned char* buffer){
         lltd_hdr->real_src[2],lltd_hdr->real_src[3],lltd_hdr->real_src[4],lltd_hdr->real_src[5]);
 }
 
-void print_pn_dcp_header(unsigned char* buffer){
+void print_profinet_dcp_header(unsigned char* buffer){
 
-    pndcp_header* pndcp_hdr = (pndcp_header*)(buffer + ETH2_HEADER_LEN);
+    profinet_dcp_header* dcp_hdr = (profinet_dcp_header*)(buffer + ETH2_HEADER_LEN);
 
-    printf("\nPN-DCP Header\n");
-    printf("   |-Service ID            : %x\t", pndcp_hdr->serv_id);
-    parse_pndcp_service_id_field(pndcp_hdr->serv_id);
-    printf("   |-Service Type          : %x\t", pndcp_hdr->serv_type);
-    parse_pndcp_service_type_field(pndcp_hdr->serv_type);
-    printf("   |-Xid                   : %x\n", ntohl(pndcp_hdr->xid));
-    printf("   |-Option                : %x\t", pndcp_hdr->option);
-    parse_pndcp_option_field(pndcp_hdr->option);
-    printf("   |-Suboption             : %x\n", pndcp_hdr->sub_option);
+    printf("\nProfinet DCP Header\n");
+    printf("   |-Frame ID              : %x\n", ntohs(dcp_hdr->frame_id));
+    printf("   |-Service ID            : %x\t", dcp_hdr->serv_id);
+    parse_profinet_dcp_service_id_field(dcp_hdr->serv_id);
+    printf("   |-Service Type          : %x\t", dcp_hdr->serv_type);
+    parse_profinet_dcp_service_type_field(dcp_hdr->serv_type);
+    printf("   |-Xid                   : %x\n", ntohl(dcp_hdr->xid));
+    printf("   |-Option                : %x\t", dcp_hdr->option);
+    parse_profinet_dcp_option_field(dcp_hdr->option);
+    printf("   |-Suboption             : %x\n", dcp_hdr->sub_option);
 }
 
 void print_igmp_header(unsigned char* buffer, int size){
@@ -591,14 +598,6 @@ int get_itf_index(int sock, const char* itf_name) {
     
     if (setsockopt(sock, SOL_SOCKET, PACKET_MR_PROMISC,&opt, sizeof(opt)) < 0) {
         printf("Server-setsockopt() error for PACKET_MR_PROMISC\n");
-        return -1;
-    }
-
-    static const int32_t sock_qdisc_bypass = 1;
-    int32_t sock_qdisc_ret = setsockopt(sock, SOL_PACKET, PACKET_QDISC_BYPASS, &sock_qdisc_bypass, sizeof(sock_qdisc_bypass));
-
-    if (sock_qdisc_ret == -1) {
-        perror("Can't enable QDISC bypass on socket\n");
         return -1;
     }
 
