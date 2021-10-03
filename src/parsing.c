@@ -23,23 +23,23 @@ void parse_arp_opcode_field(uint8_t opcode_field){
 
 }
 
-void parse_pndcp_service_id_field(uint8_t service_id){
+void parse_profinet_dcp_service_id_field(uint8_t service_id){
 
 	switch(service_id){
 
-		case PNDCP_SERVICE_ID_GET: 
+		case PROFINET_DCP_SERVICE_ID_GET: 
 			printf("GET\n");
 			break;
 
-		case PNDCP_SERVICE_ID_SET: 
+		case PROFINET_DCP_SERVICE_ID_SET: 
 			printf("SET\n");
 			break;
 
-		case PNDCP_SERVICE_ID_IDENTIFY: 
+		case PROFINET_DCP_SERVICE_ID_IDENTIFY: 
 			printf("IDENTIFY\n");
 			break;
 
-		case PNDCP_SERVICE_ID_HELLO: 
+		case PROFINET_DCP_SERVICE_ID_HELLO: 
 			printf("HELLO\n");
 			break;
 
@@ -49,19 +49,19 @@ void parse_pndcp_service_id_field(uint8_t service_id){
 	}
 }
 
-void parse_pndcp_service_type_field(uint8_t service_type){
+void parse_profinet_dcp_service_type_field(uint8_t service_type){
 
 	switch(service_type){
 
-		case PNDCP_SERVICE_TYPE_REQUEST: 
+		case PROFINET_DCP_SERVICE_TYPE_REQUEST: 
 			printf("Request\n");
 			break;
 
-		case PNDCP_SERVICE_TYPE_RESPONSE_SUCCESS: 
+		case PROFINET_DCP_SERVICE_TYPE_RESPONSE_SUCCESS: 
 			printf("Response Succes\n");
 			break;
 
-		case PNDCP_SERVICE_TYPE_RESPONSE_UNSUPPORTED: 
+		case PROFINET_DCP_SERVICE_TYPE_RESPONSE_UNSUPPORTED: 
 			printf("Response Unsupported\n");
 			break;
 
@@ -71,35 +71,35 @@ void parse_pndcp_service_type_field(uint8_t service_type){
 	}
 }
 
-void parse_pndcp_option_field(uint8_t option){
+void parse_profinet_dcp_option_field(uint8_t option){
 
 	switch(option){
 
-		case PNDCP_OPTION_IP: 
+		case PROFINET_DCP_OPTION_IP: 
 			printf("IP\n");
 			break;
 
-		case PNDCP_OPTION_DEVICE: 
+		case PROFINET_DCP_OPTION_DEVICE: 
 			printf("Device\n");
 			break;
 
-		case PNDCP_OPTION_DHCP: 
+		case PROFINET_DCP_OPTION_DHCP: 
 			printf("DHCP\n");
 			break;
 
-		case PNDCP_OPTION_RESERVED: 
+		case PROFINET_DCP_OPTION_RESERVED: 
 			printf("Reserved\n");
 			break;
 
-		case PNDCP_OPTION_CONTROL: 
+		case PROFINET_DCP_OPTION_CONTROL: 
 			printf("Control\n");
 			break;
 
-		case PNDCP_OPTION_DEVICEINITIATIVE: 
+		case PROFINET_DCP_OPTION_DEVICEINITIATIVE: 
 			printf("Device initiative\n");
 			break;
 
-		case PNDCP_OPTION_ALL: 
+		case PROFINET_DCP_OPTION_ALL: 
 			printf("ALL\n");
 			break;
 
