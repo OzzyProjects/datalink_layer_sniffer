@@ -1,6 +1,16 @@
 #ifndef PARSING_H
 #define PARSING_H
 
+#define ETHERTYPE_IPV6		0x86dd
+
+#define IPV6_ICMP   0x003A
+
+// NBNS and DNS source/dest port
+
+#define NBNS_PORT		0x0089
+#define DNS_PORT 		0x0035
+#define MDNS_PORT  		0x14e9		
+
 // HOMEPLUG PROTOCOLS
 #define ETHERTYPE_HOMEPLUG     			0x887b
 #define ETHERTYPE_HOMEPLUG_POWERLINE    0x88e1
@@ -10,8 +20,6 @@
 #define ETHERTYPE_LLDT  0x88d9
 #define ETHERTYPE_IEEE1905_1    0x893a
 #define ETHERTYPE_PROFINET_DCP			0x8892
-
-#define IPV6_ICMP   0x003A
 
 // Profinet values for service id field
 #define PROFINET_DCP_SERVICE_ID_GET        0x03
