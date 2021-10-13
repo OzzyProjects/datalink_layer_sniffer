@@ -9,7 +9,7 @@ static unsigned char heap_memory[1024 * 1024];
 static size_t next_index = 0;
 
 // revelant puncts in network
-static const char* network_punct = "/=[](){}:<>;";
+static const char* network_punct = "/=[](){}:<>; ";
 
 // file descriptor for the string extractor
 static FILE* file = NULL;
@@ -24,7 +24,7 @@ void init_string_record_file(const char* filename){
 }
 
 void close_record_file(){
-   fclose(file);
+    fclose(file);
 }
 
 // fake malloc allocating nothing on the heap
@@ -223,7 +223,7 @@ unsigned char *clean_str(unsigned char *restrict str){
     unsigned char* tmp = str;
 
     while(*str){
-        if (*str < 0x15)
+        if (*str < 0x20)
             *str = '.';
         str++;
     }
@@ -246,7 +246,7 @@ void print_strings(unsigned char *restrict buffer, int size){
             int j = 0;
 
             // while if it's printable char or any kind of dot representing ctrl chars 
-            while(isprint(*tmp) || (*tmp < 0x15 && *tmp)){
+            while(isprint(*tmp) || (*tmp < 0x20 && *tmp) || isspace(*tmp)){
 
                 // if it's alphanumeric char, let's increment counter
                 if (isalnum(*tmp))
