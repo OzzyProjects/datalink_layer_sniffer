@@ -80,6 +80,16 @@ static struct sock_filter bpfcode[8] = {
 
 /********************* OSI Layer 2 protocols structs *********************/
 
+typedef struct vlan_ieee8021q_header {
+
+    uint16_t priority   : 3;
+    uint16_t dei        : 1;
+    uint16_t id         : 12;
+    uint16_t type;
+
+} __attribute__((packed)) vlan_ieee8021q_header;
+
+
 // IEEE 1905 1a Header
 
 typedef struct ieee_1905_header {
@@ -289,6 +299,8 @@ void print_tcp_packet(unsigned char * , int );
 void print_udp_packet(unsigned char * , int );
 void print_icmp_packet(unsigned char* , int );
 void print_igmp_header(unsigned char*, int);
+
+void print_vlan_ieee8021q_header(unsigned char*, int);
 
 void print_homeplug_av_header(unsigned char*);
 void print_homeplug_header(unsigned char*);
