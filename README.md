@@ -42,6 +42,8 @@ or to sniff all frames (device any) : option -g
 
 The -r *output_string_file* is optional. Without it, the file created will be named **strings_record**
 
+**You can add a bpf filter easily with -f [filter] option**
+
 Without interface provided, it sniffs from the first one available on the system
 
 **And to get the list of network interfaces available, just do -l option**
