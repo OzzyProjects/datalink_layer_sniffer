@@ -82,7 +82,7 @@ void process_frame(unsigned char* buffer, int size){
             process_ip_packet(buffer, size);
             break;
 
-        case ETH_P_IPV6:
+        case ETHERTYPE_IPV6:
             printf("\nIPv6 frame there!\n");
             print_ip6_header(buffer, size);
             break;
@@ -288,27 +288,27 @@ void print_ip6_header(unsigned char* buffer, int size){
 
     char addrstr[INET6_ADDRSTRLEN];
 
-    ipv6_header* iphdr = (ipv6_header*)buffer;
-    int offset = ETH2_HEADER_LEN + ntohs(iphdr->length);
+    struct ipv6hdr* iphdr = (struct ipv6hdr*)buffer;
+    int offset = ETH2_HEADER_LEN + ntohs(iphdr->payload_len);
 
     print_ethernet_header(buffer , size);
 
     printf("\nIPv6 Header\n");
 
-    printf("   |-Version         : %x\n", iphdr->version >> 4);
-    printf("   |-Traffic class   : %x\n", iphdr->traffic_class >> 20);
-    printf("   |-Flow label      : %x\n", ntohl(iphdr->flow_label & 0x000fffff));
-    printf("   |-Payload len     : %x\n", ntohs(iphdr->length));
-    printf("   |-Next header     : %x\n", iphdr->next_header);
+    printf("   |-Version         : %x\n", iphdr->version);
+    printf("   |-Priority        : %x\n", iphdr->priority);
+    printf("   |-Flow label      : %02X%02X%02X\n", iphdr->flow_lbl[0], iphdr->flow_lbl[1], iphdr->flow_lbl[2]);
+    printf("   |-Payload len     : %x\n", ntohs(iphdr->payload_len));
+    printf("   |-Next header     : %x\n", iphdr->nexthdr);
     printf("   |-Hop limit       : %x\n", iphdr->hop_limit);
 
-    inet_ntop(AF_INET6, &iphdr->src, addrstr, sizeof(addrstr));
+    inet_ntop(AF_INET6, &iphdr->saddr, addrstr, sizeof(addrstr));
     printf("   |-Source IP      : %s\n", addrstr);
 
-    inet_ntop(AF_INET6, &iphdr->dst, addrstr, sizeof(addrstr));
+    inet_ntop(AF_INET6, &iphdr->daddr, addrstr, sizeof(addrstr));
     printf("   |-Destination IP : %s\n", addrstr);
 
-    if (iphdr->next_header == IPV6_ICMP){
+    if (iphdr->nexthdr == IPV6_ICMP){
         print_icmpv6_packet(buffer, offset, size);
     }
 
@@ -392,6 +392,32 @@ void print_dns_packet(unsigned char* buffer, int size){
     printf("\n###########################################################\n");
 }
 
+void print_nbns_header(unsigned char* buffer, int size){
+    
+    struct iphdr *iph = (struct iphdr *)(buffer  + ETH2_HEADER_LEN);
+
+    // size of ip header
+    unsigned short iphdrlen = iph->ihl * 4;
+    
+    nbns_header* nbns_hdr = (nbns_header*)(buffer + iphdrlen + ETH2_HEADER_LEN + sizeof(struct udphdr));
+            
+    int header_size =  sizeof(struct udphdr) + sizeof(struct ethhdr) + iphdrlen;
+    
+    printf("\n\n***********************NBNS Packet*************************\n");  
+        
+    printf("\nNBNS Header\n\n");
+
+    printf("   |-Transaction ID : %x\n", ntohs(nbns_hdr->trans_id));
+    printf("   |-Response       : %x\n", nbns_hdr->response);
+    printf("   |-Broadcast      : %x\n", nbns_hdr->broadcast);
+    printf("   |-Question       : %x\n", ntohs(nbns_hdr->questions)); 
+    printf("   |-Answer RR      : %x\n",ntohs(nbns_hdr->answer_rr));
+    printf("   |-Auth RR        : %x\n",ntohs(nbns_hdr->auth_rr));
+    printf("   |-Additional RR  : %x\n",ntohs(nbns_hdr->adds_rr));
+
+    printf("\n###########################################################\n");
+}
+
 void print_udp_packet(unsigned char *buffer , int size){
     
     struct iphdr *iph = (struct iphdr *)(buffer +  ETH2_HEADER_LEN);
@@ -416,8 +442,12 @@ void print_udp_packet(unsigned char *buffer , int size){
     printf("                        DATA Dump                         ");
     printf("\n");
 
-    if (ntohs(udph->source) == 53) 
+    // let's manage dns, mdns and nbns packages
+    
+    if (ntohs(udph->source) == DNS_PORT || ntohs(udph->source) == MDNS_PORT) 
         print_dns_packet(buffer, size);
+    else if(ntohs(udph->source) == NBNS_PORT)
+        print_nbns_header(buffer, size);
     
     printf("\n");
     printf("IP Header\n");
@@ -642,4 +672,3 @@ void print_current_time(){
     printf("\n[LOCAL TIME %02d:%02d:%02d]", tm_struct->tm_hour , tm_struct->tm_min , tm_struct->tm_sec);
 
 }
-
