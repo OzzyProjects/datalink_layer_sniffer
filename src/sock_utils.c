@@ -87,6 +87,15 @@ void process_frame(unsigned char* buffer, int size){
             print_ip6_header(buffer, size);
             break;
 
+        case ETHERTYPE_IEEE_8021Q:
+            printf("\nIEEE_8021Q frame there!\n");
+            print_vlan_ieee8021q_header(buffer, size);
+            break;
+
+        case ETHERTYPE_EAPOL:
+            printf("\nEAPOL frame there!\n");
+            break;
+
         default:
             printf("\n********* UNKNOWN frame there! **********\n");
             print_ethernet_header(buffer , size);
@@ -189,6 +198,38 @@ void print_ieee_1905_header(unsigned char* buffer, int size){
     printf("   |-Message ID         : %x\n", ntohs(ieee_hdr->msg_id));
 
     /* TODO : parse TLV */  
+}
+
+void print_vlan_ieee8021q_header(unsigned char* buffer, int size){
+
+    vlan_ieee8021q_header* vlan_hdr = (vlan_ieee8021q_header*)(buffer + ETH2_HEADER_LEN);
+
+    printf("\nIEEE_8021Q VLAN Header\n\n");
+    printf("   |-Priority       : %x\t", vlan_hdr->priority);
+
+    // parsing vlan priority 
+    if (vlan_hdr->priority == 0)
+        printf("(Best effort)\n");
+    else
+        printf("(Normal)\n"); 
+
+    printf("   |-DEI            : %x\n", vlan_hdr->dei);
+    printf("   |-ID             : %x\n", vlan_hdr->id);
+    printf("   |-Type           : %x\n", ntohs(vlan_hdr->type));
+
+    switch(ntohs(vlan_hdr->type)){
+
+        case ETHERTYPE_HOMEPLUG:
+            print_homeplug_header(buffer + sizeof(vlan_ieee8021q_header));
+        break;
+
+        case ETHERTYPE_HOMEPLUG_POWERLINE:
+            print_homeplug_av_header(buffer + sizeof(vlan_ieee8021q_header));
+        break;
+
+        default:
+            printf("\nUnknown VLAN frame !\n");
+    }
 }
 
 void print_lltd_header(unsigned char* buffer){
@@ -375,9 +416,11 @@ void print_dns_packet(unsigned char* buffer, int size){
         
     printf("\nDNS Header\n\n");
 
+    // dissecting the opcode field
     printf("   |-Opcode         : %x\t",dndh->opcode);
     parse_dns_opcode_field(dndh->opcode);
 
+    // same for the rcode
     printf("   |-R code         : %x\t",dndh->rcode);
     parse_dns_rcode_field(dndh->rcode);
 
@@ -404,7 +447,7 @@ void print_nbns_header(unsigned char* buffer, int size){
 
     printf("   |-Transaction ID : %x\n", ntohs(nbns_hdr->trans_id));
     printf("   |-Response       : %x\n", nbns_hdr->response);
-    printf("   |-Broadcast      : %x\n", nbns_hdr->broadcast);
+    printf("   |-Broadcast      : %x\n", nbns_hdr->broadcast & 0x1);
     printf("   |-Question       : %x\n", ntohs(nbns_hdr->questions)); 
     printf("   |-Answer RR      : %x\n",ntohs(nbns_hdr->answer_rr));
     printf("   |-Auth RR        : %x\n",ntohs(nbns_hdr->auth_rr));
