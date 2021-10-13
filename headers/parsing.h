@@ -1,7 +1,9 @@
 #ifndef PARSING_H
 #define PARSING_H
 
-#define ETHERTYPE_IPV6		0x86dd
+#define ETHERTYPE_IPV6			0x86dd
+#define ETHERTYPE_IEEE_8021Q	0x8100
+#define ETHERTYPE_EAPOL			0x888e
 
 #define IPV6_ICMP   0x003A
 
