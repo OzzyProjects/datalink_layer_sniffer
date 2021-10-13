@@ -166,6 +166,42 @@ void parse_lltd_service_type_field(uint8_t service_field){
 
 }
 
+// parsing ICMP type field with the most common values
+
+void parse_icmp_type_field(uint8_t type_field){
+
+	switch(type_field){
+
+		case ICMP_ECHOREPLY: 
+			printf("(Echo Reply)\n");
+		break;
+
+		case ICMP_DEST_UNREACH: 
+			printf("(Dest Unreachable)\n");
+		break;
+
+		case ICMP_REDIRECT: 
+			printf("(Redirection)\n");
+		break;
+
+		case ICMP_ECHO: 
+			printf("(Echo Request)\n");
+		break;
+
+		case ICMP_TIMESTAMP: 
+			printf("(Timestamp)\n");
+		break;
+
+		case ICMP_TIMESTAMPREPLY: 
+			printf("(Timestamp Reply)\n");
+		break;
+
+		default:
+			printf("(Unknown | Invalid)\n");
+
+	}
+}
+
 // parse the IGMP field service type with the most common values
 
 void parse_igmp_message_type_field(uint8_t message_field){
@@ -196,5 +232,63 @@ void parse_igmp_message_type_field(uint8_t message_field){
 			printf("(Unknown | Invalid)\n");
 
 	}
+
+}
+
+void parse_dns_opcode_field(uint8_t opcode){
+
+	switch(opcode){
+
+		case DNS_OPCODE_QUERRY: 
+			printf("(Querry)\n");
+			break;
+
+		case DNS_OPCODE_STATUS: 
+			printf("(Status)\n");
+			break;
+
+		case DNS_OPCODE_NOTIFY: 
+			printf("(Notify)\n");
+			break;
+
+		case DNS_OPCODE_UPGRADE: 
+			printf("(Upgrade)\n");
+			break;
+
+		default:
+			printf("(Unknown | Invalid)\n");
+
+	}	
+
+}
+
+void parse_dns_rcode_field(uint8_t rcode){
+
+	switch(rcode){
+
+		case DNS_RCODE_NOERROR: 
+			printf("(No error)\n");
+			break;
+
+		case DNS_RCODE_FORMERR: 
+			printf("(Formerr)\n");
+			break;
+
+		case DNS_RCODE_SERVFAIL: 
+			printf("(Servfail)\n");
+			break;
+
+		case DNS_RCODE_NOTIMP: 
+			printf("(No timp)\n");
+			break;
+
+		case DNS_RCODE_REFUSED: 
+			printf("(Refused)\n");
+			break;
+
+		default:
+			printf("(Unknown | Invalid)\n");
+
+	}	
 
 }
