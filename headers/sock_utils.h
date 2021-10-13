@@ -17,16 +17,12 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <linux/if_ether.h>
-#include <sys/ioctl.h>
 #include <net/if.h>
-#include <linux/if_packet.h>
 #include <net/ethernet.h> 
-#include <ifaddrs.h>
 #include <netinet/ip_icmp.h>
 #include <linux/udp.h>
 #include <linux/tcp.h>
 #include <netinet/ip.h>
-#include <linux/if_arp.h> 
 #include <netinet/igmp.h>
 #include <netinet/icmp6.h>
 
