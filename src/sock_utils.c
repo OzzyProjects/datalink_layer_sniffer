@@ -288,7 +288,7 @@ void print_ip6_header(unsigned char* buffer, int size){
 
     char addrstr[INET6_ADDRSTRLEN];
 
-    struct ipv6hdr* iphdr = (struct ipv6hdr*)buffer;
+    struct ipv6hdr* iphdr = (struct ipv6hdr*)(buffer + ETH2_HEADER_LEN);
     int offset = ETH2_HEADER_LEN + ntohs(iphdr->payload_len);
 
     print_ethernet_header(buffer , size);
@@ -303,10 +303,10 @@ void print_ip6_header(unsigned char* buffer, int size){
     printf("   |-Hop limit       : %x\n", iphdr->hop_limit);
 
     inet_ntop(AF_INET6, &iphdr->saddr, addrstr, sizeof(addrstr));
-    printf("   |-Source IP      : %s\n", addrstr);
+    printf("   |-Source IP       : %s\n", addrstr);
 
     inet_ntop(AF_INET6, &iphdr->daddr, addrstr, sizeof(addrstr));
-    printf("   |-Destination IP : %s\n", addrstr);
+    printf("   |-Destination IP  : %s\n", addrstr);
 
     if (iphdr->nexthdr == IPV6_ICMP){
         print_icmpv6_packet(buffer, offset, size);
@@ -351,10 +351,10 @@ void print_tcp_packet(unsigned char* buffer, int size){
     printf("\n");
         
     printf("IP Header\n");
-    print_data(buffer+ETH2_HEADER_LEN,iphdrlen);
+    print_data(buffer+ETH2_HEADER_LEN, iphdrlen);
         
     printf("TCP Header\n");
-    print_data(buffer+iphdrlen,tcph->doff*4);
+    print_data(buffer + iphdrlen + ETH2_HEADER_LEN, tcph->doff*4);
         
     printf("Data Payload\n");    
     print_data(buffer+header_size, size-header_size);
@@ -364,27 +364,24 @@ void print_tcp_packet(unsigned char* buffer, int size){
 
 void print_dns_packet(unsigned char* buffer, int size){
     
-    struct iphdr *iph = (struct iphdr *)( buffer  + ETH2_HEADER_LEN);
+    struct iphdr *iph = (struct iphdr *)(buffer  + ETH2_HEADER_LEN);
 
     // size of ip header
     unsigned short iphdrlen = iph->ihl * 4;
     
     dns_header *dndh = (dns_header*)(buffer + iphdrlen + ETH2_HEADER_LEN + sizeof(struct udphdr));
-            
-    int header_size =  sizeof(struct udphdr) + sizeof(struct ethhdr) + iphdrlen;
-    
+                
     printf("\n\n***********************DNS Packet*************************\n");  
         
     printf("\nDNS Header\n\n");
 
-    if (dndh->qr)
-        printf("   |-DNS query type\n");
-    else
-        printf("   |-DNS response type\n");
+    printf("   |-Opcode         : %x\t",dndh->opcode);
+    parse_dns_opcode_field(dndh->opcode);
 
-    printf("   |-Opcode         : %x\n",dndh->opcode);
-    printf("   |-R code         : %x\n",dndh->rcode);
-    printf("   |-Q count        : %x\n",ntohs(dndh->q_count)); 
+    printf("   |-R code         : %x\t",dndh->rcode);
+    parse_dns_rcode_field(dndh->rcode);
+
+    printf("   |-Q count        : %x\n",ntohs(dndh->q_count));
     printf("   |-Answer         : %x\n",ntohs(dndh->ans_count));
     printf("   |-Auth count     : %x\n",ntohs(dndh->auth_count));
     printf("   |-Additional     : %x\n",ntohs(dndh->add_count));
@@ -394,15 +391,13 @@ void print_dns_packet(unsigned char* buffer, int size){
 
 void print_nbns_header(unsigned char* buffer, int size){
     
-    struct iphdr *iph = (struct iphdr *)(buffer  + ETH2_HEADER_LEN);
+    struct iphdr *iph = (struct iphdr *)(buffer + ETH2_HEADER_LEN);
 
     // size of ip header
     unsigned short iphdrlen = iph->ihl * 4;
     
     nbns_header* nbns_hdr = (nbns_header*)(buffer + iphdrlen + ETH2_HEADER_LEN + sizeof(struct udphdr));
-            
-    int header_size =  sizeof(struct udphdr) + sizeof(struct ethhdr) + iphdrlen;
-    
+                
     printf("\n\n***********************NBNS Packet*************************\n");  
         
     printf("\nNBNS Header\n\n");
@@ -427,7 +422,7 @@ void print_udp_packet(unsigned char *buffer , int size){
     
     struct udphdr *udph = (struct udphdr*)(buffer + iphdrlen  + ETH2_HEADER_LEN);
     
-    int header_size =  sizeof(struct ethhdr) + iphdrlen + sizeof(udph);
+    int header_size =  ETH2_HEADER_LEN + iphdrlen + sizeof(struct udphdr);
     
     printf("\n\n***********************UDP Packet*************************\n");
     
@@ -436,17 +431,17 @@ void print_udp_packet(unsigned char *buffer , int size){
     printf("\nUDP Header\n");
     printf("   |-Source Port      : %d\n" , ntohs(udph->source));
     printf("   |-Destination Port : %d\n" , ntohs(udph->dest));
-    printf("   |-UDP Length       : %d\n" , ntohs(udph->len));
-    printf("   |-UDP Checksum     : %d\n" , ntohs(udph->check));
+    printf("   |-UDP Length       : %x\n" , ntohs(udph->len));
+    printf("   |-UDP Checksum     : %x\n" , ntohs(udph->check));
     printf("\n");
     printf("                        DATA Dump                         ");
     printf("\n");
 
     // let's manage dns, mdns and nbns packages
     
-    if (ntohs(udph->source) == DNS_PORT || ntohs(udph->source) == MDNS_PORT) 
+    if (ntohs(udph->dest) == DNS_PORT || ntohs(udph->dest) == MDNS_PORT) 
         print_dns_packet(buffer, size);
-    else if(ntohs(udph->source) == NBNS_PORT)
+    else if(ntohs(udph->dest) == NBNS_PORT)
         print_nbns_header(buffer, size);
     
     printf("\n");
@@ -454,7 +449,7 @@ void print_udp_packet(unsigned char *buffer , int size){
     print_data(buffer+ETH2_HEADER_LEN , iphdrlen);
         
     printf("UDP Header\n");
-    print_data(buffer+iphdrlen, sizeof(udph));
+    print_data(buffer + iphdrlen + ETH2_HEADER_LEN, sizeof(struct udphdr));
         
     printf("Data Payload\n");    
     
@@ -481,14 +476,7 @@ void print_icmp_packet(unsigned char* buffer , int size){
         
     printf("\n\nICMP Header\n");
     printf("   |-Type :          : %x\t", icmph->type);
-            
-    if(icmph->type == 11){
-        printf("(TTL Expired)\n");
-    }
-    else if(icmph->type == ICMP_ECHOREPLY){
-        printf("(ICMP Echo Reply)\n");
-    }
-    
+    parse_icmp_type_field(icmph->type);
     printf("   |-Code          : %x\n", icmph->code);
     printf("   |-Checksum      : %x\n", ntohs(icmph->checksum));
     printf("   |-ID            : %x\n", ntohs(icmph->un.echo.id));
