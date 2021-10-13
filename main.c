@@ -1,18 +1,20 @@
 /* Libraries */ 
 
-#include <signal.h>  
+#include <signal.h>
 
 #include "sock_utils.h" 
 #include "string_utils.h"
 
-// main option fields structure
+// main option fields struct
 
 typedef struct opt_args_main {
 
+    uint32_t max_packet;
     uint8_t is_filter   : 2;
     uint8_t is_file     : 2;
     uint8_t is_itf      : 2;
-    uint8_t is_godmode  : 2;
+    uint8_t is_godmode  : 1;
+    uint8_t is_limited  : 1;
 
 
 } __attribute__((packed)) opt_args_main;
@@ -23,6 +25,9 @@ void handle_packet(u_char*, const struct pcap_pkthdr*, const u_char*);
 
 static const char* default_filename = "strings_log";
 
+// number of packets sniffed
+static unsigned long num_packet = 0;
+
 int main(int argc, char **argv) {
     
     // set the signal handler to catch Ctrl + c interrupt
@@ -30,6 +35,7 @@ int main(int argc, char **argv) {
 
     // global params for the PCAP session
     char device[IFNAMSIZ];
+    char max_packet_char[MAX_PACKETS_NUMBER_LENGTH];
     char record_file[RECORD_FILENAME_SIZE];
     char pcap_filters[PCAP_FILTER_SIZE];
     char errbuf[PCAP_ERRBUF_SIZE];
@@ -44,20 +50,25 @@ int main(int argc, char **argv) {
 
     memset(&opt_args, 0, sizeof(opt_args));
 
-    while ((opt = getopt(argc, argv, "i:r:f:gl")) != -1){
+    opt_args.max_packet = UINT_MAX;
+
+    while ((opt = getopt(argc, argv, "i:r:f:glc")) != -1){
 
         switch (opt){
 
+            // device name to bind to -i option
             case 'i':
                 strncpy(device, optarg, IFNAMSIZ - 1);
                 opt_args.is_itf = 1;
                 break;
 
+            // string record filename -r option
             case 'r':
                 strncpy(record_file, optarg, RECORD_FILENAME_SIZE - 1);
                 opt_args.is_file = 1;
                 break;
 
+            // binding to any device = all frames
             case 'g':
                 opt_args.is_godmode = 1;
                 break;
@@ -68,6 +79,19 @@ int main(int argc, char **argv) {
                 return EXIT_SUCCESS;
                 break;
 
+            // limit the number of sniffed packed -c option
+            case 'c':
+                // out of range number
+                assert(strlen(optarg) < MAX_PACKETS_NUMBER_LENGTH -1);
+                opt_args.max_packet = strtol(max_packet_char, &optarg, 10);
+                opt_args.is_limited = 1;
+                if (opt_args.max_packet == 0){
+                    fprintf(stderr, "ERROR : Incorrect number for max packet (unsigned long type required)\n");
+                    exit(EXIT_FAILURE);
+                }
+                break;
+
+            // applying filters to the capture -f option
             case 'f':
                 strncpy(pcap_filters, optarg, PCAP_FILTER_SIZE - 1);
                 opt_args.is_filter = 1;
@@ -75,23 +99,25 @@ int main(int argc, char **argv) {
 
             case '?':
                 if (optopt == 'i')
-                    fprintf (stderr, "Option -%c requires an argument [interface_name] !\n", optopt);
+                    fprintf(stderr, "Option -%c requires an argument [interface_name] !\n", optopt);
                 else if (optopt == 'r')
-                    fprintf (stderr, "Option -%c requires an argument [record_file_name] !\n", optopt);
+                    fprintf(stderr, "Option -%c requires an argument [record_file_name] !\n", optopt);
                 else if (optopt == 'f')
-                    fprintf (stderr, "Option -%c requires an argument [pcap_filters] !\n", optopt);
+                    fprintf(stderr, "Option -%c requires an argument [pcap_filters] !\n", optopt);
+                else if (optopt == 'c')
+                    fprintf(stderr, "Option -%c requires an argument [max packets] !\n", optopt);
                 else
                     fprintf(stderr, "Unknown option `-%c'.\n", optopt);
 
                 exit(EXIT_FAILURE);
 
             case 1:
-                printf("Non-option arg: %s\n", optarg);
+                printf("ERROR : Non-option argument : %s\n", optarg);
                 exit(EXIT_FAILURE);
                 break;
 
             default:
-                printf("ERROR : Couldn't parse command line arguments\n");
+                printf("FATAL ERROR : Couldn't parse command line arguments\n");
                 abort();
         }
     }
@@ -121,7 +147,7 @@ int main(int argc, char **argv) {
     if (!opt_args.is_godmode){
 
         /* Open the session in promiscuous mode */
-        handle = pcap_open_live(device, BUFSIZ, -1, 4096, errbuf);
+        handle = pcap_open_live(device, BUFSIZ, -1, 1024, errbuf);
 
         if (handle == NULL){
             fprintf(stderr, "ERROR : Couldn't open device %s: %s\n", device, errbuf);
@@ -146,6 +172,8 @@ int main(int argc, char **argv) {
             fprintf(stderr, "ERROR : Couldn't create socket handle for device any: %s\n", errbuf);
             return EXIT_FAILURE;
         }
+
+        assert(pcap_set_snaplen(handle, BUFSIZ) == 0);
 
         assert(pcap_can_set_rfmon(handle) == 1);
 
@@ -174,14 +202,20 @@ int main(int argc, char **argv) {
             return EXIT_FAILURE;
         }
 
-        printf("\nFilters have been successfully applied\n");
+        printf("\nFilters has been successfully applied\n");
 
     }
     
-    printf("\nINFO : PCAP_DATA_LINK_TYPE\t: %x\n", pcap_datalink(handle));
+    printf("\nINFO : PCAP_DATA_LINK_TYPES\t: %x\n", pcap_datalink(handle));
     
     // let's loop throuht the network
-    pcap_loop(handle, -1, handle_packet, NULL);
+    if (opt_args.is_limited)
+
+        // limited capture (n packets)
+        pcap_loop(handle, opt_args.max_packet, handle_packet, NULL);
+    else
+        // otherwise, infinite loop
+        pcap_loop(handle, -1, handle_packet, NULL);
 
     pcap_close(handle);
 
@@ -192,8 +226,7 @@ int main(int argc, char **argv) {
 
 void int_handler(int signum){
 
-    close_record_file();
-    printf("Exiting program with SIGINT [%d] : ok\n", signum);
+    printf("Exiting program with SIGINT [%x}: ok\n", signum);
     exit(EXIT_SUCCESS);
 }
 
@@ -204,11 +237,14 @@ void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char 
 
     unsigned char* raw_packet = malloc(header->caplen);
 
+    ++num_packet;
+
     if (raw_packet != NULL){
 
         memcpy(raw_packet, (u_char*)packet, header->caplen);
 
         // let's print the frame
+        printf("\nFRAME NUMBER : %lu\n", num_packet);
         process_frame(raw_packet, header->caplen);
 
         // printing raw datas in hex format 
