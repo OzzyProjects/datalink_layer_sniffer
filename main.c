@@ -226,6 +226,7 @@ int main(int argc, char **argv) {
 
 void int_handler(int signum){
 
+    close_record_file();
     printf("Exiting program with SIGINT [%x}: ok\n", signum);
     exit(EXIT_SUCCESS);
 }
