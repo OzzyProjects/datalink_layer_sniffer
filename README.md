@@ -44,6 +44,8 @@ The -r *output_string_file* is optional. Without it, the file created will be na
 
 **You can add a bpf filter easily with -f [filter] option**
 
+**The -c [max_packets] allows you to sniff a liminted number of frames**
+
 Without interface provided, it sniffs from the first one available on the system
 
 **And to get the list of network interfaces available, just do -l option**
