@@ -8,6 +8,10 @@
 
 **New release working with libpcap. The older one deals with raw sockets only**
 
+Firstable, make sure you have libpcap installed on your system :
+
+`sudo apt-get install libpcap-dev` 
+
 It grabs all revelant strings from packets : url, domain names, json requests etc...
 
 You can see an example in file named string_log in the results repository
