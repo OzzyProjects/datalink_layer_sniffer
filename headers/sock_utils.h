@@ -47,14 +47,29 @@
     (((u_int32_t)(x) & (u_int32_t)0xff000000UL) >> 24) ))
 
 
+
+/* Filter TCP segments to port 80
+
+static struct sock_filter bpfcode[8] = {
+    { OP_LDH, 0, 0, 12          },  
+    { OP_JEQ, 0, 5, ETH_P_IP    },  
+    { OP_LDB, 0, 0, 23          },  
+    { OP_JEQ, 0, 3, IPPROTO_TCP },  
+    { OP_LDH, 0, 0, 36          },  
+    { OP_JEQ, 0, 1, 80          },  
+    { OP_RET, 0, 0, -1,         },  
+    { OP_RET, 0, 0, 0           },                                                                                                                                                                                                   
+
+}; */
+
+
 #define ETH_P_ALL   0x0003
 
 
-#define BUFF_SIZE 65536
+#define BUFF_SIZE 4096
 #define ETH2_HEADER_LEN 14
 #define MAC_LENGTH 6
 #define IPV4_LENGTH 4
-#define ITF_MAX_NBR 0x10
 
 #define PCAP_FILTER_SIZE  64
 #define RECORD_FILENAME_SIZE  32
