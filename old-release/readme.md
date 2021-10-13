@@ -1,6 +1,6 @@
-# Raw socket sniffer Linux
+# Raw socket sniffer Linux (OLD)
 
-**WORK IN PROGRESS**
+**PEVERIOUS RELEASE DEALING WITH RAW SOCKETS**
 
 **Raw socket Linux sniffer being able to sniff all TCP, IP, ICMP, ARP, IGMP and some frames from OSI Layer 3.**
 
