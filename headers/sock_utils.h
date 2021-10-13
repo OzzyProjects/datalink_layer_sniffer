@@ -276,7 +276,6 @@ typedef struct nbns_header {
 
 /************************************* Functions declarations *************************************/
 
-int setup_promiscuous_mode(int, int);
 void print_itf_list();
 
 void print_ethernet_header(unsigned char*, int);
