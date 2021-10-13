@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <time.h>
+#include <ctype.h>
 
 #include <sys/time.h>
 #include <sys/socket.h>
@@ -29,6 +30,8 @@
 #include <netinet/igmp.h>
 #include <netinet/icmp6.h>
 
+#include <pcap.h>
+
 /********************* Usefull macros *********************/
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
@@ -45,15 +48,21 @@
     (((u_int32_t)(x) & (u_int32_t)0x00ff0000UL) >>  8) | \
     (((u_int32_t)(x) & (u_int32_t)0xff000000UL) >> 24) ))
 
+
 #define ETH_P_ALL   0x0003
+
 
 #define BUFF_SIZE 65536
 #define ETH2_HEADER_LEN 14
-#define HW_TYPE 1
 #define MAC_LENGTH 6
 #define IPV4_LENGTH 4
 #define ITF_MAX_NBR 0x10
-#define MTU 1472
+
+#define PCAP_FILTER_SIZE  64
+#define RECORD_FILENAME_SIZE  32
+
+#define PCAP_NETMASK_UNKNOWN 0xffffffff
+
 
 /********************* OSI Layer 2 protocols structs *********************/
 
@@ -70,6 +79,7 @@ typedef struct ieee_1905_header {
 
 } __attribute__((packed)) ieee_1905_header;
 
+
 // LLTD Header 
 
 typedef struct lltd_header {
@@ -82,6 +92,7 @@ typedef struct lltd_header {
     unsigned char real_src[MAC_LENGTH];
 
 } __attribute__((packed)) lltd_header;
+
 
 // HOMEPLUG AV (POWERLINE) Header
 
@@ -105,6 +116,7 @@ typedef struct homeplug_header {
 
 } __attribute__((packed)) homeplug_header;
 
+
 // PN-DCP Header
 
 typedef struct profinet_dcp_header {
@@ -120,6 +132,86 @@ typedef struct profinet_dcp_header {
     uint16_t block_len; 
 
 } __attribute__((packed)) profinet_dcp_header;
+
+
+/********************* OSI Layer 3 protocols structs *********************/
+
+// IPv6 Header 
+
+typedef struct ipv6_header {
+
+    unsigned int
+        version : 4,
+        traffic_class : 8,
+        flow_label : 20;
+
+    uint16_t length;
+    uint8_t  next_header;
+    uint8_t  hop_limit;
+
+    struct in6_addr src;
+    struct in6_addr dst;
+
+} __attribute__((packed)) ipv6_header;
+
+
+// ICMPv6 Header
+
+typedef struct icmp6_header{
+
+    uint8_t type;
+    uint8_t code;
+    uint16_t cksum;
+
+    // for id and seqno fields 
+    uint32_t data;
+
+} __attribute__((packed)) icmp6_header;
+
+
+// ARP Header
+
+typedef struct arp_header {
+
+    uint16_t hardware_type;
+    uint16_t protocol_type;
+    unsigned char hardware_len;
+    unsigned char protocol_len;
+    uint16_t opcode;
+    unsigned char sender_mac[MAC_LENGTH];
+    unsigned char sender_ip[IPV4_LENGTH];
+    unsigned char target_mac[MAC_LENGTH];
+    unsigned char target_ip[IPV4_LENGTH];
+
+} __attribute__((packed)) arp_header;
+
+
+// ICMPv4 Header
+
+typedef struct icmp_header {
+
+    u_int8_t type;
+    u_int8_t code;
+    u_int16_t checksum;
+    
+    union{
+        struct echo
+        {
+            u_int16_t id;
+            u_int16_t sequence;
+
+        } echo;
+
+        u_int32_t gateway;
+        
+        struct frag
+        {
+            u_int16_t __unused;
+            u_int16_t mtu;
+        } frag;
+    } un;
+
+} __attribute__((packed)) icmp_header;
 
 
 /********************* OSI Layer 7 protocols structs *********************/
@@ -149,89 +241,11 @@ typedef struct dns_header {
 
 } __attribute__((packed)) dns_header;
 
-/********************* OSI Layer 3 protocols structs *********************/
-
-// IPv6 Header 
-
-typedef struct ipv6_header {
-
-    unsigned int
-        version : 4,
-        traffic_class : 8,
-        flow_label : 20;
-
-    uint16_t length;
-    uint8_t  next_header;
-    uint8_t  hop_limit;
-
-    struct in6_addr src;
-    struct in6_addr dst;
-
-} __attribute__((packed)) ipv6_header;
-
-// ICMPv6 Header
-
-typedef struct icmp6_header{
-
-    uint8_t type;
-    uint8_t code;
-    uint16_t cksum;
-
-    // for id and seqno fields 
-    uint32_t data;
-
-} __attribute__((packed)) icmp6_header;
-
-// ARP Header
-
-typedef struct arp_header {
-
-    uint16_t hardware_type;
-    uint16_t protocol_type;
-    unsigned char hardware_len;
-    unsigned char protocol_len;
-    uint16_t opcode;
-    unsigned char sender_mac[MAC_LENGTH];
-    unsigned char sender_ip[IPV4_LENGTH];
-    unsigned char target_mac[MAC_LENGTH];
-    unsigned char target_ip[IPV4_LENGTH];
-
-} __attribute__((packed)) arp_header;
-
-// ICMPv4 Header
-
-typedef struct icmp_header {
-
-    u_int8_t type;
-    u_int8_t code;
-    u_int16_t checksum;
-    
-    union{
-        struct echo
-        {
-            u_int16_t id;
-            u_int16_t sequence;
-
-        } echo;
-
-        u_int32_t gateway;
-        
-        struct frag
-        {
-            u_int16_t __unused;
-            u_int16_t mtu;
-        } frag;
-    } un;
-
-} icmp_header;
 
 /************************************* Functions declarations *************************************/
 
-int get_itf_list(char**, int);
-int get_itf_index(int, const char*); 
-int init_sock(const char*);
-int bind_sock(int, int);
 int setup_promiscuous_mode(int, int);
+void print_itf_list();
 
 void print_ethernet_header(unsigned char*, int);
 void process_ip_packet(unsigned char* , int);
@@ -256,6 +270,7 @@ void print_dns_packet(unsigned char*, int);
 void print_icmpv6_packet(unsigned char*, int, int);
 
 void print_data(unsigned char* , int);
+void print_hex_ascii_line(const u_char*, int, int);
 uint16_t in_cksum(uint16_t *addr, int len);
 
 void print_current_time();
