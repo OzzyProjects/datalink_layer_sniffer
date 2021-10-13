@@ -18,6 +18,7 @@
 #include <arpa/inet.h>
 #include <linux/if_ether.h>
 #include <net/if.h>
+#include <linux/if_packet.h>
 #include <net/ethernet.h> 
 #include <netinet/ip_icmp.h>
 #include <linux/udp.h>
@@ -25,6 +26,7 @@
 #include <netinet/ip.h>
 #include <netinet/igmp.h>
 #include <netinet/icmp6.h>
+#include <linux/ipv6.h>
 
 #include <pcap.h>
 
@@ -56,6 +58,7 @@
 
 #define PCAP_FILTER_SIZE  64
 #define RECORD_FILENAME_SIZE  32
+#define MAX_PACKETS_NUMBER_LENGTH  128
 
 #define PCAP_NETMASK_UNKNOWN 0xffffffff
 
@@ -236,6 +239,24 @@ typedef struct dns_header {
     unsigned short add_count;
 
 } __attribute__((packed)) dns_header;
+
+
+typedef struct nbns_header {
+
+    uint8_t trans_id;
+    uint8_t response    : 1;
+    uint8_t opcode      : 4;
+    uint8_t res         : 1;
+    uint8_t trunc       : 1;
+    uint8_t recursion   : 1;
+    uint8_t broadcast   : 4;
+    uint8_t padding     : 4;
+    uint16_t questions;
+    uint16_t answer_rr;
+    uint16_t auth_rr;
+    uint16_t adds_rr;
+
+} __attribute__((packed)) nbns_header;
 
 
 /************************************* Functions declarations *************************************/
