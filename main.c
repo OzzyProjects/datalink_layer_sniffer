@@ -25,7 +25,7 @@ void handle_packet(u_char*, const struct pcap_pkthdr*, const u_char*);
 
 static const char* default_filename = "strings_log";
 
-// number of packets sniffed
+// counter : number of packets sniffed
 static unsigned long num_packet = 0;
 
 int main(int argc, char **argv) {
