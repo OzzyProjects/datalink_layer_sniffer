@@ -1,6 +1,6 @@
 # Raw socket sniffer Linux
 
-**WORK IN PROGRESS**
+**NEW RELEASE - WORK IN PROGRESS**
 
 **Linux libpcap sniffer being able to sniff all TCP, IP, ICMP, ARP, IGMP and some frames from OSI Layer 2/3.**
 
