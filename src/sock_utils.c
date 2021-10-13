@@ -517,148 +517,24 @@ void print_icmpv6_packet(unsigned char* buffer, int offset, int size){
 }
 
 
-// nbr = max interfaces number in the list
+// just a function to print interfaces list 
 
-int get_itf_list(char** itf_list, int nbr){
+void print_itf_list(){
 
-    struct ifaddrs *ifaddr, *ifa;
+    pcap_if_t *first_if;
+    char errbuf[PCAP_ERRBUF_SIZE];
 
-    if (getifaddrs(&ifaddr) == -1) {
-        return -1;
+    if (pcap_findalldevs(&first_if, errbuf) < 0) {
+        fprintf(stderr, "pcap_findalldevs: %s\n", errbuf);
+        exit(EXIT_FAILURE);
     }
 
-    int itf_nbr = 0;
-    for (ifa = ifaddr; ifa; ifa = ifa->ifa_next){
+    pcap_if_t *cur_if;
+    for (cur_if = first_if ; cur_if ; cur_if = cur_if->next){
+        printf("name = %s\t, description= %s\t, flags= %x\n", cur_if->name, cur_if->description, cur_if->flags);
+    }  
 
-        if (itf_nbr == nbr)
-            break;
-
-        // test if interface exists, if it is running and if different loopback
-        if (ifa->ifa_addr != NULL && (ifa->ifa_flags & IFF_RUNNING) != 0 && strcmp("lo", ifa->ifa_name) != 0){
-            itf_list[itf_nbr] = (char*)malloc(strlen(ifa->ifa_name)+1);
-            strncpy(itf_list[itf_nbr], ifa->ifa_name, strlen(ifa->ifa_name)+1);
-            printf("interface : %s | %x\n", itf_list[itf_nbr], ifa->ifa_flags);
-            itf_nbr++;
-        }
-    } 
-
-    freeifaddrs(ifaddr);
-
-    return itf_nbr; 
-}
-
-// set up the socket in promiscuous too
-
-int setup_promiscuous_mode(int sock, int device_index){
-
-    struct packet_mreq mreq;
-    memset(&mreq,0,sizeof(mreq));
-
-    mreq.mr_ifindex = device_index;
-    mreq.mr_type = PACKET_MR_PROMISC;
-    
-    if (setsockopt(sock, SOL_PACKET, PACKET_ADD_MEMBERSHIP, (void*)&mreq, sizeof(mreq)) < 0) {
-        perror("setsockopt error while adding PACKET_ADD_MEMBERSHIP option\n");
-        return -1;
-    }
-
-    printf("\nDEBUG\t\t: promiscuous mode successfully enabled\n\n");
-
-    return 1;
-}
-
-// get interface index and set some options to make a nice sock
-
-int get_itf_index(int sock, const char* itf_name) {
-    
-    struct ifreq ifr;
-    memset(&ifr, 0, sizeof(ifr));
-
-    strncpy(ifr.ifr_name, itf_name, sizeof(ifr.ifr_name));
-
-    /* Set the old flags plus the IFF_PROMISC flag */
-
-    ifr.ifr_flags |= IFF_PROMISC;
-
-    if (ioctl (sock, SIOCSIFFLAGS, &ifr) < 0){
-        perror ("Error: Could not set flag IFF_PROMISC");
-        return -1;
-    }
-    
-    if (ioctl(sock, SIOCGIFINDEX, &ifr) < 0){
-        perror("error while getting interface index\n");
-        return -1;
-    }
-
-    printf("\nDEBUG\t\t: successfully get the interface index\n\n");
-
-    int opt = 1;
-    
-    // another trick to set up interface in promiscuous mode
-    
-    if (setsockopt(sock, SOL_SOCKET, PACKET_MR_PROMISC,&opt, sizeof(opt)) < 0) {
-        printf("Server-setsockopt() error for PACKET_MR_PROMISC\n");
-        return -1;
-    }
-
-    if (setsockopt(sock, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) < 0) {
-        perror("setsockopt error while adding SO_BINDTODEVICE\n");
-        return -1;
-    }
-
-    printf("\nDEBUG\t\t: setting setsockopt options DONE !\n\n");
-
-    //assert(setup_promiscuous_mode(sock, ifr.ifr_ifindex) > 0);
-
-    return ifr.ifr_ifindex;
-}
-
-// last step : binding the socket to the device
-
-int bind_sock(int sock, int itf_index){
-
-    struct sockaddr_ll sock_addr;
-    memset((void*)&sock_addr, 0, sizeof(struct sockaddr_ll));
-
-    sock_addr.sll_family = AF_PACKET;
-    sock_addr.sll_protocol = htons(ETH_P_ALL);
-    sock_addr.sll_ifindex = itf_index;
-
-    if (bind(sock, (struct sockaddr *)&sock_addr, sizeof(struct sockaddr_ll)) < 0){
-        perror("fatal error while binding the socket\n");
-        return -1;
-    }
-
-    printf("\nDEBUG\t\t: socket ready to listen\n");
-
-    return 0;
-}
-
-// creates and set up socket (setsockopt() etc...) from an interface name to bind with
-
-int init_sock(const char *itf){
-
-    int sock = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
-
-    if (sock == -1) {
-        perror("error while creating socket\n");
-        return -1;
-    }
-
-    // getting interface index and setting it to god mode level
-
-    int itf_index = get_itf_index(sock, itf);
-
-    if (itf_index < 0){
-        perror("fatal error occured while setting sock options\n");
-        return -1;
-    }
-
-    printf("DEBUG : interface index : %x\n", itf_index);
-
-    //assert(bind_sock(sock, itf_index) == 0);
-
-    return sock;
+    pcap_freealldevs(first_if);
 
 }
 
@@ -711,6 +587,52 @@ void print_data(unsigned char* data , int size){
     }
 }
 
+void print_hex_ascii_line(const u_char *payload, int len, int offset){
+
+    int i;
+    int gap;
+    const u_char *ch;
+
+    /* offset */
+    printf("%05d   ", offset);
+
+    /* hex */
+    ch = payload;
+    for(i = 0; i < len; i++) {
+        printf("%02x ", *ch);
+        ch++;
+        /* print extra space after 8th byte for visual aid */
+        if (i == 7)
+            printf(" ");
+    }
+    /* print space to handle line less than 8 bytes */
+    if (len < 8)
+        printf(" ");
+
+    /* fill hex gap with spaces if not full line */
+    if (len < 16) {
+        gap = 16 - len;
+        for (i = 0; i < gap; i++) {
+            printf("   ");
+        }
+    }
+    
+    printf("   ");
+
+    /* ascii (if printable) */
+    ch = payload;
+    for(i = 0; i < len; i++) {
+        if (isprint(*ch))
+            printf("%c", *ch);
+        else
+            printf(".");
+        ch++;
+    }
+
+    printf("\n");
+
+}
+
 // print current time of the capture for each frame
 
 void print_current_time(){
@@ -720,3 +642,4 @@ void print_current_time(){
     printf("\n[LOCAL TIME %02d:%02d:%02d]", tm_struct->tm_hour , tm_struct->tm_min , tm_struct->tm_sec);
 
 }
+
