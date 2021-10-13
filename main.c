@@ -5,14 +5,14 @@
 #include "sock_utils.h" 
 #include "string_utils.h"
 
-// main option fields struct
+// main option fields structure
 
 typedef struct opt_args_main {
 
-    uint8_t is_filter;
-    uint8_t is_file;
-    uint8_t is_itf;
-    uint8_t is_godmode;
+    uint8_t is_filter   : 2;
+    uint8_t is_file     : 2;
+    uint8_t is_itf      : 2;
+    uint8_t is_godmode  : 2;
 
 
 } __attribute__((packed)) opt_args_main;
