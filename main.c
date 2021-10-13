@@ -30,7 +30,7 @@ static unsigned long num_packet = 0;
 
 int main(int argc, char **argv) {
     
-    // set the signal handler to catch Ctrl + c interrupt
+    // set the signal handler to catch Ctrl + c interrupt and proper close record file
     signal(SIGINT, int_handler);
 
     // global params for the PCAP session
@@ -39,18 +39,19 @@ int main(int argc, char **argv) {
     char record_file[RECORD_FILENAME_SIZE];
     char pcap_filters[PCAP_FILTER_SIZE];
     char errbuf[PCAP_ERRBUF_SIZE];
+
+    // BPF filters variables
     struct bpf_program fp;
     bpf_u_int32 mask;
     bpf_u_int32 net;
 
     pcap_t *handle;
 
+    // parsing the command line 
     int opt;
     opt_args_main opt_args;
 
     memset(&opt_args, 0, sizeof(opt_args));
-
-    opt_args.max_packet = UINT_MAX;
 
     while ((opt = getopt(argc, argv, "i:r:f:glc")) != -1){
 
@@ -62,18 +63,18 @@ int main(int argc, char **argv) {
                 opt_args.is_itf = 1;
                 break;
 
-            // string record filename -r option
+            // string record filename -r option, otherwise file named strings_log
             case 'r':
                 strncpy(record_file, optarg, RECORD_FILENAME_SIZE - 1);
                 opt_args.is_file = 1;
                 break;
 
-            // binding to any device = all frames
+            // binding to any (all) devices = all frames (godmode)
             case 'g':
                 opt_args.is_godmode = 1;
                 break;
 
-            // just an option to print the list of interfaces
+            // just an option to print the list of interfaces available
             case 'l':
                 print_itf_list();
                 return EXIT_SUCCESS;
@@ -81,12 +82,12 @@ int main(int argc, char **argv) {
 
             // limit the number of sniffed packed -c option
             case 'c':
-                // out of range number
+                // out of range number = exit
                 assert(strlen(optarg) < MAX_PACKETS_NUMBER_LENGTH -1);
                 opt_args.max_packet = strtol(max_packet_char, &optarg, 10);
                 opt_args.is_limited = 1;
                 if (opt_args.max_packet == 0){
-                    fprintf(stderr, "ERROR : Incorrect number for max packet (unsigned long type required)\n");
+                    fprintf(stderr, "ERROR : Incorrect number for max packet (unsigned int type required)\n");
                     exit(EXIT_FAILURE);
                 }
                 break;
@@ -147,7 +148,7 @@ int main(int argc, char **argv) {
     if (!opt_args.is_godmode){
 
         /* Open the session in promiscuous mode */
-        handle = pcap_open_live(device, BUFSIZ, -1, 1024, errbuf);
+        handle = pcap_open_live(device, BUFSIZ, -1, 1500, errbuf);
 
         if (handle == NULL){
             fprintf(stderr, "ERROR : Couldn't open device %s: %s\n", device, errbuf);
@@ -211,7 +212,7 @@ int main(int argc, char **argv) {
     // let's loop throuht the network
     if (opt_args.is_limited)
 
-        // limited capture (n packets)
+        // limited capture (number of packets)
         pcap_loop(handle, opt_args.max_packet, handle_packet, NULL);
     else
         // otherwise, infinite loop
@@ -227,7 +228,7 @@ int main(int argc, char **argv) {
 void int_handler(int signum){
 
     close_record_file();
-    printf("Exiting program with SIGINT [%x}: ok\n", signum);
+    printf("Exiting program with SIGINT [%x]: OK\n", signum);
     exit(EXIT_SUCCESS);
 }
 
