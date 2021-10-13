@@ -192,7 +192,7 @@ int main(int argc, char **argv) {
 
 void int_handler(int signum){
 
-    printf("Exiting program with SIGINT [%x] : ok\n", signum);
+    printf("Exiting program with SIGINT [%d] : ok\n", signum);
     exit(EXIT_SUCCESS);
 }
 
