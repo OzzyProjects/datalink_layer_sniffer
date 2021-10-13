@@ -2,11 +2,11 @@
 
 **WORK IN PROGRESS**
 
-**Raw socket Linux sniffer being able to sniff all TCP, IP, ICMP, ARP, IGMP and some frames from OSI Layer 3.**
+**Linux libpcap sniffer being able to sniff all TCP, IP, ICMP, ARP, IGMP and some frames from OSI Layer 2/3.**
 
 **It works also as a string extractor, displaying in output file revelant strings**
 
-**New release working with libpcap. The older one deals with raw sockets only**
+**New release working with libpcap. The older one dealt with raw sockets only**
 
 Firstable, make sure you have libpcap installed on your system :
 
