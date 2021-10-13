@@ -19,6 +19,7 @@
 
 void init_string_record_file(const char*);
 void close_record_file();
+void close_record_file();
 void *fake_malloc(const size_t);
 void copy_small(uint8_t *restrict, const uint8_t *restrict, size_t) __attribute__((nonnull)) ;
 void copy_large(uint64_t *restrict, const uint64_t *restrict, size_t) __attribute__((nonnull)) ;
