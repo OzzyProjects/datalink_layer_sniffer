@@ -1,244 +1,217 @@
-/* Libraries */ 
+#include <signal.h>
 
-#include <signal.h>  
-
-#include "sock_utils.h" 
+#include "sock_utils.h"
 #include "string_utils.h"
 
-// main option fields struct
+// default interface name if no option selected
+// default record string output filename
 
-typedef struct opt_args_main {
+static const char* ITF_DEFAULT_NAME = "eno1";
+static const char* default_filename = "tracing_strings";
 
-    uint8_t is_filter;
-    uint8_t is_file;
-    uint8_t is_itf;
-    uint8_t is_godmode;
+// dynamic allocated array that will receive datas
 
-
-} __attribute__((packed)) opt_args_main;
+static unsigned char* buffer = NULL;
 
 // get SIGINT to proper exit freeing memory
 void int_handler(int);
-void handle_packet(u_char*, const struct pcap_pkthdr*, const u_char*);                
+long get_user_input(int);
+void free_double_pointer(void**, int); 
 
-static const char* default_filename = "strings_log";
+int main(int argc, char **argv){
 
-int main(int argc, char **argv) {
-    
     // set the signal handler to catch Ctrl + c interrupt
     signal(SIGINT, int_handler);
 
-    // global params for the PCAP session
-    char device[IFNAMSIZ];
-    char record_file[RECORD_FILENAME_SIZE];
-    char pcap_filters[PCAP_FILTER_SIZE];
-    char errbuf[PCAP_ERRBUF_SIZE];
-    struct bpf_program fp;
-    bpf_u_int32 mask;
-    bpf_u_int32 net;
+    char itf_spec[IFNAMSIZ];
+    char **itf_list = NULL;
 
-    pcap_t *handle;
-
-    int opt;
-    opt_args_main opt_args;
-
-    memset(&opt_args, 0, sizeof(opt_args));
-
-    while ((opt = getopt(argc, argv, "i:r:f:gl")) != -1){
-
-        switch (opt){
-
-            case 'i':
-                strncpy(device, optarg, IFNAMSIZ - 1);
-                opt_args.is_itf = 1;
-                break;
-
-            case 'r':
-                strncpy(record_file, optarg, RECORD_FILENAME_SIZE - 1);
-                opt_args.is_file = 1;
-                break;
-
-            case 'g':
-                opt_args.is_godmode = 1;
-                break;
-
-            // just an option to print the list of interfaces
-            case 'l':
-                print_itf_list();
-                return EXIT_SUCCESS;
-                break;
-
-            case 'f':
-                strncpy(pcap_filters, optarg, PCAP_FILTER_SIZE - 1);
-                opt_args.is_filter = 1;
-                break;
-
-            case '?':
-                if (optopt == 'i')
-                    fprintf (stderr, "Option -%c requires an argument [interface_name] !\n", optopt);
-                else if (optopt == 'r')
-                    fprintf (stderr, "Option -%c requires an argument [record_file_name] !\n", optopt);
-                else if (optopt == 'f')
-                    fprintf (stderr, "Option -%c requires an argument [pcap_filters] !\n", optopt);
-                else
-                    fprintf(stderr, "Unknown option `-%c'.\n", optopt);
-
-                exit(EXIT_FAILURE);
-
-            case 1:
-                printf("Non-option arg: %s\n", optarg);
-                exit(EXIT_FAILURE);
-                break;
-
-            default:
-                printf("ERROR : Couldn't parse command line arguments\n");
-                abort();
+    // -i option : provide interface name to bind to
+    if (argc > 2 && (strcmp(argv[1], "-i") == 0 || strcmp(argv[1], "--interface") == 0)){
+        safe_strcpy(itf_spec, IFNAMSIZ, argv[2]);
+        if (argc > 3){
+            init_string_record_file(argv[3]);
+        }
+        else{
+            init_string_record_file(default_filename);
         }
     }
+    else if (argc == 2 && (strcmp(argv[1], "-i") == 0 || strcmp(argv[1], "--interface") == 0)){
+        perror("no interface name provided\n");
+        return EXIT_FAILURE;
 
-    if (opt_args.is_itf == 0){
-        char* dev = pcap_lookupdev(errbuf);
+    }
 
-        if (dev == NULL){
-            fprintf(stderr, "ERROR : Couldn't find default device: %s\n", errbuf);
+    // -l option : select interface from list
+    else if (argc < 1 && (strcmp(argv[1], "-l") == 0 || strcmp(argv[1], "--list") == 0)){
+
+        itf_list = (char**)malloc(sizeof(char*) * ITF_MAX_NBR);
+
+        if (itf_list == NULL){
+            perror("error while allocating array\n");
             return EXIT_FAILURE;
         }
 
-        strncpy(device, dev, IFNAMSIZ - 1);
-    }
+        int nbr_itf = get_itf_list(itf_list, ITF_MAX_NBR);
 
-    if(opt_args.is_file == 0){
-        strncpy(record_file, default_filename, RECORD_FILENAME_SIZE - 1);
-    }
-
-    printf("\nDevice selected  : %s\n", device);
-    printf("\nRecord filename : %s\n", record_file);
-
-    init_string_record_file(record_file);
-
-    printf("\nRecord file successfully set\n");
-
-    if (!opt_args.is_godmode){
-
-        /* Open the session in promiscuous mode */
-        handle = pcap_open_live(device, BUFSIZ, -1, 4096, errbuf);
-
-        if (handle == NULL){
-            fprintf(stderr, "ERROR : Couldn't open device %s: %s\n", device, errbuf);
+        if (nbr_itf <= 0){
+            perror("error while getting interface list or no interface is available\n");
             return EXIT_FAILURE;
         }
 
-        /* Find the properties for the device */
-        if (pcap_lookupnet(device, &net, &mask, errbuf) == -1){
-            fprintf(stderr, "ERROR : Couldn't get netmask for device : %s\n", device);
-            return EXIT_FAILURE;
+        printf("DEBUG : get interfaces list ok\n");
+
+        printf("\nList of available interfaces :\n");
+        for(int i = 0; i < nbr_itf; i++){
+            printf("\t | [%u] interface name : %s\n", i, itf_list[i]);
         }
 
-        printf("\nPCAP session successfully opened\n");
-    }
+        long itf_nbr = get_user_input(nbr_itf);
+        safe_strcpy(itf_spec, IFNAMSIZ, itf_list[itf_nbr]);
 
+        free_double_pointer((void**)itf_list, nbr_itf);
+
+        // if an output file was specified
+        if (argc > 2)
+            init_string_record_file(argv[2]);
+        else
+            init_string_record_file(default_filename);
+
+    }
+    
+    // no option or any other case : default interface name eno1 and default file output is trace.log
+    else if (argc == 2){
+
+        safe_strcpy(itf_spec, strlen(ITF_DEFAULT_NAME), ITF_DEFAULT_NAME);
+        init_string_record_file(argv[1]);
+    }
     else{
 
-        handle = pcap_create("any", errbuf);
-        strncpy(device, "any", IFNAMSIZ -1);
-
-        if (handle == NULL){
-            fprintf(stderr, "ERROR : Couldn't create socket handle for device any: %s\n", errbuf);
-            return EXIT_FAILURE;
-        }
-
-        assert(pcap_can_set_rfmon(handle) == 1);
-
-        assert(pcap_set_rfmon(handle, 1) == 0);
-
-        if (pcap_activate(handle) < 0){
-            fprintf(stderr, "ERROR : Couldn't activate PCAP sock : %s\n", pcap_geterr(handle));
-            return EXIT_FAILURE;
-        }
-
-        printf("\nGod PCAP enabled\n");
+        safe_strcpy(itf_spec, strlen(ITF_DEFAULT_NAME), ITF_DEFAULT_NAME);
+        init_string_record_file(default_filename);
 
     }
 
-    if (opt_args.is_filter){
+    printf("Using interface %s interface...\n", itf_spec);
 
-        /* Compile and apply the filter on ROOT when you have a pc clean*/
-        if (pcap_compile(handle, &fp, pcap_filters, 1, PCAP_NETMASK_UNKNOWN) == -1){
-            fprintf(stderr, "Counldn't parse filter %s: %s\n", pcap_filters, pcap_geterr(handle));
-            return EXIT_FAILURE;
-        }
+    
+    // create sock and initialize it with interface name
 
-        /* applying filters */
-        if (pcap_setfilter(handle, &fp) == -1){
-            fprintf(stderr, "ERROR : Couldn't install filter %s: %s\n", pcap_filters, pcap_geterr(handle));
-            return EXIT_FAILURE;
-        }
+    int sock = init_sock(itf_spec);
 
-        printf("\nFilters have been successfully applied\n");
-
+    if (sock < 0){
+        perror("fatal error : failed to init socket\n");
+        close(sock);
+        return EXIT_FAILURE;
     }
-    
-    printf("\nINFO : PCAP_DATA_LINK_TYPE\t: %x\n", pcap_datalink(handle));
-    
-    // let's loop throuht the network
-    pcap_loop(handle, -1, handle_packet, NULL);
 
-    pcap_close(handle);
+    // allocating a big buffer for receive sock data
+
+    buffer = (unsigned char *)malloc(BUFF_SIZE);
+
+    if (buffer == NULL){
+        perror("error : failed to allocate buffers\n");
+        close(sock);
+        return EXIT_FAILURE;
+    }
+     
+    // setting file descriptor here for the socket
+
+    fd_set read_fds, temp;
+
+    FD_ZERO(&read_fds);
+    FD_ZERO(&temp);
+    FD_SET(sock,&read_fds);
+
+    while(1) {
+
+        temp = read_fds;
+
+        int ret = select(sock + 1, &temp, NULL, NULL, NULL);
+        
+        if (ret == -1){
+            perror("error : failed to select()\n");
+            return EXIT_FAILURE;
+        }
+
+        if (FD_ISSET(sock, &temp)) {
+
+            memset(buffer, 0x00, BUFF_SIZE);
+
+            // receiving and processing data
+            ret = recv(sock, buffer, BUFF_SIZE-1, MSG_TRUNC);
+            if (ret > 0){
+
+                // print current local time in hh:mm:ss
+                print_current_time();
+
+                process_frame(buffer , ret);
+
+                printf("\n\nRaw data:\n");
+
+                // print raw data in hex
+                for (int i = 0; i < ret; i++){
+                    
+                    if (i % 32 == 0) 
+                        printf("\n");
+
+                    printf("%02X ", *(buffer+i));
+                }
+
+                // extract clear strings and print them
+
+                printf("\n\nList of strings : \n");
+                print_strings(buffer, ret);
+                printf("\n");
+            }
+        }
+    }
+
+
+    close(sock);
 
     return EXIT_SUCCESS;
-    
+
 }
 
+// get user input for interface number choice
+
+long get_user_input(int max_itf_nbr){
+
+    char* end = NULL;
+    char buffer[255];
+    long number = 0;
+
+    printf("Choose an interface to bind to [number]: \n");
+
+    while (fgets(buffer, sizeof(buffer), stdin) != NULL){
+
+        number = strtol(buffer, &end, 10);
+
+        if (end == buffer || *end !='\n' || number > max_itf_nbr || number < 0){
+            printf("Not a valid input. Enter a number between 0 and %u\n", max_itf_nbr -1);
+            exit(EXIT_FAILURE);
+        } 
+        else break;
+    }
+
+    return number;
+}
+
+// releases any double pointer dynamically allocated
+
+void free_double_pointer(void** double_ptr, int size){
+
+    for(int i = 0; i < size; i++)
+        free(double_ptr[i]);
+    free(double_ptr);
+
+}
 
 void int_handler(int signum){
 
-    printf("Exiting program with SIGINT [%x] : ok\n", signum);
+    free(buffer);
+    printf("Exiting program : ok\n");
     exit(EXIT_SUCCESS);
-}
-
-
-/* Handle packet */
-
-void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet){
-
-    unsigned char* raw_packet = malloc(header->caplen);
-
-    if (raw_packet != NULL){
-
-        memcpy(raw_packet, (u_char*)packet, header->caplen);
-
-        // let's print the frame
-        process_frame(raw_packet, header->caplen);
-
-        // printing raw datas in hex format 
-        printf("\n\nRaw Datas : \n\n");
-
-        unsigned int i = 0;
-
-        while(i < header->caplen){
-
-            // every 16 bytes, print a line feed to get a clean output
-            if (i % 16 == 0)
-                printf("\n");
-
-            printf("%02X ", raw_packet[i]);
-            i++;
-        }
-
-        printf("\n");
-
-        // extracting revelant strings and saving them into record file
-        printf("\n\nList of strings : \n");
-        print_strings(raw_packet, header->caplen);
-        printf("\n");
-        free(raw_packet);
-
-    }
-
-    else{
-        printf("\nWARNING : Memory allocation error for one packet !\n");
-    }
-
-    raw_packet = NULL;
 }
 
