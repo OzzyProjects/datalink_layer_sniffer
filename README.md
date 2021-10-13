@@ -6,13 +6,13 @@
 
 **It works also as a string extractor, displaying in output file revelant strings**
 
+**New release working with libpcap. The older one deals with raw sockets only**
+
 It grabs all revelant strings from packets : url, domain names, json requests etc...
 
 You can see an example in file named string_log in the results repository
 
-It binds to an network interface with her name, after set up it in promiscuous mode.
-
-Among others, it uses the functions select(), FD_ISSET() to make it as low level as possible.
+It binds a network interface or grab all frames with -g option, binding to any.
 
 **Also being able to sniff some layer 2 packets like ARP, HOMEPLUG, HOMEPLUG POWERLINE, ETHERTYPE IEEE 1905 1a and other ones.**
 
@@ -30,21 +30,19 @@ Some functions are defined but non implemented but it's easy to do it (example :
 
 + <ins>Use (in root only) :</ins>
 
-`./raw_sock -i [interface name] [output_string_file]`
+`./raw_sock -i [interface name] -r [output_string_file]`
 
-or
+or to sniff all frames (device any) : option -g
 
-`./raw_sock [output_string_file]`
+`./raw_sock -r [output_string_file] -g`
 
-The *output_string_file* is optional. Without it, the file created will be named trace.log
+The -r *output_string_file* is optional. Without it, the file created will be named strings_record
 
-**if no interface name is provided, it sniff by default on eno1**. Easy to change
+Without interface provided, it sniffs from the first one available on the system
+
+**And to get the list of network interfaces available, just do -l option**
 
 You can see an example of output log in file named "example".
-
-You can have the list of network interface names typing in your terminal
-
-`ip link show`
 
 It works on Debian Buster/Bullseye and Ubuntu 20.04+.
 
@@ -53,6 +51,5 @@ I haven't checked yet for other versions or distros.
 You can also check the complete valgrind memcheck report. No memory leaks or other memory problems.
 
 ![](valgrind/valgrind.png)
-
 
 **TODO : code a kernel module with buffer sockets or/and take a serious interest at libpcap to reach data link layer level**
