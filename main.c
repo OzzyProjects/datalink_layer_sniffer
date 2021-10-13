@@ -191,7 +191,7 @@ int main(int argc, char **argv) {
 
     if (opt_args.is_filter){
 
-        /* Compile and apply the filter on ROOT when you have a pc clean*/
+        /* Compile and apply the filter */
         if (pcap_compile(handle, &fp, pcap_filters, 1, PCAP_NETMASK_UNKNOWN) == -1){
             fprintf(stderr, "Counldn't parse filter %s: %s\n", pcap_filters, pcap_geterr(handle));
             return EXIT_FAILURE;
