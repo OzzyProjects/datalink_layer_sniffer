@@ -23,6 +23,10 @@ void init_string_record_file(const char* filename){
     }
 }
 
+void close_record_file(){
+   fclose(file);
+}
+
 // fake malloc allocating nothing on the heap
 
 void *fake_malloc(const size_t size){
