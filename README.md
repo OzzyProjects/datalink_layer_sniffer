@@ -12,7 +12,7 @@ It grabs all revelant strings from packets : url, domain names, json requests et
 
 You can see an example in file named string_log in the results repository
 
-It binds a network interface or grab all frames with -g option, binding to any.
+It binds to a network interface or grab all frames with -g option, binding to any device.
 
 **Also being able to sniff some layer 2 packets like ARP, HOMEPLUG, HOMEPLUG POWERLINE, ETHERTYPE IEEE 1905 1a and other ones.**
 
@@ -36,7 +36,7 @@ or to sniff all frames (device any) : option -g
 
 `./raw_sock -r [output_string_file] -g`
 
-The -r *output_string_file* is optional. Without it, the file created will be named strings_record
+The -r *output_string_file* is optional. Without it, the file created will be named **strings_record**
 
 Without interface provided, it sniffs from the first one available on the system
 
