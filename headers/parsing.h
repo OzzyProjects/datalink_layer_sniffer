@@ -29,7 +29,11 @@
 // HOMEPLUG PROTOCOLS
 #define ETHERTYPE_HOMEPLUG     			0x887b
 #define ETHERTYPE_HOMEPLUG_POWERLINE    0x88e1
-#define HOMEPLUG_AV_REQ_BRIDGE 			0x6020
+
+#define HOMEPLUG_AV_REQ_BRIDGE 					0x6020
+#define HOMEPLUG_AV_GET_BEACON_REQ      		0x603c
+#define HOMEPLUG_AV_GET_BEACON_CNF      		0x603d
+#define HOMEPLUG_AV_ISP_DETECTION_REPORT_IND  	0x0066
 
 
 // LLTD PROTOCOL
@@ -85,6 +89,9 @@
 #define IGMPV3_MESSAGE_MEMBERSHIP_REPORT	0X22
 #define IGMP_MESSAGE_LEAVE_GROUP			0X17
 
+int load_oui_address_from_file(char*, uint32_t, char**);
+
+void parse_homeplug_av_type_field(uint16_t);
 
 void parse_arp_opcode_field(uint8_t);
 
@@ -103,3 +110,4 @@ void parse_dns_opcode_field(uint8_t);
 void parse_dns_rcode_field(uint8_t);
 
 #endif
+
