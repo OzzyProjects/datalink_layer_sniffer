@@ -167,12 +167,11 @@ void print_homeplug_av_header(unsigned char* buffer){
     homeplug_av_header* home_av_hdr = (homeplug_av_header*)(buffer + ETH2_HEADER_LEN);
 
     printf("\nHomeplug AV Header\n");
+
     printf("   |-Protocol  : %x\n", home_av_hdr->protocol);
-    printf("   |-Type      : %x\t\n", htons(home_av_hdr->type));
-        if (htons(home_av_hdr->type) == HOMEPLUG_AV_REQ_BRIDGE)
-        printf("\t(Get Bridge Information Request)\n");
-    else
-        printf("(Unknown Type)\n");
+    printf("   |-Type      : %x\t", ntohs(home_av_hdr->type));
+    parse_homeplug_av_type_field(ntohs(home_av_hdr->type));
+
     printf("   |-Frag     : %x\n", home_av_hdr->frag);
 
 }
@@ -185,7 +184,7 @@ void print_homeplug_header(unsigned char* buffer){
     printf("   |-Control Field    : %x\n", home_hdr->ctrl_field);
     printf("   |-MAC Entry        : %x\n", home_hdr->mac_entry);
     printf("   |-Entry Length     : %x\n", home_hdr->entry_length);
-    printf("   |-Vendor Specific  : %02x%02X%02X\n", home_hdr->spe_vendor[0], home_hdr->spe_vendor[1],home_hdr->spe_vendor[2]);
+    printf("   |-Vendor Specific  : %02x%02X%02X\t", home_hdr->spe_vendor[0], home_hdr->spe_vendor[1],home_hdr->spe_vendor[2]);
 }
 
 void print_ieee_1905_header(unsigned char* buffer, int size){
@@ -227,6 +226,9 @@ void print_vlan_ieee8021q_header(unsigned char* buffer, int size){
             print_homeplug_av_header(buffer + sizeof(vlan_ieee8021q_header));
         break;
 
+        case ETHERTYPE_ARP:
+            print_arp_header(buffer + sizeof(vlan_ieee8021q_header));
+        break;
         default:
             printf("\nUnknown VLAN frame !\n");
     }
@@ -378,12 +380,12 @@ void print_tcp_packet(unsigned char* buffer, int size){
     printf("   |-Header Length         : %d DWORDS or %d BYTES\n" ,(unsigned int)tcph->doff,(unsigned int)tcph->doff*4);
     //printf("   |-CWR Flag : %d\n",(unsigned int)tcph->cwr);
     //printf("   |-ECN Flag : %d\n",(unsigned int)tcph->ece);
-    printf("   |-Urgent Flag           : %d\n",(unsigned int)tcph->urg);
-    printf("   |-Acknowledgement Flag  : %d\n",(unsigned int)tcph->ack);
-    printf("   |-Push Flag             : %d\n",(unsigned int)tcph->psh);
-    printf("   |-Reset Flag            : %d\n",(unsigned int)tcph->rst);
-    printf("   |-Synchronise Flag      : %d\n",(unsigned int)tcph->syn);
-    printf("   |-Finish Flag           : %d\n",(unsigned int)tcph->fin);
+    printf("   |-Urgent Flag           : %d\n", tcph->urg);
+    printf("   |-Acknowledgement Flag  : %d\n", tcph->ack);
+    printf("   |-Push Flag             : %d\n", tcph->psh);
+    printf("   |-Reset Flag            : %d\n", tcph->rst);
+    printf("   |-Synchronise Flag      : %d\n", tcph->syn);
+    printf("   |-Finish Flag           : %d\n", tcph->fin);
     printf("   |-Window                : %d\n",ntohs(tcph->window));
     printf("   |-Checksum              : %d\n",ntohs(tcph->check));
     printf("   |-Urgent Pointer        : %d\n",tcph->urg_ptr);
@@ -597,6 +599,23 @@ void print_itf_list(){
 
     pcap_freealldevs(first_if);
 
+}
+
+// selecting the first device available on the machine
+
+int get_random_device(char* device){
+
+    pcap_if_t *first_if;
+    char errbuf[PCAP_ERRBUF_SIZE];
+
+    if (pcap_findalldevs(&first_if, errbuf) < 0) {
+        fprintf(stderr, "pcap_findalldevs: %s\n", errbuf);
+        return -1;
+    }
+
+    strncpy(device, first_if->name, IFNAMSIZ -1);
+
+    return 1;
 }
 
 // print raw data in ASCII and hex values 
