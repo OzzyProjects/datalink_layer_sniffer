@@ -77,6 +77,15 @@ static struct sock_filter bpfcode[8] = {
 
 #define PCAP_NETMASK_UNKNOWN 0xffffffff
 
+typedef struct ieee80211_radiotap_header {
+
+    u_int8_t    it_version; /* set to 0 */
+    u_int8_t    it_pad;
+    u_int16_t   it_len; /* entire length */
+    u_int32_t   it_present; /* fields present */
+
+} __attribute__((__packed__)) ieee80211_radiotap_header;
+
 
 /********************* OSI Layer 2 protocols structs *********************/
 
@@ -287,6 +296,7 @@ typedef struct nbns_header {
 /************************************* Functions declarations *************************************/
 
 void print_itf_list();
+int get_random_device(char*);
 
 void print_ethernet_header(unsigned char*, int);
 void process_ip_packet(unsigned char* , int);
@@ -314,7 +324,7 @@ void print_icmpv6_packet(unsigned char*, int, int);
 
 void print_data(unsigned char* , int);
 void print_hex_ascii_line(const u_char*, int, int);
-uint16_t in_cksum(uint16_t *addr, int len);
+uint16_t in_cksum(uint16_t *, int);
 
 void print_current_time();
 
