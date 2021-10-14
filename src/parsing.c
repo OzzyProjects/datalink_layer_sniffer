@@ -5,6 +5,72 @@
 
 /************************************* IN PROGRESS *************************************/
 
+int load_oui_address_from_file(char* filename, uint32_t max_entries, char** oui_addr_list){
+
+	size_t read;
+	size_t len;
+	char *line_buff;
+
+	FILE* database = fopen(filename, "r");
+	oui_addr_list = malloc(sizeof(char*) * max_entries);
+
+	if (database == NULL || oui_addr_list == NULL){
+		return -1;
+	}
+
+	uint32_t i = 0;
+
+	while ((read = getline(&line_buff, &len, database)) != -1){
+
+		oui_addr_list[i] = malloc(sizeof(char) * MAX_LENGTH_OUI_ENTRY);
+
+		if (oui_addr_list[i] != NULL){
+			memcpy(oui_addr_list[i], line_buff, read + 1);
+			*(oui_addr_list + i)[read] = '\0';
+			++i;
+		}
+		else{
+			fclose(database);
+			return -1;
+		}
+    }
+
+    fclose(database);
+
+    printf("OUI address database loaded : %u entries\n");
+    return i;
+
+}
+
+void get_oui_infos(char* oui_addr, char** oui_database, size_t database_len){
+
+	uint32_t low = 0;
+	uint32_t mid;
+	uint32_t high = database_len - 1;
+
+	 while(low <= high)
+	 {
+		mid = (low + high) / 2;
+
+		char* current_oui_addr = strtok(oui_database[mid], "\t");
+
+		if (strcmp(oui_addr, current_oui_addr) == 0){
+			char* oui_info = strchr(oui_database[mid], strlen(current_oui_addr));
+		 	printf("%s\n", oui_info);
+		}
+		else if(strcmp(oui_addr, current_oui_addr) > 0){
+		 	high = high;
+		 	low = mid + 1;
+		}
+		else{
+		 	low = low;
+		 	high = mid - 1;
+		 }
+	}
+
+	printf("Entry not found in file\n");	
+}
+
 void parse_arp_opcode_field(uint8_t opcode_field){
 
 	switch(opcode_field){
@@ -41,6 +107,33 @@ void parse_profinet_dcp_service_id_field(uint8_t service_id){
 
 		case PROFINET_DCP_SERVICE_ID_HELLO: 
 			printf("HELLO\n");
+			break;
+
+		default:
+			printf("Unknown Value\n");
+
+	}
+}
+
+
+void parse_homeplug_av_type_field(uint16_t type){
+
+	switch(type){
+
+		case HOMEPLUG_AV_REQ_BRIDGE: 
+			printf("(Bridge Info Request)\n");
+			break;
+
+		case HOMEPLUG_AV_GET_BEACON_REQ: 
+			printf("(Beacon Request)\n");
+			break;
+
+		case HOMEPLUG_AV_GET_BEACON_CNF: 
+			printf("(Beacon Configuration)\n");
+			break;
+
+		case HOMEPLUG_AV_ISP_DETECTION_REPORT_IND: 
+			printf("(Report ISP Detection)\n");
 			break;
 
 		default:
@@ -234,6 +327,9 @@ void parse_igmp_message_type_field(uint8_t message_field){
 	}
 
 }
+
+
+// parsing DNS header fields with the most common values
 
 void parse_dns_opcode_field(uint8_t opcode){
 
