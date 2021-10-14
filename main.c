@@ -10,6 +10,7 @@
 typedef struct opt_args_main {
 
     uint32_t max_packet;
+    uint32_t mac_entries;
     uint8_t is_filter   : 2;
     uint8_t is_file     : 2;
     uint8_t is_itf      : 2;
@@ -25,8 +26,8 @@ void handle_packet(u_char*, const struct pcap_pkthdr*, const u_char*);
 
 static const char* default_filename = "strings_log";
 
-// counter : number of packets sniffed
-static unsigned long num_packet = 0;
+// number of packets sniffed
+static unsigned int num_packet = 0;
 
 int main(int argc, char **argv) {
     
@@ -39,6 +40,7 @@ int main(int argc, char **argv) {
     char record_file[RECORD_FILENAME_SIZE];
     char pcap_filters[PCAP_FILTER_SIZE];
     char errbuf[PCAP_ERRBUF_SIZE];
+    char** oui_database = NULL;
 
     // BPF filters variables
     struct bpf_program fp;
@@ -50,6 +52,7 @@ int main(int argc, char **argv) {
     // parsing the command line 
     int opt;
     opt_args_main opt_args;
+    int err = 0;
 
     memset(&opt_args, 0, sizeof(opt_args));
 
@@ -124,14 +127,10 @@ int main(int argc, char **argv) {
     }
 
     if (opt_args.is_itf == 0){
-        char* dev = pcap_lookupdev(errbuf);
 
-        if (dev == NULL){
-            fprintf(stderr, "ERROR : Couldn't find default device: %s\n", errbuf);
-            return EXIT_FAILURE;
-        }
+        // selecting the first device available if none was provided 
+        assert(get_random_device(device) != -1);
 
-        strncpy(device, dev, IFNAMSIZ - 1);
     }
 
     if(opt_args.is_file == 0){
@@ -176,7 +175,11 @@ int main(int argc, char **argv) {
 
         assert(pcap_set_snaplen(handle, BUFSIZ) == 0);
 
-        assert(pcap_can_set_rfmon(handle) == 1);
+        assert(pcap_setnonblock(handle, -1, errbuf) != -1);
+
+        assert(pcap_set_promisc(handle, 1) != -1);
+
+        assert(pcap_can_set_rfmon(handle) != -1);
 
         assert(pcap_set_rfmon(handle, 1) == 0);
 
@@ -216,7 +219,7 @@ int main(int argc, char **argv) {
         pcap_loop(handle, opt_args.max_packet, handle_packet, NULL);
     else
         // otherwise, infinite loop
-        pcap_loop(handle, -1, handle_packet, NULL);
+        pcap_loop(handle, 0, handle_packet, NULL);
 
     pcap_close(handle);
 
@@ -237,46 +240,35 @@ void int_handler(int signum){
 
 void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet){
 
-    unsigned char* raw_packet = malloc(header->caplen);
+    unsigned char* raw_packet = (unsigned char*)packet;
 
     ++num_packet;
 
-    if (raw_packet != NULL){
+    // let's print the frame
+    printf("\nFRAME NUMBER : %u\n", num_packet);
+    process_frame(raw_packet, header->caplen);
 
-        memcpy(raw_packet, (u_char*)packet, header->caplen);
+    // printing raw datas in hex format 
+    printf("\n\nRaw Datas : \n\n");
 
-        // let's print the frame
-        printf("\nFRAME NUMBER : %lu\n", num_packet);
-        process_frame(raw_packet, header->caplen);
+    unsigned int i = 0;
 
-        // printing raw datas in hex format 
-        printf("\n\nRaw Datas : \n\n");
+    while(i < header->caplen){
 
-        unsigned int i = 0;
+        // every 16 bytes, print a line feed to get a clean output
+        if (i % 32 == 0)
+            printf("\n");
 
-        while(i < header->caplen){
-
-            // every 16 bytes, print a line feed to get a clean output
-            if (i % 16 == 0)
-                printf("\n");
-
-            printf("%02X ", raw_packet[i]);
-            i++;
-        }
-
-        printf("\n");
-
-        // extracting revelant strings and saving them into record file
-        printf("\n\nList of strings : \n");
-        print_strings(raw_packet, header->caplen);
-        printf("\n");
-        free(raw_packet);
-
+        printf("%02X ", raw_packet[i]);
+        i++;
     }
 
-    else{
-        printf("\nWARNING : Memory allocation error for one packet !\n");
-    }
+    printf("\n");
+
+    // extracting revelant strings and saving them into record file
+    printf("\n\nList of strings : \n");
+    print_strings(raw_packet, header->caplen);
+    printf("\n");
 
     raw_packet = NULL;
 }
