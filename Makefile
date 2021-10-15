@@ -21,7 +21,7 @@ deps    := $(objects:.o=.d)
 CC := gcc
 CPPFLAGS := -I $(INC)
 # compilator's options (you may add some options here)
-CFLAGS := -g -Wall -Wextra
+CFLAGS := -g -Wall -Wextra -pedantic
 
 LDFLAGS=-lm
 
