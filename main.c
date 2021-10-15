@@ -154,8 +154,8 @@ int main(int argc, char **argv) {
                 break;
 
             default:
-                usage();
                 printf("FATAL ERROR : Couldn't parse command line arguments\n");
+                usage();
                 abort();
         }
     }
