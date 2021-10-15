@@ -1,16 +1,19 @@
 /* Libraries */ 
 
 #include <signal.h>
+#include <limits.h>
 
 #include "sock_utils.h" 
 #include "string_utils.h"
+
+int DLT_SIZE = 0;
 
 // main option fields struct
 
 typedef struct opt_args_main {
 
     uint32_t max_packet;
-    uint32_t mac_entries;
+    uint32_t timeout;
     uint8_t is_filter   : 2;
     uint8_t is_file     : 2;
     uint8_t is_itf      : 2;
@@ -24,7 +27,8 @@ typedef struct opt_args_main {
 void int_handler(int);
 void handle_packet(u_char*, const struct pcap_pkthdr*, const u_char*);                
 
-static const char* default_filename = "strings_log";
+// default filemane for string record file
+static const char* DEFAULT_RECORD_FILENAME = "strings_log";
 
 // number of packets sniffed
 static unsigned int num_packet = 0;
@@ -36,15 +40,16 @@ int main(int argc, char **argv) {
 
     // global params for the PCAP session
     char device[IFNAMSIZ];
-    char max_packet_char[MAX_PACKETS_NUMBER_LENGTH];
     char record_file[RECORD_FILENAME_SIZE];
     char pcap_filters[PCAP_FILTER_SIZE];
     char errbuf[PCAP_ERRBUF_SIZE];
-    char** oui_database = NULL;
+    char* temp;
+    uint64_t defined_timeout;
+    uint64_t max_packet;
 
     // BPF filters variables
     struct bpf_program fp;
-    bpf_u_int32 mask;
+    bpf_u_int32  mask;
     bpf_u_int32 net;
 
     pcap_t *handle;
@@ -52,11 +57,10 @@ int main(int argc, char **argv) {
     // parsing the command line 
     int opt;
     opt_args_main opt_args;
-    int err = 0;
 
     memset(&opt_args, 0, sizeof(opt_args));
 
-    while ((opt = getopt(argc, argv, "i:r:f:glc")) != -1){
+    while ((opt = getopt(argc, argv, "i:r:f:d:t:c:gl")) != -1){
 
         switch (opt){
 
@@ -72,27 +76,43 @@ int main(int argc, char **argv) {
                 opt_args.is_file = 1;
                 break;
 
-            // binding to any (all) devices = all frames (godmode)
+            // binding to any (all) devices = all frames
             case 'g':
                 opt_args.is_godmode = 1;
+                break;
+
+            // limit the number of sniffed packed -c option (number of packets to capture)
+            case 'c':
+                // out of range number = exit
+                max_packet = strtol(optarg, &temp, 10);
+                if (optarg != temp && *temp == '\0' && max_packet <= UINT_MAX){
+                    opt_args.max_packet = max_packet;
+                    opt_args.is_limited = 1;
+                }
+                else {
+                    fprintf(stderr, "ERROR : Incorrect number for max packet (unsigned int required)\n");
+                    exit(EXIT_FAILURE);
+                }
+                break;
+
+            // option to set up a provided timeout, 0 (default) for non blocking mode
+            case 't':
+                defined_timeout = strtoul(optarg, &temp, 10);
+
+                // argument is properly parsed: set the timeout
+                if (optarg != temp && *temp == '\0' && defined_timeout <= UINT_MAX){
+                    opt_args.timeout = defined_timeout;
+                }
+                else{
+                    fprintf(stderr, "ERROR : Timeout value format error (unsigned int required or 0 for non blocking)\n");
+                    return EXIT_FAILURE;
+                }
                 break;
 
             // just an option to print the list of interfaces available
             case 'l':
                 print_itf_list();
                 return EXIT_SUCCESS;
-                break;
-
-            // limit the number of sniffed packed -c option
-            case 'c':
-                // out of range number = exit
-                assert(strlen(optarg) < MAX_PACKETS_NUMBER_LENGTH -1);
-                opt_args.max_packet = strtol(max_packet_char, &optarg, 10);
-                opt_args.is_limited = 1;
-                if (opt_args.max_packet == 0){
-                    fprintf(stderr, "ERROR : Incorrect number for max packet (unsigned int type required)\n");
-                    exit(EXIT_FAILURE);
-                }
                 break;
 
             // applying filters to the capture -f option
@@ -110,6 +130,8 @@ int main(int argc, char **argv) {
                     fprintf(stderr, "Option -%c requires an argument [pcap_filters] !\n", optopt);
                 else if (optopt == 'c')
                     fprintf(stderr, "Option -%c requires an argument [max packets] !\n", optopt);
+                else if (optopt == 't')
+                    fprintf(stderr, "Option -%c requires an argument [timeout] | 0 for non blocking mode!\n", optopt);
                 else
                     fprintf(stderr, "Unknown option `-%c'.\n", optopt);
 
@@ -129,12 +151,15 @@ int main(int argc, char **argv) {
     if (opt_args.is_itf == 0){
 
         // selecting the first device available if none was provided 
-        assert(get_random_device(device) != -1);
+        if (get_random_device(device) == -1){
+            fprintf(stderr, "ERROR : Couldn't find any device to bind to\n");
+            return EXIT_FAILURE;
+        }
 
     }
 
     if(opt_args.is_file == 0){
-        strncpy(record_file, default_filename, RECORD_FILENAME_SIZE - 1);
+        strncpy(record_file, DEFAULT_RECORD_FILENAME, RECORD_FILENAME_SIZE - 1);
     }
 
     printf("\nDevice selected  : %s\n", device);
@@ -144,10 +169,16 @@ int main(int argc, char **argv) {
 
     printf("\nRecord file successfully set\n");
 
-    if (!opt_args.is_godmode){
+    // only one interface sniffing mode
+    if (opt_args.is_godmode == 0){
 
-        /* Open the session in promiscuous mode */
-        handle = pcap_open_live(device, BUFSIZ, -1, 1500, errbuf);
+        /* Open the session in promiscuous mode with defined timeout or not (default) */
+        if (opt_args.timeout){
+            handle = pcap_open_live(device, BUFSIZE, -1, opt_args.timeout, errbuf);
+        }
+        else{
+            handle = pcap_open_live(device, BUFSIZE, -1, 1, errbuf);
+        }
 
         if (handle == NULL){
             fprintf(stderr, "ERROR : Couldn't open device %s: %s\n", device, errbuf);
@@ -173,13 +204,24 @@ int main(int argc, char **argv) {
             return EXIT_FAILURE;
         }
 
-        assert(pcap_set_snaplen(handle, BUFSIZ) == 0);
+        assert(pcap_set_snaplen(handle, ETHERNET_MTU) == 0);
 
-        assert(pcap_setnonblock(handle, -1, errbuf) != -1);
+        // setting up timeout or by default or 0 value non blocking mode
+        if (opt_args.timeout){
+            assert(pcap_set_timeout(handle, opt_args.timeout) == 0);
+            printf("\nTimeout successfully set\n");
+        }
+        else{
+            assert(pcap_setnonblock(handle, -1, errbuf) != -1);
+            printf("\nPCAP non blocking mode successfully set\n");
+        }
 
         assert(pcap_set_promisc(handle, 1) != -1);
 
-        assert(pcap_can_set_rfmon(handle) != -1);
+        if (pcap_can_set_rfmon(handle) != 1){
+            fprintf(stderr, "ERROR : the device can't be set up in monitor mode : %s\n", pcap_geterr(handle));
+            return EXIT_FAILURE;
+        }
 
         assert(pcap_set_rfmon(handle, 1) == 0);
 
@@ -209,8 +251,50 @@ int main(int argc, char **argv) {
         printf("\nFilters has been successfully applied\n");
 
     }
+
+    // getting the data link type to properly dissect frames
+
+    int datalink_type = pcap_datalink(handle);
+    printf("\nINFO : PCAP_DATA_LINK_TYPE : %x\t", datalink_type);
+
+    // getting the datalink type to parse correctly TODO
     
-    printf("\nINFO : PCAP_DATA_LINK_TYPES\t: %x\n", pcap_datalink(handle));
+    switch(datalink_type){
+
+        case PCAP_ERROR_NOT_ACTIVATED:
+            fprintf(stderr, "ERROR : Failed to get data link type\n");
+            return EXIT_FAILURE;
+
+        case DLT_RAW:
+            printf("RAW Datalink\n");
+            DLT_SIZE = 0;
+            break;
+
+        case DLT_LINUX_SLL:  // "any" for device will give you this
+            printf("Linux SLL\n");
+            DLT_SIZE = 16;
+            break;
+
+        case DLT_EN10MB:
+            printf("Ethernet\n");
+            DLT_SIZE = ETH2_HEADER_LEN;
+            break;
+
+         case  DLT_AX25:
+            printf("AX 25\n");
+            DLT_SIZE = 0;
+            break;
+
+         case DLT_IEEE802_11:
+            printf("IEEE802 11\n");
+            DLT_SIZE = 0;
+            break;
+
+        default:
+            fprintf(stderr, "WARNING : Unknown data link type\n");
+            DLT_SIZE = 0;
+    }
+    
     
     // let's loop throuht the network
     if (opt_args.is_limited)
@@ -219,7 +303,7 @@ int main(int argc, char **argv) {
         pcap_loop(handle, opt_args.max_packet, handle_packet, NULL);
     else
         // otherwise, infinite loop
-        pcap_loop(handle, 0, handle_packet, NULL);
+        pcap_loop(handle, -1, handle_packet, NULL);
 
     pcap_close(handle);
 
@@ -240,7 +324,7 @@ void int_handler(int signum){
 
 void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet){
 
-    unsigned char* raw_packet = (unsigned char*)packet;
+    unsigned char* raw_packet = (unsigned char*)packet; // malloc(header->caplen);
 
     ++num_packet;
 
@@ -249,26 +333,26 @@ void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char 
     process_frame(raw_packet, header->caplen);
 
     // printing raw datas in hex format 
+    
     printf("\n\nRaw Datas : \n\n");
 
-    unsigned int i = 0;
+    uint32_t i = 0;
 
     while(i < header->caplen){
 
-        // every 16 bytes, print a line feed to get a clean output
+        // every 32 bytes, print a line feed to get a clean output
         if (i % 32 == 0)
             printf("\n");
 
-        printf("%02X ", raw_packet[i]);
+        printf("%02X ", *(raw_packet + i));
         i++;
     }
 
     printf("\n");
 
     // extracting revelant strings and saving them into record file
-    printf("\n\nList of strings : \n");
+    printf("\n\nRevelant strings : \n");
     print_strings(raw_packet, header->caplen);
     printf("\n");
 
-    raw_packet = NULL;
 }
