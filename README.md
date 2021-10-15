@@ -50,8 +50,6 @@ Without interface provided, it sniffs from the first one available on the system
 
 **And to get the list of network interfaces available, just do -l option**
 
-`./raw_sock -i wlp4s0 -r strings -f not ipx -t 1024`
-
 **You can also define yourself a personnalised timeout with the -f [timeout in seconds] option. By default it's 0 (non blocking mode)**
 
 Exemple of one among others command line :
