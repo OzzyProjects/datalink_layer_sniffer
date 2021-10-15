@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 
     memset(&opt_args, 0, sizeof(opt_args));
 
-    while ((opt = getopt(argc, argv, "i:r:f:d:t:c:gl")) != -1){
+    while ((opt = getopt(argc, argv, "i:r:f:t:c:gl")) != -1){
 
         switch (opt){
 
