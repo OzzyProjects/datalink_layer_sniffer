@@ -1,7 +1,7 @@
 SRC := src
 # headers folder (*.h)
 INC := headers
-#  main.cpp (your main cpp source code)
+#  main.c (your main c source code)
 MAIN := main.c
 # name of the generated executable
 EXEC := raw_sock
