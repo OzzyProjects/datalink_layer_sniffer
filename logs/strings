@@ -1,0 +1,178 @@
+_services._dns-sd._udp.local
+sM-SEARCH * HTTP/1.1.HOST: 239.255.255.250:1900.MAN: "ssdp:discover".MX: 1.ST: urn:dial-multiscreen-org:service:dial:1.USER-AGENT: Chromium/90.0.4430.212 Linux.inux.....
+HTTP/1.1 200 OK.LOCATION: http://192.168.1.10:52235/devicedescription.xml.CACHE-CONTROL: max-age=1800.EXT:.BOOTID.UPNP.ORG: 1.SERVER: Linux/2.6 UPnP/1.1 phoenix/1.0.ST: urn:dial-multiscreen-org:service:dial:1.USN: uuid:232839a9-a05b-4ee3-a9a8-6de4124bedb2::urn:dial-multiscreen-org:service:dial:1.WAKEUP: MAC=30:24:78:AB:6E:3F;Timeout=120.out=120....
+sM-SEARCH * HTTP/1.1.HOST: 239.255.255.250:1900.MAN: "ssdp:discover".MX: 1.ST: urn:dial-multiscreen-org:service:dial:1.USER-AGENT: Chromium/90.0.4430.212 Linux.inux....
+HTTP/1.1 200 OK.LOCATION: http://192.168.1.10:52235/devicedescription.xml.CACHE-CONTROL: max-age=1800.EXT:.BOOTID.UPNP.ORG: 1.SERVER: Linux/2.6 UPnP/1.1 phoenix/1.0.ST: urn:dial-multiscreen-org:service:dial:1.USN: uuid:232839a9-a05b-4ee3-a9a8-6de4124bedb2::urn:dial-multiscreen-org:service:dial:1.WAKEUP: MAC=30:24:78:AB:6E:3F;Timeout=120.out=120....
+sM-SEARCH * HTTP/1.1.HOST: 239.255.255.250:1900.MAN: "ssdp:discover".MX: 1.ST: urn:dial-multiscreen-org:service:dial:1.USER-AGENT: Chromium/90.0.4430.212 Linux.}Wux.....}W
+HTTP/1.1 200 OK.LOCATION: http://192.168.1.10:52235/devicedescription.xml.CACHE-CONTROL: max-age=1800.EXT:.BOOTID.UPNP.ORG: 1.SERVER: Linux/2.6 UPnP/1.1 phoenix/1.0.ST: urn:dial-multiscreen-org:service:dial:1.USN: uuid:232839a9-a05b-4ee3-a9a8-6de4124bedb2::urn:dial-multiscreen-org:service:dial:1.WAKEUP: MAC=30:24:78:AB:6E:3F;Timeout=120.out=120....
+sM-SEARCH * HTTP/1.1.HOST: 239.255.255.250:1900.MAN: "ssdp:discover".MX: 1.ST: urn:dial-multiscreen-org:service:dial:1.USER-AGENT: Chromium/90.0.4430.212 Linux.inux.....
+HTTP/1.1 200 OK.LOCATION: http://192.168.1.10:52235/devicedescription.xml.CACHE-CONTROL: max-age=1800.EXT:.BOOTID.UPNP.ORG: 1.SERVER: Linux/2.6 UPnP/1.1 phoenix/1.0.ST: urn:dial-multiscreen-org:service:dial:1.USN: uuid:232839a9-a05b-4ee3-a9a8-6de4124bedb2::urn:dial-multiscreen-org:service:dial:1.WAKEUP: MAC=30:24:78:AB:6E:3F;Timeout=120.out=120....
+_services._dns-sd._udp.local
+4.0.0.0.ST: urn:dial-multiscreen-org:service:dial:1.USN: uuid:232839a9-a05b-4ee3-a9a8-6de4124bedb2::urn:dial-multiscreen-org:service:dial:1.WAKEUP: MAC=30:24:78:AB:6E:3F;Timeout=120.out=120....
+S]l-multiscreen-org:service:dial:1.USN: uuid:232839a9-a05b-4ee3-a9a8-6de4124bedb2::urn:dial-multiscreen-org:service:dial:1.WAKEUP: MAC=30:24:78:AB:6E:3F;Timeout=120.out=120....
+M-SEARCH * HTTP/1.1.MX: 5.ST: urn:schemas-upnp-org:device:InternetGatewayDevice:1.HOST: 239.255.255.250:1900.MAN: "ssdp:discover".:r"....:
+5./y5.y5.
+www.tutorialspoint.com
+www.tutorialspoint.com
+s2.gp1.wac.lambdacdn.net
+cdn.mathjax.org
+cdn.rawgit.com
+cdn.mathjax.org
+x........
+cdn.rawgit.com
+rawgitcdn.b-cdn.net
+www.googletagmanager.com
+cdn.adpushup.com
+delivery.adrecover.com
+www.googletagmanager.com
+ .www-googletagmanager.l.google
+cdn.adpushup.com
+%.cdn.adpushup.com.cdn.cloudflare.net
+delivery.adrecover.com
++.delivery.adrecover.com.cdn.cloudflare.net
+cdnjs.cloudflare.com
+cdnjs.cloudflare.com
+cdn.jsdelivr.net
+jsdelivr.map.fastly
+www.google-analytics.com
+code.jquery.com
+cds.s5x3j6q5.hwcdn.net
+www.google-analytics.com
+ .www-google-analytics.l.google
+e3.adpushup.com
+e3.adpushup.com
+public-webservice.geo
+public-webservice.apdc2n
+securepubads.g.doubleclick.net
+c.amazon-adsystem.com
+securepubads.g.doubleclick.net
+partnerad.l
+c.amazon-adsystem.com
+d1ykf07e75w7ss.cloudfront.net
+1.0.U.GB1.0.U.Greater Manchester1.0.U.Salford1.0.U.Sectigo Limited1705.U.Sectigo RSA Domain Validation Secure Server CA0.200527000000Z.220829000000Z0.1.0.U.*.adpushup.com0000Z0.1.0...U....*.adpushup.com0
+secure.quantserve.com
+aplogger.adpushup.com
+secure.quantserve.com
+global.px
+aplogger.adpushup.com
+/.@.uO6O6
+q.2c.6gc..6g
+0O1.0.U.US1.0.U.DigiCert Inc1)0'.U. DigiCert TLS RSA SHA256 2020 CA10.210922000000Z.220921235959Z0u1.0.U.US1.0.U.California1.0.U.San Francisco1.0.U.Quantcast Corporation1.0.U.*.quantserve.com0t Corporation1.0...U....*.quantserve.com0
+gum.criteo.com
+gum.criteo.com
+gum.par.vip.prod
+hb-api.omnitagjs.com
+ads.servenobid.com
+prebid.media.net
+ib.adnxs.com
+hb-api.omnitagjs.com
+e.serverbid.com
+ads.servenobid.com
+prebid.media.net
+prebid-server.rubiconproject.com
+ib.adnxs.com
+g.geogslb
+fastlane.rubiconproject.com
+e.serverbid.com
+adpushup-d.openx.net
+a.teads.tv
+a.teads.tv.edgekey.net
+e9957.b.akamaiedge
+prebid-server.rubiconproject.com
+-.prebid-server.rubiconproject.net.akadns.net
+hbopenbid.pubmatic.com
+fastlane.rubiconproject.com
+).tagged-by.rubiconproject.net.akadns.net
+adpushup-d.openx.net
+htlb.casalemedia.com
+hbopenbid.pubmatic.com
+hbopenbid22000nfc
+hbopenbid22000nf
+pre.ads.justpremium.com
+=.0^1.0.U.US1.0.U.DigiCert Inc1.0.U.www.digicert.com1.0.U.GeoTrust ECC CA 20180.210305000000Z.220219235959Z0^1.0.U.US1.0.U.New York1.0.U.New York1.0.U.Xandr Inc.1.0.U.*.adnxs.com0Y0.*rk1.0...U....Xandr Inc.1.0...U....*.adnxs.com0Y0...*
+ap.lijit.com
+btlr.sharethrough.com
+0F1.0.U.US1.0.U.Amazon1.0.U.Server CA 1B1.0.U.Amazon0.210628000000Z.220727235959Z0.1.0.U.ads.servenobid.com00...U....ads.servenobid.com0
+htlb.casalemedia.com
+".htlb.casalemedia.com.edgekey.net
+e8037.i.akamaiedge
+0O1.0.U.US1.0.U.DigiCert Inc1)0'.U. DigiCert TLS RSA SHA256 2020 CA10.210330000000Z.220404235959Z0o1.0.U.US1.0.U.California1.0.U.Los Angeles1.0.U.Magnite, Inc.1.0.U.*.rubiconproject.com0ite, Inc.1.0...U....*.rubiconproject.com0
+pre.ads.justpremium.com
+bidder-eu-central-1.prod
+ap.lijit.com
+0O1.0.U.US1.0.U.DigiCert Inc1)0'.U. DigiCert TLS RSA SHA256 2020 CA10.210330000000Z.220404235959Z0o1.0.U.US1.0.U.California1.0.U.Los Angeles1.0.U.Magnite, Inc.1.0.U.*.rubiconproject.com0ite, Inc.1.0...U....*.rubiconproject.com0
+0a1.0.U.US1.0.U.DigiCert Inc1.0.U.www.digicert.com1 0.U.DigiCert Global Root CA0.200924000000Z.300923235959Z0O1.0.U.US1.0.U.DigiCert Inc1)0'.U. DigiCert TLS RSA SHA256 2020 CA10.. DigiCert TLS RSA SHA256 2020 CA10
+btlr.sharethrough.com
+0^1.0.U.US1.0.U.DigiCert Inc1.0.U.www.digicert.com1.0.U.GeoTrust RSA CA 20180.210205000000Z.220209235959Z0m1.0.U.CA1.0.U.Ontario1.0.U.Toronto1.0.U.Index Exchange, Inc1.0.U.san.casalemedia.com0dex Exchange, Inc1.0...U....san.casalemedia.com0
+0.U.%.0.+.+.0.U........+.......0...U....
+=.0^1.0.U.US1.0.U.DigiCert Inc1.0.U.www.digicert.com1.0.U.GeoTrust ECC CA 20180.210305000000Z.220219235959Z0^1.0.U.US1.0.U.New York1.0.U.New York1.0.U.Xandr Inc.1.0.U.*.adnxs.com0Y0.*rk1.0...U....Xandr Inc.1.0...U....*.adnxs.com0Y0...*
+0Y1.0.U.US1.0.U.DigiCert Inc1301.U.*DigiCert Baltimore TLS RSA SHA256 2020 CA10.201207000000Z.211214235959Z0k1.0.U.US1.0.U.California1.0.U.Redwood City1.0.U.PubMatic, Inc.1.0.U.*.pubmatic.com0.PubMatic, Inc.1.0...U....*.pubmatic.com0
+0F1.0.U.US1.0.U.Amazon1.0.U.Server CA 1B1.0.U.Amazon0.210301000000Z.220330235959Z0#1!0.U.tracking.justpremium.com0...tracking.justpremium.com0
+0F1.0.U.US1.0.U.Amazon1.0.U.Server CA 1B1.0.U.Amazon0.210813000000Z.220911235959Z0.1.0.U.*.sharethrough.com00...U....*.sharethrough.com0
+rules.quantcount.com
+rules.quantcount.com
+d2fashanjl7d9f.cloudfront.net
+021.0.U.US1.0.U.Let's Encrypt1.0.U.R30.210830170313Z.211128170312Z0.1.0.U.e.serverbid.com0..U....e.serverbid.com0
+pixel.quantserve.com
+pixel.quantserve.com
+adservice.google.fr
+adservice.google.fr
+pagead46.l.doubleclick.net
+1.0.U.GB1.0.U.Greater Manchester1.0.U.Salford1.0.U.Sectigo Limited1705.U.Sectigo RSA Domain Validation Secure Server CA0.200527000000Z.220829000000Z0.1.0.U.*.adpushup.com0000Z0.1.0...U....*.adpushup.com0
+ 9a7d8b7ae8e9dac21e977a1cb115118d.safeframe.googlesyndication.com
+ 9a7d8b7ae8e9dac21e977a1cb115118d.safeframe.googlesyndication.com
+pagead-googlehosted.l.google
+@9a7d8b7ae8e9dac21e977a1cb115118d.safeframe.googlesyndication.com
+cdn.ampproject.org
+tpc.googlesyndication.com
+cdn.ampproject.org
+s0-2mdn-net.l.google.com
+tpc.googlesyndication.com
+fonts.gstatic.com
+fonts.gstatic.com
+gstaticadssl.l.google
+pagead2.googlesyndication.com
+pagead2.googlesyndication.com
+www.googletagservices.com
+www.googletagservices.com
+imasdk.googleapis.com
+imasdk.googleapis.com
+bid.g.doubleclick.net
+bid.g.doubleclick.net
+gcdn.2mdn.net
+gcdn.2mdn.net
+!.bandaid-redirector.l.google.com
+}Xx).....
+}Xx/.yk.9k.9
+googleads4.g.doubleclick.net
+t.myvisualiq.net
+t.myvisualiq.net
+pool-eu.visualiq.iponweb
+?.elb-aws-fr-visualiq-1583280815.eu-central-1.elb.amazonaws.com
+googleads4.g.doubleclick.net
+G)p.6TN{Y...
+1.0.U.US1.0.U.Arizona1.0.U.Scottsdale1.0.U.GoDaddy.com, Inc.1-0+.U.$http://certs.godaddy.com/repository/1301.U.*Go Daddy Secure Certificate Authority - G20.201212150832Z.220113150832Z0>1!0.U.Domain Control Validated1.0.U.*.myvisualiq.net0l Validated1.0...U....*.myvisualiq.net0
+0c1.0.U.US1!0.U.The Go Daddy Group, Inc.110/.U.(Go Daddy Class 2 Certification Authority0.040629170620Z.340629170620Z0c1.0.U.US1!0.U.The Go Daddy Group, Inc.110/.U.(Go Daddy Class 2 Certification Authority0ss 2 Certification Authority0
+1.0.U.US1.0.U.Arizona1.0.U.Scottsdale1.0.U.GoDaddy.com, Inc.1-0+.U.$http://certs.godaddy.com/repository/1301.U.*Go Daddy Secure Certificate Authority - G20.201212150832Z.220113150832Z0>1!0.U.Domain Control Validated1.0.U.*.myvisualiq.net0l Validated1.0...U....*.myvisualiq.net0
+0c1.0.U.US1!0.U.The Go Daddy Group, Inc.110/.U.(Go Daddy Class 2 Certification Authority0.040629170620Z.340629170620Z0c1.0.U.US1!0.U.The Go Daddy Group, Inc.110/.U.(Go Daddy Class 2 Certification Authority0ss 2 Certification Authority0
+1.0.U.US1.0.U.Arizona1.0.U.Scottsdale1.0.U.GoDaddy.com, Inc.110/.U.(Go Daddy Root Certificate Authority - G20.110503070000Z.310503070000Z0503070000Z..310503070000Z0
+1.0.U.US1.0.U.Arizona1.0.U.Scottsdale1.0.U.GoDaddy.com, Inc.1-0+.U.$http://certs.godaddy.com/repository/1301.U.*Go Daddy Secure Certificate Authority - G20ertificate Authority - G20
+r3---sn-25glene6.c.2mdn.net
+dclk-match.dotomi.com
+match.adsrvr.org
+pixel-sync.sitescout.com
+cm.g.doubleclick.net
+r3---sn-25glene6.c.2mdn.net
+dclk-match.dotomi.com
+$.afp.dotomi.weighted.com.akadns.net
+match.adsrvr.org
+,.a97adde81b00f2ca4.awsglobalaccelerator.com
+pixel-sync.sitescout.com
+c1.adform.net
+track.adformnet.akadns
+cm.g.doubleclick.net
+0^1.0.U.US1.0.U.DigiCert Inc1.0.U.www.digicert.com1.0.U.RapidSSL RSA CA 20180.200115000000Z.220202120000Z0.1.0.U.*.sitescout.com0.1.0...U....*.sitescout.com0
+0S1.0.U.BE1.0.U.GlobalSign nv-sa1)0'.U. GlobalSign GCC R3 DV TLS CA 20200.210318224532Z.220419224532Z0.1.0.U.*.adsrvr.org0...U....*.adsrvr.org0
+0P1.0.U.BE1.0.U.GlobalSign nv-sa1&0$.U.GlobalSign RSA OV SSL CA 20180.210810180603Z.220911180603Z0t1.0.U.US1.0.U.CA1.0.U.Westlake Village1.0.U.Corp1.0.U.Conversant LLC1.0.U.*.dotomi.com00...U....Conversant LLC1.0...U....*.dotomi.com0
+0O1.0.U.US1.0.U.DigiCert Inc1)0'.U. DigiCert TLS RSA SHA256 2020 CA10.210906000000Z.221007235959Z0R1.0.U.DK1.0.U.KR1.0...U....DK1.0...U....K
+benhavn1.0.U.Adform A/S1.0.U.track.adform.net0dform.net0
