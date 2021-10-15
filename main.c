@@ -355,7 +355,6 @@ void int_handler(int signum){
     int min_elapsed = (int)(total_time / 60);
     int sec_elapsed = (int)(total_time % 60);
     printf("Capture time duration : %02d min %02d sec\n", min_elapsed, sec_elapsed);
-    fflush(stdout);
 
     // closing record file and exiting
     close_record_file();
@@ -368,7 +367,7 @@ void int_handler(int signum){
 
 void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet){
 
-    unsigned char* raw_packet = (unsigned char*)packet; // malloc(header->caplen);
+    unsigned char* raw_packet = (unsigned char*)packet;
 
     ++num_packet;
 
