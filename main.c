@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
     char errbuf[PCAP_ERRBUF_SIZE];
     char* temp;
     uint64_t defined_timeout;
-    uint32_t max_packet;
+    uint64_t max_packet;
 
     // BPF filters variables
     struct bpf_program fp;
@@ -154,8 +154,8 @@ int main(int argc, char **argv) {
                 break;
 
             default:
-                printf("FATAL ERROR : Couldn't parse command line arguments\n");
                 usage();
+                printf("FATAL ERROR : Couldn't parse command line arguments\n");
                 abort();
         }
     }
@@ -175,7 +175,7 @@ int main(int argc, char **argv) {
     }
 
     // printing command line to begin the capture file
-    printf("Command line : ");
+    printf("\n\nCommand line : ");
 
     int i = 0;
 
@@ -286,6 +286,7 @@ int main(int argc, char **argv) {
 
     switch(datalink_type){
 
+        // datalink not supported
         case PCAP_ERROR_NOT_ACTIVATED:
             fprintf(stderr, "ERROR : Failed to get data link type\n");
             return EXIT_FAILURE;
@@ -354,6 +355,7 @@ void int_handler(int signum){
     int min_elapsed = (int)(total_time / 60);
     int sec_elapsed = (int)(total_time % 60);
     printf("Capture time duration : %02d min %02d sec\n", min_elapsed, sec_elapsed);
+    fflush(stdout);
 
     // closing record file and exiting
     close_record_file();
@@ -366,7 +368,7 @@ void int_handler(int signum){
 
 void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet){
 
-    unsigned char* raw_packet = (unsigned char*)packet;
+    unsigned char* raw_packet = (unsigned char*)packet; // malloc(header->caplen);
 
     ++num_packet;
 
@@ -396,7 +398,7 @@ void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char 
     // extracting revelant strings and saving them into record file
     printf("\n\nRevelant strings : \n");
     print_strings(raw_packet, header->caplen);
-    printf("#########################################################\n");
+    printf("\n");
 
 }
 
