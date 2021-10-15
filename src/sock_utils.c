@@ -32,6 +32,70 @@ uint16_t in_cksum(uint16_t *addr, int len){
     return answer;
 }
 
+/* Generic function to parse tlv string */
+
+int parse_tlv(const unsigned char *const data, const size_t data_len, struct tlv_result *const results,
+    int max_results, size_t *const parsed_len){
+
+    uint8_t end_found = -1;
+    size_t len = 0;
+    size_t i;
+
+    for((*parsed_len) = 0, i = 0; (*parsed_len) < data_len && i < max_results; (*parsed_len) += (3 + len), i++){
+
+        size_t j;
+
+        /* enough data for type field ? */
+        if(((*parsed_len) + 1) > data_len){
+            printf("ERROR :malformed TLV\n");
+            return -1;
+        }
+
+        /* parse type */
+        (*(results + i)).type = data[*parsed_len];
+
+        if((*(results + i)).type == 0){
+            end_found = 1;
+            (*parsed_len)++;
+            break;
+        }
+
+        /* enough data for length field? */
+        if(((*parsed_len) + 3) > data_len){
+            printf("ERROR :malformed TLV\n");
+            return -1;
+        }
+
+        /* parse length */
+        len = ntohs(*((uint16_t*) (data + (*parsed_len) + 1)));
+        printf("TLV: Length = %zu", len);
+
+        /* parse value */
+        if(((*parsed_len) + 3 + len) > data_len){
+            /* not enough data for value field */
+            printf("ERROR :malformed TLV\n");
+            return -1;
+        }
+
+        (*(results + i)).value = (unsigned char*)(data + (*parsed_len) + 3);
+        for(j = 0; j < len; j++){
+            printf("TLV: Value = 0x%02x", data[(*parsed_len) + 3 + j]);
+        }
+
+        /* option is complete */
+        (*(results + i)).used = 1;
+    }
+
+    if(!end_found){
+        printf("ERROR :TLV option 'END' not found\n");
+        return -1;
+    }
+
+    return 1;
+
+}
+
+
 // processing frame by ethertype
 
 void process_frame(unsigned char* buffer, int size){
@@ -144,6 +208,49 @@ void print_ethernet_header(unsigned char* buffer, int size){
     printf("   |-Protocol            : %x\n", ntohs(eth->h_proto));
 }
 
+/* Display a ipx domain address. */
+static const char *IPX_print(const char *ptr){
+
+    static char buffer[64];
+    sockaddr_ipx *ipx = (struct sockaddr_ipx *) (ptr - 2);
+    int t;
+
+
+    for (t = IPX_NODE_LEN; t; t--)
+    if (ipx->ipx_node[t - 1])
+        break;
+
+    if (t && ntohl(ipx->ipx_network))
+    snprintf(buffer, sizeof(buffer), "%08lX:%02X%02X%02X%02X%02X%02X",
+         (long int) ntohl(ipx->ipx_network),
+         (int) ipx->ipx_node[0], (int) ipx->ipx_node[1],
+         (int) ipx->ipx_node[2], (int) ipx->ipx_node[3],
+         (int) ipx->ipx_node[4], (int) ipx->ipx_node[5]);
+    else if (!t && ntohl(ipx->ipx_network))
+    snprintf(buffer, sizeof(buffer), "%08lX", (long int) ntohl(ipx->ipx_network));
+    else if (t && !ntohl(ipx->ipx_network))
+    snprintf(buffer, sizeof(buffer), "%02X%02X%02X%02X%02X%02X",
+         (int) ipx->ipx_node[0], (int) ipx->ipx_node[1],
+         (int) ipx->ipx_node[2], (int) ipx->ipx_node[3],
+         (int) ipx->ipx_node[4], (int) ipx->ipx_node[5]);
+    else
+    buffer[0] = '\0';
+    return (buffer);
+}
+
+
+/* Display a ipx domain address. */
+static const char *IPX_sprint(const struct sockaddr_storage *sasp, int numeric)
+{
+    const struct sockaddr *sap = (const struct sockaddr *)sasp;
+    static char buf[64];
+
+    if (sap->sa_family != AF_IPX)
+        return strncpy(buf, "[NONE SET]", sizeof(buf));
+
+    return (IPX_print(sap->sa_data));
+}
+
 void print_arp_header(unsigned char* buffer){
 
     arp_header *arphdr = (arp_header*)(buffer + ETH2_HEADER_LEN);
@@ -164,13 +271,18 @@ void print_arp_header(unsigned char* buffer){
 
 void print_homeplug_av_header(unsigned char* buffer){
 
+    uint16_t type;
     homeplug_av_header* home_av_hdr = (homeplug_av_header*)(buffer + ETH2_HEADER_LEN);
+
+    // getting type from unsigned short
+    type = *((uint16_t*)(buffer + ETH2_HEADER_LEN + sizeof(home_av_hdr->protocol)));
 
     printf("\nHomeplug AV Header\n");
 
-    printf("   |-Protocol  : %x\n", home_av_hdr->protocol);
-    printf("   |-Type      : %x\t", ntohs(home_av_hdr->type));
-    parse_homeplug_av_type_field(ntohs(home_av_hdr->type));
+    printf("   |-Protocol  : %x\t", home_av_hdr->protocol);
+    parse_homeplug_av_version_field(home_av_hdr->protocol);
+    printf("   |-Type      : %x\t", type);
+    parse_homeplug_av_type_field(type);
 
     printf("   |-Frag     : %x\n", home_av_hdr->frag);
 
@@ -229,6 +341,11 @@ void print_vlan_ieee8021q_header(unsigned char* buffer, int size){
         case ETHERTYPE_ARP:
             print_arp_header(buffer + sizeof(vlan_ieee8021q_header));
         break;
+
+        case ETHERTYPE_IPV6:
+            print_ip6_header(buffer, size);
+        break;
+
         default:
             printf("\nUnknown VLAN frame !\n");
     }
@@ -310,19 +427,17 @@ void print_ip_header(unsigned char* buffer, int size){
     dest.sin_addr.s_addr = iph->daddr;
     
     printf("\nIP Header\n");
-    printf("   |-IP Version        : %d\n",(unsigned int)iph->version);
-    printf("   |-IP Header Length  : %d DWORDS or %d Bytes\n",(unsigned int)iph->ihl,((unsigned int)(iph->ihl))*4);
-    printf("   |-Type Of Service   : %d\n",(unsigned int)iph->tos);
-    printf("   |-IP Total Length   : %d  Bytes(size of Packet)\n",ntohs(iph->tot_len));
-    printf("   |-Identification    : %d\n",ntohs(iph->id));
-    //printf("   |-Reserved ZERO Field   : %d\n",(unsigned int)iphdr->ip_reserved_zero);
-    //printf("   |-Dont Fragment Field   : %d\n",(unsigned int)iphdr->ip_dont_fragment);
-    //printf("   |-More Fragment Field   : %d\n",(unsigned int)iphdr->ip_more_fragment);
-    printf("   |-TTL               : %d\n",(unsigned int)iph->ttl);
-    printf("   |-Protocol          : %d\n",(unsigned int)iph->protocol);
-    printf("   |-Checksum          : %d\n",ntohs(iph->check));
-    printf("   |-Source IP         : %s\n",inet_ntoa(source.sin_addr));
-    printf("   |-Destination IP    : %s\n",inet_ntoa(dest.sin_addr));
+    printf("   |-IP Version        : %x\n", iph->version);
+    printf("   |-IP Header Length  : %x DWORDS or %x Bytes\n", iph->ihl, iph->ihl*4);
+    printf("   |-Type Of Service   : %x\n", iph->tos);
+    printf("   |-IP Total Length   : %x  Bytes(size of Packet)\n", ntohs(iph->tot_len));
+    printf("   |-Identification    : %x\n", ntohs(iph->id));
+    printf("   |-Fragment Field    : %x\t%s\n", ntohs(iph->frag_off), (iph->frag_off & IP_DF) ? "Dont Frag" : "More Frag");
+    printf("   |-TTL               : %x\n", iph->ttl);
+    printf("   |-Protocol          : %x\n", iph->protocol);
+    printf("   |-Checksum          : %x\n", ntohs(iph->check));
+    printf("   |-Source IP         : %s\n", inet_ntoa(source.sin_addr));
+    printf("   |-Destination IP    : %s\n", inet_ntoa(dest.sin_addr));
 }
 
 /* print ip6 header */
@@ -373,22 +488,22 @@ void print_tcp_packet(unsigned char* buffer, int size){
     print_ip_header(buffer,size);
         
     printf("\nTCP Header\n");
-    printf("   |-Source Port           : %d\n",ntohs(tcph->source));
-    printf("   |-Destination Port      : %d\n",ntohs(tcph->dest));
-    printf("   |-Sequence Number       : %d\n",ntohl(tcph->seq));
-    printf("   |-Acknowledge Number    : %d\n",ntohl(tcph->ack_seq));
-    printf("   |-Header Length         : %d DWORDS or %d BYTES\n" ,(unsigned int)tcph->doff,(unsigned int)tcph->doff*4);
-    //printf("   |-CWR Flag : %d\n",(unsigned int)tcph->cwr);
-    //printf("   |-ECN Flag : %d\n",(unsigned int)tcph->ece);
-    printf("   |-Urgent Flag           : %d\n", tcph->urg);
-    printf("   |-Acknowledgement Flag  : %d\n", tcph->ack);
-    printf("   |-Push Flag             : %d\n", tcph->psh);
-    printf("   |-Reset Flag            : %d\n", tcph->rst);
-    printf("   |-Synchronise Flag      : %d\n", tcph->syn);
-    printf("   |-Finish Flag           : %d\n", tcph->fin);
-    printf("   |-Window                : %d\n",ntohs(tcph->window));
-    printf("   |-Checksum              : %d\n",ntohs(tcph->check));
-    printf("   |-Urgent Pointer        : %d\n",tcph->urg_ptr);
+    printf("   |-Source Port           : %x\n", ntohs(tcph->source));
+    printf("   |-Destination Port      : %x\n", ntohs(tcph->dest));
+    printf("   |-Sequence Number       : %x\n", _my_swab32(tcph->seq));
+    printf("   |-Acknowledge Number    : %x\n", _my_swab32(tcph->ack_seq));
+    printf("   |-Header Length         : %x DWORDS or %x BYTES\n" ,tcph->doff, tcph->doff*4);
+    printf("   |-CWR Flag              : %x\n", _my_swab32(tcph->cwr));
+    printf("   |-ECN Flag              : %x\n", _my_swab32(tcph->ece));
+    printf("   |-Urgent Flag           : %x\n", tcph->urg);
+    printf("   |-Acknowledgement Flag  : %x\t%s\n", tcph->ack, (tcph->ack & 0x1 ? "ACK (WARNING)" : ""));
+    printf("   |-Push Flag             : %x\n", tcph->psh);
+    printf("   |-Reset Flag            : %x\n", tcph->rst);
+    printf("   |-Synchronise Flag      : %x\t%s\n", tcph->syn, (tcph->syn & 0x1 ? "SYN (WARNING)" : ""));
+    printf("   |-Finish Flag           : %x\n", tcph->fin);
+    printf("   |-Window                : %x\n",ntohs(tcph->window));
+    printf("   |-Checksum              : %x\n",ntohs(tcph->check));
+    printf("   |-Urgent Pointer        : %x\t%s\n", tcph->urg_ptr, (tcph->urg_ptr & 0x1 ? "URG (WARNING)" : ""));
     printf("\n");
     printf("                        DATA Dump                         ");
     printf("\n");
@@ -549,19 +664,48 @@ void print_icmp_packet(unsigned char* buffer , int size){
 
 void print_icmpv6_packet(unsigned char* buffer, int offset, int size){
 
-    icmp6_header *icmp6 = (icmp6_header*)(buffer + offset);
-    int header_size = offset + sizeof(icmp6);
+    size_t icmp6_len;
+    int header_size;
 
-    printf("\n\nICMPv6 Header\n");
-    printf("   |-Type            : %x\n", icmp6->type);
-    printf("   |-Code            : %x\n", icmp6->code);
-    printf("   |-Checksum        : %x\n", icmp6->cksum);
 
-    if ((icmp6->type == ICMP6_ECHO_REQUEST) || (icmp6->type == ICMP6_ECHO_REPLY)){
+    if (*((uint8_t*)(buffer + offset)) == ICMPV6_TYPE_ROUTER_SOL){
 
-        printf("   |-ICMPv6 ID      : %x\n", icmp6->data >> 16);
-        printf("   |-ICMPv6 Sequence : %x\n", icmp6->data & 0x0000ffff);
+        char target_ip[INET6_ADDRSTRLEN];
+
+        icmp6_NDP_header* icmp6 = (icmp6_NDP_header*)(buffer + offset);
+        icmp6_len = sizeof(icmp6_NDP_header);
+
+        printf("\n\nICMPv6_NDP Header\n");
+        printf("   |-Type            : %x\n", icmp6->type);
+        printf("   |-Code            : %x\n", icmp6->code);
+        printf("   |-Checksum        : %x\n", ntohs(icmp6->cksum));
+        printf("   |-Subtype         : %x\n", icmp6->sub_type);
+        printf("   |-Length          : %x\n", icmp6->length);
+
+        inet_ntop(AF_INET6, &icmp6->target_ip, target_ip, sizeof(target_ip));
+        printf("   |-Target IP       : %s\n", target_ip);
+        printf("   |-Target MAC      : %.2X-%.2X-%.2X-%.2X-%.2X-%.2X \n", icmp6->target_mac[0] , icmp6->target_mac[1] , icmp6->target_mac[2] , 
+            icmp6->target_mac[3] , icmp6->target_mac[4] , icmp6->target_mac[5]);
+
     }
+    else{
+
+        icmp6_header *icmp6 = (icmp6_header*)(buffer + offset);
+        icmp6_len = sizeof(icmp6_header);
+
+        printf("\n\nICMPv6 Header\n");
+        printf("   |-Type            : %x\n", icmp6->type);
+        printf("   |-Code            : %x\n", icmp6->code);
+        printf("   |-Checksum        : %x\n", ntohs(icmp6->cksum));
+
+        if ((icmp6->type == ICMP6_ECHO_REQUEST) || (icmp6->type == ICMP6_ECHO_REPLY)){
+
+            printf("   |-ICMPv6 ID       : %x\n", icmp6->data >> 16);
+            printf("   |-ICMPv6 Sequence : %x\n", icmp6->data & 0x0000ffff);
+        }
+    }
+
+    header_size = offset + icmp6_len;
 
     printf("\n");
     printf("                        DATA Dump                         ");
@@ -571,7 +715,7 @@ void print_icmpv6_packet(unsigned char* buffer, int offset, int size){
     print_data(buffer + ETH2_HEADER_LEN, size - offset);
 
     printf("ICMPv6 Header\n");
-    print_data(buffer + offset, sizeof(icmp6));
+    print_data(buffer + offset, icmp6_len);
         
     printf("Data Payload\n");    
     print_data(buffer + header_size, size - header_size);
