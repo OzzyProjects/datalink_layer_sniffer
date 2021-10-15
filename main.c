@@ -2,6 +2,7 @@
 
 #include <signal.h>
 #include <limits.h>
+#include <time.h>
 
 #include "sock_utils.h" 
 #include "string_utils.h"
@@ -23,12 +24,16 @@ typedef struct opt_args_main {
 
 } __attribute__((packed)) opt_args_main;
 
+// display command line options (help)
+void usage();
+
 // get SIGINT to proper exit freeing memory
 void int_handler(int);
 void handle_packet(u_char*, const struct pcap_pkthdr*, const u_char*);                
 
 // default filemane for string record file
 static const char* DEFAULT_RECORD_FILENAME = "strings_log";
+time_t begin_capture;
 
 // number of packets sniffed
 static unsigned int num_packet = 0;
@@ -60,7 +65,7 @@ int main(int argc, char **argv) {
 
     memset(&opt_args, 0, sizeof(opt_args));
 
-    while ((opt = getopt(argc, argv, "i:r:f:t:c:gl")) != -1){
+    while ((opt = getopt(argc, argv, "i:r:f:d:t:c:glh")) != -1){
 
         switch (opt){
 
@@ -121,6 +126,11 @@ int main(int argc, char **argv) {
                 opt_args.is_filter = 1;
                 break;
 
+            // printing usage (help) -h option
+            case 'h':
+                usage();
+                return EXIT_SUCCESS;
+                break;
             case '?':
                 if (optopt == 'i')
                     fprintf(stderr, "Option -%c requires an argument [interface_name] !\n", optopt);
@@ -139,10 +149,12 @@ int main(int argc, char **argv) {
 
             case 1:
                 printf("ERROR : Non-option argument : %s\n", optarg);
+                usage();
                 exit(EXIT_FAILURE);
                 break;
 
             default:
+                usage();
                 printf("FATAL ERROR : Couldn't parse command line arguments\n");
                 abort();
         }
@@ -162,14 +174,27 @@ int main(int argc, char **argv) {
         strncpy(record_file, DEFAULT_RECORD_FILENAME, RECORD_FILENAME_SIZE - 1);
     }
 
-    printf("\nDevice selected  : %s\n", device);
-    printf("\nRecord filename : %s\n", record_file);
+    // printing command line to begin the capture file
+    printf("\n\nCommand line : ");
 
+    int i = 0;
+
+    while (i < argc) {
+        printf("%s ", *(argv + i));
+        i++;
+    }
+
+    printf("\n\nDevice selected  : %s\n", device);
+    printf("\nRecord filename  : %s\n", record_file);
+    printf("\nTimeout set      : %u %s\n", opt_args.timeout, (!opt_args.timeout ? "non blocking mode" : ""));
+
+    // let's open the string record file now
     init_string_record_file(record_file);
 
     printf("\nRecord file successfully set\n");
 
-    // only one interface sniffing mode
+    // one only one interface sniffing mode, soft capture
+
     if (opt_args.is_godmode == 0){
 
         /* Open the session in promiscuous mode with defined timeout or not (default) */
@@ -258,7 +283,7 @@ int main(int argc, char **argv) {
     printf("\nINFO : PCAP_DATA_LINK_TYPE : %x\t", datalink_type);
 
     // getting the datalink type to parse correctly TODO
-    
+
     switch(datalink_type){
 
         case PCAP_ERROR_NOT_ACTIVATED:
@@ -275,6 +300,7 @@ int main(int argc, char **argv) {
             DLT_SIZE = 16;
             break;
 
+        // ethernet
         case DLT_EN10MB:
             printf("Ethernet\n");
             DLT_SIZE = ETH2_HEADER_LEN;
@@ -285,17 +311,21 @@ int main(int argc, char **argv) {
             DLT_SIZE = 0;
             break;
 
-         case DLT_IEEE802_11:
+        // radiotap TODO
+        case DLT_IEEE802_11:
             printf("IEEE802 11\n");
             DLT_SIZE = 0;
             break;
 
+        // uncommon datalink type
         default:
             fprintf(stderr, "WARNING : Unknown data link type\n");
             DLT_SIZE = 0;
     }
     
-    
+    // starting the timer here
+    begin_capture = time(NULL);
+
     // let's loop throuht the network
     if (opt_args.is_limited)
 
@@ -307,13 +337,26 @@ int main(int argc, char **argv) {
 
     pcap_close(handle);
 
+    int_handler(-1);
+
     return EXIT_SUCCESS;
     
 }
 
 
+// updating the last params, closing file etc... before closing
+
 void int_handler(int signum){
 
+    // printing the capture time duration
+    time_t end_capture = time(NULL);
+    long total_time = end_capture - begin_capture;
+    int min_elapsed = (int)(total_time / 60);
+    int sec_elapsed = (int)(total_time % 60);
+    printf("Capture time duration : %02d min %02d sec\n", min_elapsed, sec_elapsed);
+    fflush(stdout);
+
+    // closing record file and exiting
     close_record_file();
     printf("Exiting program with SIGINT [%x]: OK\n", signum);
     exit(EXIT_SUCCESS);
@@ -330,6 +373,7 @@ void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char 
 
     // let's print the frame
     printf("\nFRAME NUMBER : %u\n", num_packet);
+
     process_frame(raw_packet, header->caplen);
 
     // printing raw datas in hex format 
@@ -355,4 +399,19 @@ void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char 
     print_strings(raw_packet, header->caplen);
     printf("\n");
 
+}
+
+void usage(){
+
+    printf("raw sniffer v1.0 help\t(by Ozzy)\n");
+    printf("\n-c [max_packets] max_packet : maximum number of packets to capture (optional)\n");
+    printf("-i [interface] interface : interface to bind to (optional)\n");
+    printf("-r [record_file]record_file : path of the string record file (optional)\n");
+    printf("-c [max_packets] max_packet : maximum number of packets to capture (optional)\n");
+    printf("-c [timeout] timeout: set a custom timeout in seconds. 0 for non blocking (optional)\n");
+    printf("-f [filter] filter : set a custom tcmpdump format filter for the capture (optional)\n");
+    printf("-g [any] : set this option without interface to capture frames from any device (optional)\n");
+    printf("-h [help] : get help about command line options\n");
+    printf("\nExample : ./raw_sock -i wlp4s0 -r strings_log -f \"not ipx\" -t 1024 -c 0\n");
+    printf(" Binding to one device, recording strings to file, applying filters to the capture and setting timeout\n");
 }
