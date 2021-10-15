@@ -405,14 +405,14 @@ void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char 
 void usage(){
 
     printf("raw sniffer v1.0 help\t(by Ozzy)\n");
-    printf("\n-c [max_packets] max_packet : maximum number of packets to capture (optional)\n");
-    printf("-i [interface] interface : interface to bind to (optional)\n");
-    printf("-r [record_file]record_file : path of the string record file (optional)\n");
-    printf("-c [max_packets] max_packet : maximum number of packets to capture (optional)\n");
-    printf("-c [timeout] timeout: set a custom timeout in seconds. 0 for non blocking (optional)\n");
-    printf("-f [filter] filter : set a custom tcmpdump format filter for the capture (optional)\n");
-    printf("-g [any] : set this option without interface to capture frames from any device (optional)\n");
-    printf("-h [help] : get help about command line options\n");
+    printf("\n\t-c [max_packets] max_packet : maximum number of packets to capture (optional)\n");
+    printf("\t-i [interface] interface : interface to bind to (optional)\n");
+    printf("\t-r [record_file]record_file : path of the string record file (optional)\n");
+    printf("\t-c [max_packets] max_packet : maximum number of packets to capture (optional)\n");
+    printf("\t-c [timeout] timeout: set a custom timeout in seconds. 0 for non blocking (optional)\n");
+    printf("\t-f [filter] filter : set a custom tcmpdump format filter for the capture (optional)\n");
+    printf("\t-g [any] : set this option without interface to capture frames from any device (optional)\n");
+    printf("\t-h [help] : get help about command line options\n");
     printf("\nExample : ./raw_sock -i wlp4s0 -r strings_log -f \"not ipx\" -t 1024 -c 0\n");
     printf(" Binding to one device, recording strings to file, applying filters to the capture and setting timeout\n");
 }
