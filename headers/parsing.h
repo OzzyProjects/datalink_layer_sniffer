@@ -7,7 +7,17 @@
 
 #define IPV6_ICMP   0x003A
 
+// UPX PROTOCOL VALUES
+
+#define IPX_FRAME_NONE		0
+#define IPX_FRAME_SNAP		1
+#define IPX_FRAME_8022		2
+#define IPX_FRAME_ETHERII	3
+#define IPX_FRAME_8023		4
+#define IPX_FRAME_TR_8022	5
+
 // NBNS and DNS source/dest port
+
 #define NBNS_PORT		0x0089
 #define DNS_PORT 		0x0035
 #define MDNS_PORT  		0x14e9
@@ -29,6 +39,10 @@
 // HOMEPLUG PROTOCOLS
 #define ETHERTYPE_HOMEPLUG     			0x887b
 #define ETHERTYPE_HOMEPLUG_POWERLINE    0x88e1
+
+#define HOMEPLUG_AV_GET_DEVICE_SW_VERSION_REQ_LEN   (3 + 47)
+#define HOMEPLUG_AV_GET_DEVICE_SW_VERSION_REQ_TYPE  0x00
+#define HOMEPLUG_AV_GET_DEVICE_SW_VERSION_RES_TYPE  0x01
 
 #define HOMEPLUG_AV_REQ_BRIDGE 					0x6020
 #define HOMEPLUG_AV_GET_BEACON_REQ      		0x603c
@@ -89,9 +103,12 @@
 #define IGMPV3_MESSAGE_MEMBERSHIP_REPORT	0X22
 #define IGMP_MESSAGE_LEAVE_GROUP			0X17
 
-int load_oui_address_from_file(char*, uint32_t, char**);
+#define ICMPV6_TYPE_ROUTER_SOL		0x87
+
+extern int DLT_SIZE;
 
 void parse_homeplug_av_type_field(uint16_t);
+void parse_homeplug_av_version_field(uint16_t);
 
 void parse_arp_opcode_field(uint8_t);
 
