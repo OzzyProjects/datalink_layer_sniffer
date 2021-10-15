@@ -34,12 +34,12 @@
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
-#define ___my_swab16(x) \
+#define _my_swab16(x) \
     ((u_int16_t)( \
     (((u_int16_t)(x) & (u_int16_t)0x00ffU) << 8) | \
     (((u_int16_t)(x) & (u_int16_t)0xff00U) >> 8) ))
 
-#define ___my_swab32(x) \
+#define _my_swab32(x) \
     ((u_int32_t)( \
     (((u_int32_t)(x) & (u_int32_t)0x000000ffUL) << 24) | \
     (((u_int32_t)(x) & (u_int32_t)0x0000ff00UL) <<  8) | \
@@ -63,11 +63,9 @@ static struct sock_filter bpfcode[8] = {
 }; */
 
 
-#define ETH_P_ALL   0x0003
-#define MTU         1500
+#define ETHERNET_MTU        1500
 
-
-#define BUFF_SIZE 4096
+#define BUFSIZE 65000
 #define ETH2_HEADER_LEN 14
 #define MAC_LENGTH 6
 #define IPV4_LENGTH 4
