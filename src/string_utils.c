@@ -18,7 +18,7 @@ void init_string_record_file(const char* filename){
 
     file = fopen(filename, "w");
     if (file == NULL){
-        perror("fatal error while creating string extractor file\n");
+        perror("Fatal error while creating string extractor file\n");
         exit(EXIT_FAILURE);
     }
 }
@@ -204,13 +204,14 @@ unsigned char *remove_dup(unsigned char* input, unsigned char to_remove){
 
     unsigned char* tmp = input, *older = input;
     unsigned char* output = tmp;
-
+    unsigned int i = 0;
     while (*older) {
         // if the older char == next char or if it's the first char, let's increment older char
-        if ((*older == *tmp && *tmp == to_remove) || *older == *output)
+        if ((*older == *tmp && *tmp == to_remove) || i == 0)
             ++older;
         else
             *++tmp = *older++;
+        ++i;
     }
 
     return output;
