@@ -1,39 +1,3 @@
-   |-Header Length         : 8 DWORDS or 20 BYTES
-   |-CWR Flag              : 0
-   |-ECN Flag              : 0
-   |-Urgent Flag           : 0
-   |-Acknowledgement Flag  : 1	ACK (WARNING)
-   |-Push Flag             : 0
-   |-Reset Flag            : 0
-   |-Synchronise Flag      : 0	
-   |-Finish Flag           : 0
-   |-Window                : 1f5
-   |-Checksum              : 4a9b
-   |-Urgent Pointer        : 0	
-
-                        DATA Dump                         
-IP Header
-    45 00 00 34 46 11 40 00 40 06 AA 3E C0 A8 01 10         E..4F.@.@..>....
-    02 12 86 AA                                             ....
-TCP Header
-    8C B6 01 BB 37 0E 82 D6 45 70 5A 2C 80 10 01 F5         ....7...EpZ,?...
-    4A 9B 00 00 01 01 08 0A A9 5F 7D 9F A7 4B F5 AA         J........_}..K..
-Data Payload
-
-###########################################################
-
-
-Raw Datas : 
-
-
-E8 D2 FF E0 88 D0 34 C9 3D CD 48 8A 08 00 45 00 00 34 46 11 40 00 40 06 AA 3E C0 A8 01 10 02 12 
-86 AA 8C B6 01 BB 37 0E 82 D6 45 70 5A 2C 80 10 01 F5 4A 9B 00 00 01 01 08 0A A9 5F 7D 9F A7 4B 
-F5 AA 
-
-
-Revelant strings : 
-
-
 FRAME NUMBER : 1910
 
 IP frame there!
