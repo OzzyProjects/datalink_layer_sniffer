@@ -64,6 +64,7 @@ static struct sock_filter bpfcode[8] = {
 
 
 #define ETH_P_ALL   0x0003
+#define MTU         1500
 
 
 #define BUFF_SIZE 4096
@@ -77,17 +78,58 @@ static struct sock_filter bpfcode[8] = {
 
 #define PCAP_NETMASK_UNKNOWN 0xffffffff
 
+#define IPX_NODE_LEN        6
+#define IPX_MTU             576
+
+extern int DLT_SIZE;
+
+// Generic class for TLV type
+
+typedef struct tlv_result {
+
+    uint8_t         used;
+    char            type;
+    uint16_t        length;
+    unsigned char*  value;
+
+} __attribute__((packed)) tlv_result;
+
+/********************* OSI Layer 2 protocols structs *********************/
+
+
+// RADIOTAP Generic header TODO
+
 typedef struct ieee80211_radiotap_header {
 
-    u_int8_t    it_version; /* set to 0 */
-    u_int8_t    it_pad;
-    u_int16_t   it_len; /* entire length */
-    u_int32_t   it_present; /* fields present */
+    uint8_t    it_version;
+    uint8_t    it_pad;
+    uint16_t   it_len;
+    uint32_t   it_present;
 
 } __attribute__((__packed__)) ieee80211_radiotap_header;
 
 
-/********************* OSI Layer 2 protocols structs *********************/
+// IPX Generic Header TODO
+
+typedef struct sockaddr_ipx {
+
+#if LINUX_VERSION_CODE > 131328
+    sa_family_t ipx_family;
+#else
+    uint16_t ipx_family;
+#endif
+    uint16_t ipx_port;
+    uint32_t ipx_network;
+    uint8_t  ipx_node[IPX_NODE_LEN];
+    uint8_t ipx_type;
+    uint8_t ipx_zero;
+
+} __attribute__((packed)) sockaddr_ipx;
+
+
+/********************* OSI Layer 3 protocols structs *********************/
+
+// VLAN 802 1Q Header
 
 typedef struct vlan_ieee8021q_header {
 
@@ -167,8 +209,6 @@ typedef struct profinet_dcp_header {
 } __attribute__((packed)) profinet_dcp_header;
 
 
-/********************* OSI Layer 3 protocols structs *********************/
-
 // IPv6 Header 
 
 typedef struct ipv6_header {
@@ -200,6 +240,23 @@ typedef struct icmp6_header{
     uint32_t data;
 
 } __attribute__((packed)) icmp6_header;
+
+
+// ICMPv6 NDP Header
+
+typedef struct icmp6_NDP_header {
+
+    uint8_t type;
+    uint8_t code;
+    uint16_t cksum;
+    uint32_t reserved;
+    struct in6_addr target_ip;
+    uint8_t sub_type;
+    uint8_t length;
+    char target_mac[MAC_LENGTH];
+
+
+} __attribute__((packed)) icmp6_NDP_header;
 
 
 // ARP Header
@@ -295,37 +352,46 @@ typedef struct nbns_header {
 
 /************************************* Functions declarations *************************************/
 
+// Usefull generic functions
+
 void print_itf_list();
 int get_random_device(char*);
 
-void print_ethernet_header(unsigned char*, int);
-void process_ip_packet(unsigned char* , int);
-void process_frame(unsigned char* , int);
-void print_arp_header(unsigned char*);
-void print_profinet_dcp_header(unsigned char*);
-void print_ip_header(unsigned char* , int);
-void print_ip6_header(unsigned char*, int);
-void print_tcp_packet(unsigned char * , int );
-void print_udp_packet(unsigned char * , int );
-void print_icmp_packet(unsigned char* , int );
-void print_igmp_header(unsigned char*, int);
-
-void print_vlan_ieee8021q_header(unsigned char*, int);
-
-void print_homeplug_av_header(unsigned char*);
-void print_homeplug_header(unsigned char*);
-void print_ieee_1905_header(unsigned char*, int);
-
-void print_lltd_header(unsigned char*);
-
-void print_dns_packet(unsigned char*, int);
-
-void print_icmpv6_packet(unsigned char*, int, int);
-
-void print_data(unsigned char* , int);
-void print_hex_ascii_line(const u_char*, int, int);
+int parse_tlv(const unsigned char *const, const size_t, tlv_result *const, int, size_t *const);
 uint16_t in_cksum(uint16_t *, int);
 
 void print_current_time();
+
+// OSI Layer 2
+
+void process_frame(unsigned char* , int);
+void print_ethernet_header(unsigned char*, int);
+
+// OSI Layer 3
+
+void print_vlan_ieee8021q_header(unsigned char*, int);
+void print_homeplug_av_header(unsigned char*);
+void print_homeplug_header(unsigned char*);
+void print_ieee_1905_header(unsigned char*, int);
+void print_lltd_header(unsigned char*);
+void print_arp_header(unsigned char*);
+void print_profinet_dcp_header(unsigned char*);
+void print_icmp_packet(unsigned char* , int );
+void print_igmp_header(unsigned char*, int);
+void print_icmpv6_packet(unsigned char*, int, int);
+
+void process_ip_packet(unsigned char* , int);
+void print_ip_header(unsigned char* , int);
+void print_ip6_header(unsigned char*, int);
+
+// OSI Layer 4
+
+void print_tcp_packet(unsigned char * , int );
+void print_udp_packet(unsigned char * , int );
+
+void print_dns_packet(unsigned char*, int);
+
+void print_data(unsigned char* , int);
+void print_hex_ascii_line(const u_char*, int, int);
 
 #endif
