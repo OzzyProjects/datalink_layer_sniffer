@@ -50,7 +50,17 @@ Without interface provided, it sniffs from the first one available on the system
 
 **And to get the list of network interfaces available, just do -l option**
 
-You can see an example of output log in file named "example".
+`./raw_sock -i wlp4s0 -r strings -f not ipx -t 1024`
+
+**You can also define yourself a personnalised timeout with the -f [timeout in seconds] option. By default it's 0 (non blocking mode)
+
+Exemple of one among others command line :
+
+`./raw_sock -i wlp4s0 -r strings_log -f "not ipx" -t 1024`
+
+command line with option : binding to one device, recording strings to file, applying filters to the capture and setting timeout
+
+You can see an example of output log in file named "example" in logs repository.
 
 It works on Debian Buster/Bullseye and Ubuntu 20.04+.
 
@@ -60,4 +70,4 @@ You can also check the complete valgrind memcheck report. No memory leaks or oth
 
 ![](valgrind/valgrind.png)
 
-**TODO : code a kernel module with buffer sockets or/and take a serious interest at libpcap to reach data link layer level**
+**TODO : accept bpf filters files or propose some of them by default and capturing radiotap packets and other layers 2 protos **
