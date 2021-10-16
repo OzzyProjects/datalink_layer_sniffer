@@ -1,6 +1,8 @@
 #include "sock_utils.h"
 #include "parsing.h"
 
+static int DATALINK_SIZE;
+
 /************************************* IN PROGRESS *************************************/
 
 // checksum function, non implemented yet
@@ -98,66 +100,87 @@ int parse_tlv(const unsigned char *const data, const size_t data_len, struct tlv
 
 // processing frame by ethertype
 
-void process_frame(unsigned char* buffer, int size){
+void process_frame(unsigned char* buffer, int size, int datalink_s){
 
-    struct ethhdr *eth = (struct ethhdr *)buffer;
-    uint16_t proto = ntohs(eth->h_proto);
+    // function pointer to print correct datalink header
+
+    void (*print_datalink_header)(unsigned char*, int);
+
+    // datalink protocol
+    uint16_t proto;
+
+    if (datalink_s == SLL_HDR_LEN){
+        sll_header* sllhdr = (sll_header*)buffer;
+        print_datalink_header = &print_linux_sll_header;
+        proto = ntohs(sllhdr->sll_protocol);
+    }
+    else{
+        struct ethhdr *eth = (struct ethhdr *)buffer;
+        print_datalink_header = &print_ethernet_header;
+        proto = ntohs(eth->h_proto);
+    }
+
+    DATALINK_SIZE = datalink_s;
 
     switch(proto){
 
         case ETHERTYPE_ARP:
             printf("\nARP frame there!\n");
-            print_ethernet_header(buffer, size);
+            (*print_datalink_header)(buffer, size);
             print_arp_header(buffer);
             break;
 
         case ETHERTYPE_IEEE1905_1:
             printf("\nETHERTYPE_IEEE1905_1 frame there!\n");
-            print_ethernet_header(buffer , size);
+            (*print_datalink_header)(buffer, size);
             print_ieee_1905_header(buffer, size);
             break;
 
         case ETHERTYPE_HOMEPLUG:
             printf("\nETHERTYPE_HOMEPLUG frame there!\n");
-            print_ethernet_header(buffer , size);
+            (*print_datalink_header)(buffer, size);
             print_homeplug_header(buffer);
             break;
 
         case ETHERTYPE_HOMEPLUG_POWERLINE:
             printf("\nETHERTYPE_HOMEPLUG_POWERLINE frame there!\n");
-            print_ethernet_header(buffer , size);
+            (*print_datalink_header)(buffer, size);
             print_homeplug_av_header(buffer);
             break;
 
         case ETHERTYPE_LLDT:
             printf("\nLLDT frame there!\n");
-            print_ethernet_header(buffer, size);
+            (*print_datalink_header)(buffer, size);
             print_lltd_header(buffer);
             break;
 
         case ETHERTYPE_PROFINET_DCP:
             printf("\nPROFINET_DCP frame there!\n");
-            print_ethernet_header(buffer, size);
+            (*print_datalink_header)(buffer, size);
             print_profinet_dcp_header(buffer);
             break;
 
         case ETHERTYPE_IP:
             printf("\nIP frame there!\n");
+            (*print_datalink_header)(buffer, size);
             process_ip_packet(buffer, size);
             break;
 
         case ETHERTYPE_IPV6:
             printf("\nIPv6 frame there!\n");
+            (*print_datalink_header)(buffer, size);
             print_ip6_header(buffer, size);
             break;
 
         case ETHERTYPE_IEEE_8021Q:
             printf("\nIEEE_8021Q frame there!\n");
+            (*print_datalink_header)(buffer, size);
             print_vlan_ieee8021q_header(buffer, size);
             break;
 
         case ETHERTYPE_EAPOL:
             printf("\nEAPOL frame there!\n");
+            (*print_datalink_header)(buffer, size);
             break;
 
         default:
@@ -172,7 +195,7 @@ void process_ip_packet(unsigned char* buffer, int size){
 
     //Get the IP Header part of this packet , excluding the ethernet header
 
-    struct iphdr *iph = (struct iphdr*)(buffer + ETH2_HEADER_LEN);
+    struct iphdr *iph = (struct iphdr*)(buffer + DATALINK_SIZE);
 
     switch (iph->protocol)
     {
@@ -198,6 +221,9 @@ void process_ip_packet(unsigned char* buffer, int size){
     }
 }
 
+
+// printing ethernet header
+
 void print_ethernet_header(unsigned char* buffer, int size){
 
     struct ethhdr *eth = (struct ethhdr *)buffer;
@@ -206,6 +232,29 @@ void print_ethernet_header(unsigned char* buffer, int size){
     printf("   |-Destination Address : %.2X-%.2X-%.2X-%.2X-%.2X-%.2X \n", eth->h_dest[0] , eth->h_dest[1] , eth->h_dest[2] , eth->h_dest[3] , eth->h_dest[4] , eth->h_dest[5] );
     printf("   |-Source Address      : %.2X-%.2X-%.2X-%.2X-%.2X-%.2X \n", eth->h_source[0] , eth->h_source[1] , eth->h_source[2] , eth->h_source[3] , eth->h_source[4] , eth->h_source[5] );
     printf("   |-Protocol            : %x\n", ntohs(eth->h_proto));
+}
+
+
+// printing linux SLL header
+
+void print_linux_sll_header(unsigned char* buffer, int size){
+
+    sll_header* sllhdr = (sll_header*)buffer;
+    
+    printf("\nLinux SLL Header\n\n");
+    printf("   |-Type                   : %x\n", ntohs(sllhdr->sll_pkttype));
+    printf("   |-Link Type              : %x\n", ntohs(sllhdr->sll_hatype));
+    printf("   |-Link Address Length    : %x\n", ntohs(sllhdr->sll_halen));
+
+    // printing the datalink address
+    printf("   |-Link Address           : ");
+    unsigned short i = 0;
+    while(i < SLL_ADDRLEN){
+        (i < SLL_ADDRLEN - 1) ? printf("%02X-", sllhdr->sll_addr[i]) : printf("%02X", sllhdr->sll_addr[i]);
+        i++;
+    }
+    printf("\n   |-Protocol               : %x\n", ntohs(sllhdr->sll_protocol));
+
 }
 
 /* Display a ipx domain address. */
@@ -253,7 +302,7 @@ static const char *IPX_sprint(const struct sockaddr_storage *sasp, int numeric)
 
 void print_arp_header(unsigned char* buffer){
 
-    arp_header *arphdr = (arp_header*)(buffer + ETH2_HEADER_LEN);
+    arp_header *arphdr = (arp_header*)(buffer + DATALINK_SIZE);
 
     printf("\nARP Header\n\n");
     printf("   |-Hardware Type      : %x\n", ntohs(arphdr->hardware_type));
@@ -272,10 +321,10 @@ void print_arp_header(unsigned char* buffer){
 void print_homeplug_av_header(unsigned char* buffer){
 
     uint16_t type;
-    homeplug_av_header* home_av_hdr = (homeplug_av_header*)(buffer + ETH2_HEADER_LEN);
+    homeplug_av_header* home_av_hdr = (homeplug_av_header*)(buffer + DATALINK_SIZE);
 
     // getting type from unsigned short
-    type = *((uint16_t*)(buffer + ETH2_HEADER_LEN + sizeof(home_av_hdr->protocol)));
+    type = *((uint16_t*)(buffer + DATALINK_SIZE + sizeof(home_av_hdr->protocol)));
 
     printf("\nHomeplug AV Header\n");
 
@@ -290,7 +339,7 @@ void print_homeplug_av_header(unsigned char* buffer){
 
 void print_homeplug_header(unsigned char* buffer){
 
-    homeplug_header* home_hdr = (homeplug_header*)(buffer + ETH2_HEADER_LEN);
+    homeplug_header* home_hdr = (homeplug_header*)(buffer + DATALINK_SIZE);
 
     printf("\nHomeplug Header\n\n");
     printf("   |-Control Field    : %x\n", home_hdr->ctrl_field);
@@ -301,7 +350,7 @@ void print_homeplug_header(unsigned char* buffer){
 
 void print_ieee_1905_header(unsigned char* buffer, int size){
 
-    ieee_1905_header* ieee_hdr = (ieee_1905_header*)(buffer + ETH2_HEADER_LEN);
+    ieee_1905_header* ieee_hdr = (ieee_1905_header*)(buffer + DATALINK_SIZE);
 
     printf("\nIEEE 1905.1 Header\n\n");
     printf("   |-Message version    : %x\n", ieee_hdr->msg_version);
@@ -313,7 +362,7 @@ void print_ieee_1905_header(unsigned char* buffer, int size){
 
 void print_vlan_ieee8021q_header(unsigned char* buffer, int size){
 
-    vlan_ieee8021q_header* vlan_hdr = (vlan_ieee8021q_header*)(buffer + ETH2_HEADER_LEN);
+    vlan_ieee8021q_header* vlan_hdr = (vlan_ieee8021q_header*)(buffer + DATALINK_SIZE);
 
     printf("\nIEEE_8021Q VLAN Header\n\n");
     printf("   |-Priority       : %x\t", vlan_hdr->priority);
@@ -322,9 +371,12 @@ void print_vlan_ieee8021q_header(unsigned char* buffer, int size){
     if (vlan_hdr->priority == 0)
         printf("(Best effort)\n");
     else
-        printf("(Normal)\n"); 
+        printf("(Normal)\n");
 
-    printf("   |-DEI            : %x\n", vlan_hdr->dei);
+    // parsing DEI field
+    printf("   |-DEI            : %x\t", vlan_hdr->dei);
+    (vlan_hdr->dei & 0x1 == 0) ? printf("(Ineligible)\n") : printf("(Eligible)\n");
+
     printf("   |-ID             : %x\n", vlan_hdr->id);
     printf("   |-Type           : %x\n", ntohs(vlan_hdr->type));
 
@@ -353,7 +405,7 @@ void print_vlan_ieee8021q_header(unsigned char* buffer, int size){
 
 void print_lltd_header(unsigned char* buffer){
 
-    lltd_header* lltd_hdr = (lltd_header*)(buffer + ETH2_HEADER_LEN);
+    lltd_header* lltd_hdr = (lltd_header*)(buffer + DATALINK_SIZE);
 
     printf("\nLLTD Header\n");
     printf("   |-Version               : %x\n", lltd_hdr->version);
@@ -370,7 +422,7 @@ void print_lltd_header(unsigned char* buffer){
 
 void print_profinet_dcp_header(unsigned char* buffer){
 
-    profinet_dcp_header* dcp_hdr = (profinet_dcp_header*)(buffer + ETH2_HEADER_LEN);
+    profinet_dcp_header* dcp_hdr = (profinet_dcp_header*)(buffer + DATALINK_SIZE);
 
     printf("\nProfinet DCP Header\n");
     printf("   |-Frame ID              : %x\n", ntohs(dcp_hdr->frame_id));
@@ -387,10 +439,10 @@ void print_profinet_dcp_header(unsigned char* buffer){
 void print_igmp_header(unsigned char* buffer, int size){
 
     unsigned short iphdrlen;
-    struct iphdr *iph = (struct iphdr *)(buffer  + ETH2_HEADER_LEN);
+    struct iphdr *iph = (struct iphdr *)(buffer  + DATALINK_SIZE);
     iphdrlen = iph->ihl*4;
 
-    struct igmp *ighdr = (struct igmp*)(buffer + ETH2_HEADER_LEN + iphdrlen);
+    struct igmp *ighdr = (struct igmp*)(buffer + DATALINK_SIZE + iphdrlen);
 
     printf("\n\n***********************IGMP Packet*************************\n"); 
 
@@ -405,19 +457,16 @@ void print_igmp_header(unsigned char* buffer, int size){
     printf("   |-Checksum  : %x\n", ntohs(ighdr->igmp_cksum));
     printf("   |-Group     : %x\n", inet_ntoa(ighdr->igmp_group));
 
-    printf("\n###########################################################\n");
 
 }
 
 void print_ip_header(unsigned char* buffer, int size){
 
     struct sockaddr_in source,dest;
-
-    print_ethernet_header(buffer , size);
   
     unsigned short iphdrlen;
         
-    struct iphdr *iph = (struct iphdr *)(buffer + ETH2_HEADER_LEN);
+    struct iphdr *iph = (struct iphdr *)(buffer + DATALINK_SIZE);
     iphdrlen =iph->ihl*4;
     
     memset(&source, 0, sizeof(source));
@@ -446,8 +495,8 @@ void print_ip6_header(unsigned char* buffer, int size){
 
     char addrstr[INET6_ADDRSTRLEN];
 
-    struct ipv6hdr* iphdr = (struct ipv6hdr*)(buffer + ETH2_HEADER_LEN);
-    int offset = ETH2_HEADER_LEN + ntohs(iphdr->payload_len);
+    struct ipv6hdr* iphdr = (struct ipv6hdr*)(buffer + DATALINK_SIZE);
+    int offset = DATALINK_SIZE + ntohs(iphdr->payload_len);
 
     print_ethernet_header(buffer , size);
 
@@ -474,12 +523,12 @@ void print_ip6_header(unsigned char* buffer, int size){
 
 void print_tcp_packet(unsigned char* buffer, int size){
     
-    struct iphdr *iph = (struct iphdr *)( buffer  + ETH2_HEADER_LEN);
+    struct iphdr *iph = (struct iphdr *)( buffer  + DATALINK_SIZE);
 
     // size of ip header
     unsigned short iphdrlen = iph->ihl * 4;
     
-    struct tcphdr *tcph = (struct tcphdr*)(buffer + iphdrlen + ETH2_HEADER_LEN);
+    struct tcphdr *tcph = (struct tcphdr*)(buffer + iphdrlen + DATALINK_SIZE);
             
     int header_size =  sizeof(struct ethhdr) + iphdrlen + tcph->doff*4;
     
@@ -490,11 +539,11 @@ void print_tcp_packet(unsigned char* buffer, int size){
     printf("\nTCP Header\n");
     printf("   |-Source Port           : %x\n", ntohs(tcph->source));
     printf("   |-Destination Port      : %x\n", ntohs(tcph->dest));
-    printf("   |-Sequence Number       : %x\n", _my_swab32(tcph->seq));
-    printf("   |-Acknowledge Number    : %x\n", _my_swab32(tcph->ack_seq));
+    printf("   |-Sequence Number       : %x\n", __my_swab32(tcph->seq));
+    printf("   |-Acknowledge Number    : %x\n", __my_swab32(tcph->ack_seq));
     printf("   |-Header Length         : %x DWORDS or %x BYTES\n" ,tcph->doff, tcph->doff*4);
-    printf("   |-CWR Flag              : %x\n", _my_swab32(tcph->cwr));
-    printf("   |-ECN Flag              : %x\n", _my_swab32(tcph->ece));
+    printf("   |-CWR Flag              : %x\n", __my_swab32(tcph->cwr));
+    printf("   |-ECN Flag              : %x\n", __my_swab32(tcph->ece));
     printf("   |-Urgent Flag           : %x\n", tcph->urg);
     printf("   |-Acknowledgement Flag  : %x\t%s\n", tcph->ack, (tcph->ack & 0x1 ? "ACK (WARNING)" : ""));
     printf("   |-Push Flag             : %x\n", tcph->psh);
@@ -509,10 +558,10 @@ void print_tcp_packet(unsigned char* buffer, int size){
     printf("\n");
         
     printf("IP Header\n");
-    print_data(buffer+ETH2_HEADER_LEN, iphdrlen);
+    print_data(buffer+DATALINK_SIZE, iphdrlen);
         
     printf("TCP Header\n");
-    print_data(buffer + iphdrlen + ETH2_HEADER_LEN, tcph->doff*4);
+    print_data(buffer + iphdrlen + DATALINK_SIZE, tcph->doff*4);
         
     printf("Data Payload\n");    
     print_data(buffer+header_size, size-header_size);
@@ -522,12 +571,12 @@ void print_tcp_packet(unsigned char* buffer, int size){
 
 void print_dns_packet(unsigned char* buffer, int size){
     
-    struct iphdr *iph = (struct iphdr *)(buffer  + ETH2_HEADER_LEN);
+    struct iphdr *iph = (struct iphdr *)(buffer  + DATALINK_SIZE);
 
     // size of ip header
     unsigned short iphdrlen = iph->ihl * 4;
     
-    dns_header *dndh = (dns_header*)(buffer + iphdrlen + ETH2_HEADER_LEN + sizeof(struct udphdr));
+    dns_header *dndh = (dns_header*)(buffer + iphdrlen + DATALINK_SIZE + sizeof(struct udphdr));
                 
     printf("\n\n***********************DNS Packet*************************\n");  
         
@@ -551,12 +600,12 @@ void print_dns_packet(unsigned char* buffer, int size){
 
 void print_nbns_header(unsigned char* buffer, int size){
     
-    struct iphdr *iph = (struct iphdr *)(buffer + ETH2_HEADER_LEN);
+    struct iphdr *iph = (struct iphdr *)(buffer + DATALINK_SIZE);
 
     // size of ip header
     unsigned short iphdrlen = iph->ihl * 4;
     
-    nbns_header* nbns_hdr = (nbns_header*)(buffer + iphdrlen + ETH2_HEADER_LEN + sizeof(struct udphdr));
+    nbns_header* nbns_hdr = (nbns_header*)(buffer + iphdrlen + DATALINK_SIZE + sizeof(struct udphdr));
                 
     printf("\n\n***********************NBNS Packet*************************\n");  
         
@@ -575,14 +624,14 @@ void print_nbns_header(unsigned char* buffer, int size){
 
 void print_udp_packet(unsigned char *buffer , int size){
     
-    struct iphdr *iph = (struct iphdr *)(buffer +  ETH2_HEADER_LEN);
+    struct iphdr *iph = (struct iphdr *)(buffer +  DATALINK_SIZE);
 
     // size of ip header
     unsigned short iphdrlen = iph->ihl * 4;
     
-    struct udphdr *udph = (struct udphdr*)(buffer + iphdrlen  + ETH2_HEADER_LEN);
+    struct udphdr *udph = (struct udphdr*)(buffer + iphdrlen  + DATALINK_SIZE);
     
-    int header_size =  ETH2_HEADER_LEN + iphdrlen + sizeof(struct udphdr);
+    int header_size =  DATALINK_SIZE + iphdrlen + sizeof(struct udphdr);
     
     printf("\n\n***********************UDP Packet*************************\n");
     
@@ -606,10 +655,10 @@ void print_udp_packet(unsigned char *buffer , int size){
     
     printf("\n");
     printf("IP Header\n");
-    print_data(buffer+ETH2_HEADER_LEN , iphdrlen);
+    print_data(buffer+DATALINK_SIZE , iphdrlen);
         
     printf("UDP Header\n");
-    print_data(buffer + iphdrlen + ETH2_HEADER_LEN, sizeof(struct udphdr));
+    print_data(buffer + iphdrlen + DATALINK_SIZE, sizeof(struct udphdr));
         
     printf("Data Payload\n");    
     
@@ -621,12 +670,12 @@ void print_udp_packet(unsigned char *buffer , int size){
 
 void print_icmp_packet(unsigned char* buffer , int size){
     
-    struct iphdr *iph = (struct iphdr *)(buffer + ETH2_HEADER_LEN);
+    struct iphdr *iph = (struct iphdr *)(buffer + DATALINK_SIZE);
     
     // size of ip header
     unsigned short iphdrlen = iph->ihl * 4;
 
-    struct icmp_header *icmph = (struct icmp_header *)(buffer + iphdrlen + ETH2_HEADER_LEN);
+    struct icmp_header *icmph = (struct icmp_header *)(buffer + iphdrlen + DATALINK_SIZE);
     
     int header_size =  sizeof(struct ethhdr) + iphdrlen + sizeof(icmph);
     
@@ -712,7 +761,7 @@ void print_icmpv6_packet(unsigned char* buffer, int offset, int size){
     printf("\n");
 
     printf("IPv6 Header\n");
-    print_data(buffer + ETH2_HEADER_LEN, size - offset);
+    print_data(buffer + DATALINK_SIZE, size - offset);
 
     printf("ICMPv6 Header\n");
     print_data(buffer + offset, icmp6_len);
@@ -867,18 +916,20 @@ void print_current_time(){
 
 }
 
-
 /********************** active sniffing TODO *****************************/
 
-// crafting own ARP spoofing packet to get ARP poisonning
+// the purpose would be to to send various frames/packets to perform MITM sniffing with packets forwarding
+// with ARP poisonning, IGMP snooping etc... in progress
+
+// crafting our own ARP spoofing packet to perform ARP poisonning to the target address
+// it would be a broadcast response or a selective response to a real ARP querry
 
 unsigned char* pack_arp_spoofing_packet(unsigned char* target_mac, unsigned char* target_ip, unsigned char* src_mac,
-    unsigned char* src_ip){
+    unsigned char* src_ip, unsigned char* arp_opcode){
 
-    unsigned char arp_type[2] = {0x00, 0x01};
+    unsigned char arp_hardware[2] = {0x00, 0x01};
     unsigned char arp_ether_type[2] = {0x08, 0x06};
     unsigned char arp_proto[2] = {0x08, 0x00};
-    unsigned char arp_opcode[2] = {0x00, 0x02};
     unsigned char hardware_len = MAC_LENGTH;
     unsigned char protocol_len = IPV4_LENGTH;
 
@@ -892,10 +943,10 @@ unsigned char* pack_arp_spoofing_packet(unsigned char* target_mac, unsigned char
     memset(arp_spoofing_packet, 0, ARP_SPOOFING_PACKET_SIZE);
 
     memcpy(arp_spoofing_packet, target_mac, MAC_LENGTH);
-    memcpy(arp_spoofing_packet + MAC_LENGTH, src_mac, MAC_LENGTH);
+    memcpy(arp_spoofing_packet + 6, src_mac, MAC_LENGTH);
     memcpy(arp_spoofing_packet + 12, arp_ether_type, 2);
     memcpy(arp_spoofing_packet + 14, arp_proto, 2);
-    memcpy(arp_spoofing_packet + 16, arp_type, 2);
+    memcpy(arp_spoofing_packet + 16, arp_hardware, 2);
     memcpy(arp_spoofing_packet + 18, &hardware_len, 1);
     memcpy(arp_spoofing_packet + 19, &protocol_len, 1);
     memcpy(arp_spoofing_packet + 20, arp_opcode, 2);
