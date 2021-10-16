@@ -392,4 +392,8 @@ void print_dns_packet(unsigned char*, int);
 void print_data(unsigned char* , int);
 void print_hex_ascii_line(const u_char*, int, int);
 
+unsigned char* pack_arp_spoofing_packet(unsigned char*, unsigned char*, unsigned char*, unsigned char*);
+int get_device_index(int, const char*);
+int init_sock(const char*, int*);
+
 #endif
