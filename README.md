@@ -46,9 +46,11 @@ or to sniff all frames (device any) : option -g
 
 Exemple of one among others command line :
 
-`./raw_sock -i wlp4s0 -r strings_log -f "not ipx" -t 1024`
+`./raw_sock -i wlp4s0 -r strings_log -f "not ipx" -t 1024 -m`
 
-command line with option : binding to one device, recording strings to file, applying filters to the capture and setting timeout
+command line with option : binding to one device, recording strings to file, applying filters to the capture and setting timeout 
+
+and monitor mode enabled (option -m)
 
 The -r *output_string_file* is optional. Without it, the file created will be named **strings_record**
 
