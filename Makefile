@@ -27,7 +27,7 @@ LDFLAGS=-lm
 
 # linking
 $(EXEC) : $(objects)
-	$(CC) $(LDFLAGS) $^ -o $@ -lpcap
+	$(CC) $(LDFLAGS) $^ -o $@ -lpcap -lpthread
 	$(RM) $(objects) $(deps)
 	 @echo "Compilation done !"
 
