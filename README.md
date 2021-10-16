@@ -4,19 +4,19 @@
 
 **DO NOT HESITATE TO LEAVE YOUR FEEDBACK TO LET ME DO SOME IMPROVEMENTS**
 
+**New release working with libpcap. The older one dealt with raw sockets only**
+
 **Linux libpcap datalink layer sniffer being able to sniff all TCP, IP, ICMP, ARP, IGMP and some frames from OSI Layer 2/3.**
 
 Right now, it can manage **Ethernet, 802.1x and Linux SLL datalink frames (more to come)**
 
 **It works also as a string extractor, displaying in output file revelant strings**
 
-**New release working with libpcap. The older one dealt with raw sockets only**
+It grabs all revelant strings from packets : url, domain names, json requests etc...
 
 Firstable, make sure you have libpcap installed on your system :
 
 `sudo apt-get install libpcap-dev` 
-
-It grabs all revelant strings from packets : url, domain names, json requests etc...
 
 You can see an example in file named string_log in the results repository
 
