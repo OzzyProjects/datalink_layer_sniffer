@@ -2,7 +2,9 @@
 
 **NEW RELEASE - WORK IN PROGRESS**
 
-**Linux libpcap sniffer being able to sniff all TCP, IP, ICMP, ARP, IGMP and some frames from OSI Layer 2/3.**
+**Linux libpcap datalink layer sniffer being able to sniff all TCP, IP, ICMP, ARP, IGMP and some frames from OSI Layer 2/3.**
+
+Right now, it can manage **Ethernet, 802.1x and Linux SLL datalink frames (more to come)**
 
 **It works also as a string extractor, displaying in output file revelant strings**
 
@@ -69,3 +71,5 @@ You can also check the complete valgrind memcheck report. No memory leaks or oth
 ![](valgrind/valgrind.png)
 
 **TODO : accept bpf filters files or propose some of them by default and capturing radiotap packets and other layers 2 protos **
+
+**DO NOT HESITATE TO LEAVE YOUR FEEDBACK TO LET ME DO SOME IMPROVEMENTS**
