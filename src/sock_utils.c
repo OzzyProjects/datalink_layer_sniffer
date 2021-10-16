@@ -98,7 +98,7 @@ int parse_tlv(const unsigned char *const data, const size_t data_len, struct tlv
 }
 
 
-// processing frame by ethertype
+// processing frame by datalink type (in progress, to do)
 
 void process_frame(unsigned char* buffer, int size, int datalink_s){
 
