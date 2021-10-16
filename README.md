@@ -1,4 +1,4 @@
-# Raw socket sniffer Linux
+# Datalink layer sniffer for Linux
 
 **NEW RELEASE - WORK IN PROGRESS**
 
