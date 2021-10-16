@@ -33,8 +33,6 @@ void handle_packet(u_char*, const struct pcap_pkthdr*, const u_char*);
 static const char* DEFAULT_RECORD_FILENAME = "strings_log";
 time_t begin_capture;
 
-int DLT_SIZE = 0;
-
 // number of packets sniffed
 static unsigned int num_packet = 0;
 
@@ -58,6 +56,7 @@ int main(int argc, char **argv) {
     bpf_u_int32 net;
 
     pcap_t *handle;
+    int datal_size;
 
     // parsing the command line 
     int opt;
@@ -240,6 +239,7 @@ int main(int argc, char **argv) {
             assert(pcap_setnonblock(handle, -1, errbuf) != -1);
             printf("\nPCAP non blocking mode successfully set\n");
         }
+
         /*
         assert(pcap_set_promisc(handle, 1) != -1);
 
@@ -287,36 +287,36 @@ int main(int argc, char **argv) {
 
     switch(datalink_t){
 
-        // datalink not supported
+        // datalink not supported by capture card
         case PCAP_ERROR_NOT_ACTIVATED:
             fprintf(stderr, "ERROR : Failed to get data link type\n");
             return EXIT_FAILURE;
 
         case DLT_RAW:
             printf("RAW Datalink\n");
-            DLT_SIZE = 0;
+            datal_size = 0;
             break;
 
         case DLT_LINUX_SLL:  // "any" for device will give you this
             printf("Linux SLL\n");
-            DLT_SIZE = SLL_HDR_LEN;
+            datal_size = SLL_HDR_LEN;
             break;
 
         // ethernet
         case DLT_EN10MB:
             printf("Ethernet\n");
-            DLT_SIZE = ETH2_HEADER_LEN;
+            datal_size = ETH2_HEADER_LEN;
             break;
 
          case  DLT_AX25:
             printf("AX 25\n");
-            DLT_SIZE = 0;
+            datal_size = 0;
             break;
 
         // wireless radiotap TODO
         case DLT_IEEE802_11:
             printf("IEEE802 11\n");
-            DLT_SIZE = 0;
+            datal_size = 0;
             break;
 
         // uncommon datalink type
@@ -329,16 +329,16 @@ int main(int argc, char **argv) {
     begin_capture = time(NULL);
 
     // passing datalink type as argument to pcap_loop
-    u_char* dlt_size = __INT_TO_UCHAR_PTR(DLT_SIZE);
+    u_char* dlink_size_ptr = __INT_TO_UCHAR_PTR(datal_size);
 
     // let's loop throuht the network
     if (opt_args.is_limited)
 
         // limited capture (number of packets)
-        pcap_loop(handle, opt_args.max_packet, handle_packet, dlt_size);
+        pcap_loop(handle, opt_args.max_packet, handle_packet, dlink_size_ptr);
     else
         // otherwise, infinite loop
-        pcap_loop(handle, -1, handle_packet, dlt_size);
+        pcap_loop(handle, -1, handle_packet, dlink_size_ptr);
 
     pcap_close(handle);
 
@@ -373,7 +373,6 @@ void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char 
 
     unsigned char* raw_packet = (unsigned char*)packet;
 
-    // getting the datalink header size (args)
     int datalink_s = __UCHAR_PTR_TO_INT(args);
 
     ++num_packet;
