@@ -22,7 +22,7 @@ You can see an example in file named string_log in the results repository
 
 It binds to a network interface or grab all frames with -g option, binding to any device.
 
-**Also being able to sniff some layer 2 packets like ARP, HOMEPLUG, HOMEPLUG POWERLINE, ETHERTYPE IEEE 1905 1a and other ones.**
+**Also being able to sniff some layer 2/3 packets like ARP, HOMEPLUG, HOMEPLUG POWERLINE, ETHERTYPE IEEE 1905 1a and other ones.**
 
 **Need to be root to run the program**
 
