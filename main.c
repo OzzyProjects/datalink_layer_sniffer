@@ -7,8 +7,6 @@
 #include "sock_utils.h" 
 #include "string_utils.h"
 
-int DLT_SIZE = 0;
-
 // main option fields struct
 
 typedef struct opt_args_main {
@@ -34,6 +32,8 @@ void handle_packet(u_char*, const struct pcap_pkthdr*, const u_char*);
 // default filemane for string record file
 static const char* DEFAULT_RECORD_FILENAME = "strings_log";
 time_t begin_capture;
+
+int DLT_SIZE = 0;
 
 // number of packets sniffed
 static unsigned int num_packet = 0;
@@ -240,7 +240,7 @@ int main(int argc, char **argv) {
             assert(pcap_setnonblock(handle, -1, errbuf) != -1);
             printf("\nPCAP non blocking mode successfully set\n");
         }
-
+        /*
         assert(pcap_set_promisc(handle, 1) != -1);
 
         if (pcap_can_set_rfmon(handle) != 1){
@@ -249,6 +249,7 @@ int main(int argc, char **argv) {
         }
 
         assert(pcap_set_rfmon(handle, 1) == 0);
+        */
 
         if (pcap_activate(handle) < 0){
             fprintf(stderr, "ERROR : Couldn't activate PCAP sock : %s\n", pcap_geterr(handle));
@@ -279,12 +280,12 @@ int main(int argc, char **argv) {
 
     // getting the data link type to properly dissect frames
 
-    int datalink_type = pcap_datalink(handle);
-    printf("\nINFO : PCAP_DATA_LINK_TYPE : %x\t", datalink_type);
+    int datalink_t = pcap_datalink(handle);
+    printf("\nINFO : PCAP_DATA_LINK_TYPE : %x\t", datalink_t);
 
     // getting the datalink type to parse correctly TODO
 
-    switch(datalink_type){
+    switch(datalink_t){
 
         // datalink not supported
         case PCAP_ERROR_NOT_ACTIVATED:
@@ -298,7 +299,7 @@ int main(int argc, char **argv) {
 
         case DLT_LINUX_SLL:  // "any" for device will give you this
             printf("Linux SLL\n");
-            DLT_SIZE = 16;
+            DLT_SIZE = SLL_HDR_LEN;
             break;
 
         // ethernet
@@ -312,7 +313,7 @@ int main(int argc, char **argv) {
             DLT_SIZE = 0;
             break;
 
-        // radiotap TODO
+        // wireless radiotap TODO
         case DLT_IEEE802_11:
             printf("IEEE802 11\n");
             DLT_SIZE = 0;
@@ -320,21 +321,24 @@ int main(int argc, char **argv) {
 
         // uncommon datalink type
         default:
-            fprintf(stderr, "WARNING : Unknown data link type\n");
-            DLT_SIZE = 0;
+            fprintf(stderr, "ERROR : Unknown data link type\n");
+            return EXIT_FAILURE;
     }
     
     // starting the timer here
     begin_capture = time(NULL);
 
+    // passing datalink type as argument to pcap_loop
+    u_char* dlt_size = __INT_TO_UCHAR_PTR(DLT_SIZE);
+
     // let's loop throuht the network
     if (opt_args.is_limited)
 
         // limited capture (number of packets)
-        pcap_loop(handle, opt_args.max_packet, handle_packet, NULL);
+        pcap_loop(handle, opt_args.max_packet, handle_packet, dlt_size);
     else
         // otherwise, infinite loop
-        pcap_loop(handle, -1, handle_packet, NULL);
+        pcap_loop(handle, -1, handle_packet, dlt_size);
 
     pcap_close(handle);
 
@@ -369,12 +373,15 @@ void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char 
 
     unsigned char* raw_packet = (unsigned char*)packet;
 
+    // getting the datalink header size (args)
+    int datalink_s = __UCHAR_PTR_TO_INT(args);
+
     ++num_packet;
 
     // let's print the frame
     printf("\nFRAME NUMBER : %u\n", num_packet);
 
-    process_frame(raw_packet, header->caplen);
+    process_frame(raw_packet, header->caplen, datalink_s);
 
     // printing raw datas in hex format 
     
