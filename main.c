@@ -426,6 +426,7 @@ void usage(){
     printf("\t-c [timeout] timeout: set a custom timeout in seconds. 0 for non blocking (optional)\n");
     printf("\t-f [filter] filter : set a custom tcmpdump format filter for the capture (optional)\n");
     printf("\t-g [any] : set this option without interface to capture frames from any device (optional)\n");
+    printf("\t-m [monitor mode] : set this option to set the capture device in monitor mode (optional)\n");
     printf("\t-h [help] : get help about command line options\n");
     printf("\nExample : ./raw_sock -i wlp4s0 -r strings_log -f \"not ipx\" -t 1024 -c 0\n");
     printf(" Binding to one device, recording strings to file, applying filters to the capture and setting timeout\n");
