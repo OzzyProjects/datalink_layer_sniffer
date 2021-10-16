@@ -13,11 +13,12 @@ typedef struct opt_args_main {
 
     uint32_t max_packet;
     uint32_t timeout;
-    uint8_t is_filter   : 2;
-    uint8_t is_file     : 2;
-    uint8_t is_itf      : 2;
-    uint8_t is_godmode  : 1;
-    uint8_t is_limited  : 1;
+    uint8_t is_filter       : 2;
+    uint8_t is_file         : 2;
+    uint8_t is_itf          : 1;
+    uint8_t is_monitor_mode : 1;
+    uint8_t is_godmode      : 1;
+    uint8_t is_limited      : 1;
 
 
 } __attribute__((packed)) opt_args_main;
@@ -64,7 +65,7 @@ int main(int argc, char **argv) {
 
     memset(&opt_args, 0, sizeof(opt_args));
 
-    while ((opt = getopt(argc, argv, "i:r:f:d:t:c:glh")) != -1){
+    while ((opt = getopt(argc, argv, "i:r:f:d:t:c:gmlh")) != -1){
 
         switch (opt){
 
@@ -85,6 +86,10 @@ int main(int argc, char **argv) {
                 opt_args.is_godmode = 1;
                 break;
 
+            // monitor mode selected -m option
+            case 'm':
+                opt_args.is_monitor_mode = 1;
+                break;
             // limit the number of sniffed packed -c option (number of packets to capture)
             case 'c':
                 // out of range number = exit
@@ -242,14 +247,18 @@ int main(int argc, char **argv) {
 
         /*
         assert(pcap_set_promisc(handle, 1) != -1);
-
-        if (pcap_can_set_rfmon(handle) != 1){
-            fprintf(stderr, "ERROR : the device can't be set up in monitor mode : %s\n", pcap_geterr(handle));
-            return EXIT_FAILURE;
-        }
-
-        assert(pcap_set_rfmon(handle, 1) == 0);
         */
+
+        // setting the device in monitor mode if selected
+        if (opt_args.is_monitor_mode){
+
+            if (pcap_can_set_rfmon(handle) != 1){
+                fprintf(stderr, "ERROR : the device can't be set up in monitor mode : %s\n", pcap_geterr(handle));
+                return EXIT_FAILURE;
+            }
+
+            assert(pcap_set_rfmon(handle, 1) == 0);
+        }
 
         if (pcap_activate(handle) < 0){
             fprintf(stderr, "ERROR : Couldn't activate PCAP sock : %s\n", pcap_geterr(handle));
