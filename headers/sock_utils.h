@@ -13,6 +13,7 @@
 
 #include <sys/time.h>
 #include <sys/socket.h>
+#include <sys/ioctl.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -34,17 +35,21 @@
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
-#define _my_swab16(x) \
+#define __my_swab16(x) \
     ((u_int16_t)( \
     (((u_int16_t)(x) & (u_int16_t)0x00ffU) << 8) | \
     (((u_int16_t)(x) & (u_int16_t)0xff00U) >> 8) ))
 
-#define _my_swab32(x) \
+#define __my_swab32(x) \
     ((u_int32_t)( \
     (((u_int32_t)(x) & (u_int32_t)0x000000ffUL) << 24) | \
     (((u_int32_t)(x) & (u_int32_t)0x0000ff00UL) <<  8) | \
     (((u_int32_t)(x) & (u_int32_t)0x00ff0000UL) >>  8) | \
     (((u_int32_t)(x) & (u_int32_t)0xff000000UL) >> 24) ))
+
+#define __INT_TO_UCHAR_PTR(x) ((u_char*)(intptr_t)(x))
+#define __UCHAR_PTR_TO_INT(x) ((int)(intptr_t)(x))
+
 
 
 
@@ -63,23 +68,24 @@ static struct sock_filter bpfcode[8] = {
 }; */
 
 
-#define ETHERNET_MTU        1500
+#define ETHERNET_MTU                1500
+#define ARP_SPOOFING_PACKET_SIZE    42
+#define SLL_ADDRLEN                 8
+#define SLL_HDR_LEN                 16     
 
-#define BUFSIZE 65000
-#define ETH2_HEADER_LEN 14
-#define MAC_LENGTH 6
-#define IPV4_LENGTH 4
+#define BUFSIZE             65000
+#define ETH2_HEADER_LEN     14
+#define MAC_LENGTH          6
+#define IPV4_LENGTH         4
 
-#define PCAP_FILTER_SIZE  64
-#define RECORD_FILENAME_SIZE  32
-#define MAX_PACKETS_NUMBER_LENGTH  128
+#define PCAP_FILTER_SIZE            64
+#define RECORD_FILENAME_SIZE        32
+#define MAX_PACKETS_NUMBER_LENGTH   128
 
-#define PCAP_NETMASK_UNKNOWN 0xffffffff
+#define PCAP_NETMASK_UNKNOWN        0xffffffff
 
 #define IPX_NODE_LEN        6
 #define IPX_MTU             576
-
-extern int DLT_SIZE;
 
 // Generic class for TLV type
 
@@ -93,6 +99,16 @@ typedef struct tlv_result {
 } __attribute__((packed)) tlv_result;
 
 /********************* OSI Layer 2 protocols structs *********************/
+
+typedef struct sll_header {
+
+    uint16_t sll_pkttype;       /* packet type */
+    uint16_t sll_hatype;        /* link-layer address type */
+    uint16_t sll_halen;     /* link-layer address length */
+    uint8_t  sll_addr[SLL_ADDRLEN]; /* link-layer address */
+    uint16_t sll_protocol;      /* protocol */
+
+} sll_header;
 
 
 // RADIOTAP Generic header TODO
@@ -362,8 +378,9 @@ void print_current_time();
 
 // OSI Layer 2
 
-void process_frame(unsigned char* , int);
+void process_frame(unsigned char* , int, int);
 void print_ethernet_header(unsigned char*, int);
+void print_linux_sll_header(unsigned char*, int);
 
 // OSI Layer 3
 
@@ -387,12 +404,17 @@ void print_ip6_header(unsigned char*, int);
 void print_tcp_packet(unsigned char * , int );
 void print_udp_packet(unsigned char * , int );
 
+// OSI Layer 7
+
 void print_dns_packet(unsigned char*, int);
 
 void print_data(unsigned char* , int);
 void print_hex_ascii_line(const u_char*, int, int);
 
-unsigned char* pack_arp_spoofing_packet(unsigned char*, unsigned char*, unsigned char*, unsigned char*);
+// agressive sniffing TODO = active sniffing (ARP poisonning etc...)
+
+unsigned char* pack_arp_spoofing_packet(unsigned char*, unsigned char*, unsigned char*, unsigned char*,
+    unsigned char*);
 int get_device_index(int, const char*);
 int init_sock(const char*, int*);
 
