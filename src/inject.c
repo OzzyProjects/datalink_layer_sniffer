@@ -8,6 +8,20 @@
 
 #include "inject.h"
 
+int get_device_index(int sock, const char* device){
+
+    struct ifreq ifr;
+    safe_strcpy(ifr.ifr_name, IFNAMSIZ - 1, device);
+
+
+    if (ioctl(sock,SIOCGIFINDEX, &ifr) == -1) {
+        fprintf(stderr, "ERROR : %s\n", strerror(errno));
+        return -1;
+    }
+
+    return ifr.ifr_ifindex;
+}
+
 // get host mac address
 
 unsigned char *get_host_mac_address(int sock, const char* interface){
