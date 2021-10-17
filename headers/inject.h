@@ -71,7 +71,7 @@ int start_arp_spoofing_attack(int, struct sockaddr_ll*, const uint8_t*, const ch
 int launch_arp_spoofing_attack(const char*, const char*, const char*);
 int start_arp_poisonning(char*);
 
-// perform ICMP snooping here
+// perform ICMP redirecting here
 
 int create_icmp_sock(int);
 unsigned short cksum(unsigned short*, int);
