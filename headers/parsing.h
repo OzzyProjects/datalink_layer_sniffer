@@ -145,6 +145,7 @@
 extern int DLT_SIZE;
 
 void parse_sll_type_field(uint16_t);
+void parse_linux_ipmb_type_field(uint8_t);void parse_linux_ipmb_type_field(uint8_t);
 
 void parse_homeplug_av_type_field(uint16_t);
 void parse_homeplug_av_version_field(uint16_t);
