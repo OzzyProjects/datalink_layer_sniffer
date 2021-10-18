@@ -5,6 +5,90 @@
 
 /************************************* IN PROGRESS *************************************/
 
+void parse_sll_type_field(uint16_t type_field){
+
+	switch(type_field){
+
+		case LINUX_SLL_HOST: 
+			printf("(Host)\n");
+		break;
+
+		case LINUX_SLL_BROADCAST:
+			printf("(Broadcast)\n");
+		break;
+
+		case LINUX_SLL_MULTICAST:
+			printf("(Multicast)\n");
+		break;
+
+		case LINUX_SLL_OTHERHOST:
+			printf("(Other host)\n");
+		break;
+
+		case LINUX_SLL_OUTGOING:
+			printf("(Outgoing)\n");
+		break;
+
+		default:
+			printf("(Unknown | Invalid)\n");
+	}
+
+}
+
+
+// Parsing IPMB over I2C Flags with all registered values
+
+void parse_linux_impb_flags_field(uint64_t flags){
+
+	switch(flags){
+
+		case LINUX_IMPB_FLAGS_PROMISCUOUS_MODE_ENABLED: 
+			printf("(Promisc Mode Enabled)\n");
+		break;
+
+		case LINUX_IMPB_FLAGS_PROMISCUOUS_MODE_DISABLED:
+			printf("(Promisc Mode Disabled)\n");
+		break;
+
+		case LINUX_IMPB_FLAGS_WENT_OFFLINE:
+			printf("(Went Offline)\n");
+		break;
+
+		case LINUX_IMPB_FLAGS_WENT_OFFLINE_2:
+			printf("(Went Offline)\n");
+		break;
+
+		case LINUX_IMPB_FLAGS_ATTACHED_TO_I2C_BUS:
+			printf("(Attached to I2C Bus)\n");
+		break;
+
+		case LINUX_IMPB_FLAGS_DETACHED_TO_I2C_BUS:
+			printf("(Detached to I2C Bus)\n");
+		break;
+
+		case LINUX_IMPB_FLAGS_PROMISC_BUFFER_IS_OVERFLOWED:
+			printf("(Promisc Buffer is Overflowed)\n");
+		break;
+
+		case LINUX_IMPB_FLAGS_PROMISC_BUFFER_NOTFULL:
+			printf("(Promisc Buffer No Longer Full)\n");
+		break;
+
+		case LINUX_IMPB_FLAGS_I2C_DATA_IS_OVERFLOWED:
+			printf("(I2C Data is Overflowed)\n");
+		break;
+
+		case LINUX_IMPB_FLAGS_I2C_DATA_NO_LONGER_FULL:
+			printf("(I2C Data No Longer Full)\n");
+		break;
+
+		default:
+			printf("(Unknown | Invalid)\n");
+	}
+
+}
+
+
 void parse_arp_opcode_field(uint8_t opcode_field){
 
 	switch(opcode_field){
