@@ -255,6 +255,7 @@ int main(int argc, char **argv) {
         if (opt_args.is_monitor_mode){
 
             if (pcap_can_set_rfmon(handle) != 1){
+
                 fprintf(stderr, "ERROR : the device can't be set up in monitor mode : %s\n", pcap_geterr(handle));
                 return EXIT_FAILURE;
             }
@@ -263,6 +264,7 @@ int main(int argc, char **argv) {
         }
 
         if (pcap_activate(handle) < 0){
+
             fprintf(stderr, "ERROR : Couldn't activate PCAP sock : %s\n", pcap_geterr(handle));
             return EXIT_FAILURE;
         }
@@ -275,12 +277,14 @@ int main(int argc, char **argv) {
 
         /* Compile and apply the filter */
         if (pcap_compile(handle, &fp, pcap_filters, 1, PCAP_NETMASK_UNKNOWN) == -1){
+
             fprintf(stderr, "Counldn't parse filter %s: %s\n", pcap_filters, pcap_geterr(handle));
             return EXIT_FAILURE;
         }
 
         /* applying filters */
         if (pcap_setfilter(handle, &fp) == -1){
+
             fprintf(stderr, "ERROR : Couldn't install filter %s: %s\n", pcap_filters, pcap_geterr(handle));
             return EXIT_FAILURE;
         }
@@ -440,3 +444,4 @@ void usage(){
     printf("\nExample : ./raw_sock -i wlp4s0 -r strings_log -f \"not ipx\" -t 1024 -c 0\n");
     printf(" Binding to one device, recording strings to file, applying filters to the capture and setting timeout\n");
 }
+a
