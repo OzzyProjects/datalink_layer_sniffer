@@ -4,8 +4,45 @@
 #define ETHERTYPE_IPV6			0x86dd
 #define ETHERTYPE_IEEE_8021Q	0x8100
 #define ETHERTYPE_EAPOL			0x888e
+#define ETHERTYPE_IPX_NOVELL    0x8137
 
-#define IPV6_ICMP   0x003A
+// IPv6 protocols numbers (most common or interesting one)
+
+#define IPV6_ICMP   	0x003A
+
+// IP protocols numbers (most common or interesting one)
+
+#define IPV4_ICMP		0x01
+#define IPV4_IGMP		0x02
+#define IPV4_TCP		0x06
+#define IPV4_UDP		0x11
+#define IPV4_EIGRP		0x58
+#define IPV4_SCTP		0x84
+
+
+// Linux SLL PROTOCOL VALUES
+
+// SLL type field
+#define LINUX_SLL_HOST			0x0
+#define LINUX_SLL_BROADCAST		0x1
+#define LINUX_SLL_MULTICAST		0x2
+#define LINUX_SLL_OTHERHOST		0x3
+#define LINUX_SLL_OUTGOING		0x4
+
+
+// Linux IMPB over I2C VALUES
+
+#define LINUX_IMPB_FLAGS_PROMISCUOUS_MODE_ENABLED		0x00000001
+#define LINUX_IMPB_FLAGS_PROMISCUOUS_MODE_DISABLED		0x00000002
+#define LINUX_IMPB_FLAGS_WENT_OFFLINE					0x00000004
+#define LINUX_IMPB_FLAGS_WENT_OFFLINE_2					0x00000008
+#define LINUX_IMPB_FLAGS_ATTACHED_TO_I2C_BUS			0x00000010
+#define LINUX_IMPB_FLAGS_DETACHED_TO_I2C_BUS			0x00000020
+#define LINUX_IMPB_FLAGS_PROMISC_BUFFER_IS_OVERFLOWED	0x00000040
+#define LINUX_IMPB_FLAGS_PROMISC_BUFFER_NOTFULL			0x00000080
+#define LINUX_IMPB_FLAGS_I2C_DATA_IS_OVERFLOWED			0x00000100
+#define LINUX_IMPB_FLAGS_I2C_DATA_NO_LONGER_FULL		0x00000120
+
 
 // UPX PROTOCOL VALUES
 
@@ -106,6 +143,8 @@
 #define ICMPV6_TYPE_ROUTER_SOL		0x87
 
 extern int DLT_SIZE;
+
+void parse_sll_type_field(uint16_t);
 
 void parse_homeplug_av_type_field(uint16_t);
 void parse_homeplug_av_version_field(uint16_t);
