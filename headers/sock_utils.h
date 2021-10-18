@@ -12,8 +12,6 @@
 #include <ctype.h>
 
 #include <sys/time.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -51,8 +49,6 @@
 #define __UCHAR_PTR_TO_INT(x) ((int)(intptr_t)(x))
 
 
-
-
 /* Filter TCP segments to port 80
 
 static struct sock_filter bpfcode[8] = {
@@ -67,6 +63,8 @@ static struct sock_filter bpfcode[8] = {
 
 }; */
 
+
+#define IMPB_HDR_LEN       0x06
 
 #define ETHERNET_MTU                1500
 #define ARP_SPOOFING_PACKET_SIZE    42
@@ -100,6 +98,7 @@ typedef struct tlv_result {
 
 /********************* OSI Layer 2 protocols structs *********************/
 
+
 typedef struct sll_header {
 
     uint16_t sll_pkttype;       /* packet type */
@@ -109,6 +108,18 @@ typedef struct sll_header {
     uint16_t sll_protocol;      /* protocol */
 
 } sll_header;
+
+
+// IMPB/IPMI over I2C linux pseudo header
+
+typedef struct ipmb_header {
+
+    uint8_t bus_number      : 7;
+    uint8_t type            : 1;
+    uint64_t flags;
+    uint8_t hardware_addr;
+    
+}  __attribute__((packed)) ipmb_header;
 
 
 // RADIOTAP Generic header TODO
@@ -129,8 +140,10 @@ typedef struct sockaddr_ipx {
 
 #if LINUX_VERSION_CODE > 131328
     sa_family_t ipx_family;
+
 #else
     uint16_t ipx_family;
+
 #endif
     uint16_t ipx_port;
     uint32_t ipx_network;
@@ -153,6 +166,16 @@ typedef struct vlan_ieee8021q_header {
     uint16_t type;
 
 } __attribute__((packed)) vlan_ieee8021q_header;
+
+
+typedef struct sctp_header {
+
+    uint16_t  src_port;
+    uint16_t  dst_port;
+    uint32_t  v_tag;
+    uint32_t  crc;
+
+} __attribute__((packed)) sctp_header;
 
 
 // IEEE 1905 1a Header
@@ -318,6 +341,40 @@ typedef struct icmp_header {
 } __attribute__((packed)) icmp_header;
 
 
+typedef struct dhcpc_result_s {
+
+    struct in_addr serverid;
+    struct in_addr ipaddr;
+    struct in_addr netmask;
+    struct in_addr dnsaddr;
+    struct in_addr default_router;
+    uint32_t lease_time;
+
+} dhcpc_result_t;
+
+
+typedef struct dhcp_msg_s {
+
+    uint8_t op;
+    uint8_t htype;
+    uint8_t hlen;
+    uint8_t hops;
+    uint32_t xid;
+    uint16_t secs;
+    uint16_t flags;
+    uint32_t ciaddr;
+    uint32_t yiaddr;
+    uint32_t nsiaddr;
+    uint32_t ngiaddr;
+    uint8_t chaddr[16];
+    uint8_t sname[64];
+    uint8_t file[128];
+    uint32_t cookie;
+    uint8_t options[308];
+
+} __attribute__((packed)) dhcp_msg_t;
+
+
 /********************* OSI Layer 7 protocols structs *********************/
 
 // DNS Header 
@@ -345,6 +402,8 @@ typedef struct dns_header {
 
 } __attribute__((packed)) dns_header;
 
+
+// NBNS common header
 
 typedef struct nbns_header {
 
@@ -376,18 +435,25 @@ uint16_t in_cksum(uint16_t *, int);
 
 void print_current_time();
 
-// OSI Layer 2
+void print_data(unsigned char* , int);
+void print_hex_ascii_line(const u_char*, int, int);
+
+
+// OSI Layer 2 protocols
 
 void process_frame(unsigned char* , int, int);
 void print_ethernet_header(unsigned char*, int);
 void print_linux_sll_header(unsigned char*, int);
+void print_linux_ipmb_pseudo_header(unsigned char*, int);
 
-// OSI Layer 3
+
+// OSI Layer 3 protocols
 
 void print_vlan_ieee8021q_header(unsigned char*, int);
 void print_homeplug_av_header(unsigned char*);
 void print_homeplug_header(unsigned char*);
 void print_ieee_1905_header(unsigned char*, int);
+void print_ipx_header(unsigned char*, int);
 void print_lltd_header(unsigned char*);
 void print_arp_header(unsigned char*);
 void print_profinet_dcp_header(unsigned char*);
@@ -398,24 +464,19 @@ void print_icmpv6_packet(unsigned char*, int, int);
 void process_ip_packet(unsigned char* , int);
 void print_ip_header(unsigned char* , int);
 void print_ip6_header(unsigned char*, int);
+void print_sctp_header(unsigned char*, int);
 
-// OSI Layer 4
+
+// OSI Layer 4 protocols
 
 void print_tcp_packet(unsigned char * , int );
 void print_udp_packet(unsigned char * , int );
 
-// OSI Layer 7
+
+// OSI Layer 7 protocols
 
 void print_dns_packet(unsigned char*, int);
 
-void print_data(unsigned char* , int);
-void print_hex_ascii_line(const u_char*, int, int);
-
 // agressive sniffing TODO = active sniffing (ARP poisonning etc...)
-
-unsigned char* pack_arp_spoofing_packet(unsigned char*, unsigned char*, unsigned char*, unsigned char*,
-    unsigned char*);
-int get_device_index(int, const char*);
-int init_sock(const char*, int*);
 
 #endif
