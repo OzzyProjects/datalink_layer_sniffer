@@ -90,6 +90,7 @@ int main(int argc, char **argv) {
             case 'm':
                 opt_args.is_monitor_mode = 1;
                 break;
+
             // limit the number of sniffed packed -c option (number of packets to capture)
             case 'c':
                 // out of range number = exit
@@ -135,6 +136,7 @@ int main(int argc, char **argv) {
                 usage();
                 return EXIT_SUCCESS;
                 break;
+
             case '?':
                 if (optopt == 'i')
                     fprintf(stderr, "Option -%c requires an argument [interface_name] !\n", optopt);
@@ -328,10 +330,17 @@ int main(int argc, char **argv) {
             datal_size = 0;
             break;
 
+        // impb/ipmi over i2c
+        case DLT_IPMB_LINUX:
+            printf("IPMB/IMPI\n");
+            datal_size = IMPB_HDR_LEN;
+            break;
+
         // uncommon datalink type
         default:
             fprintf(stderr, "ERROR : Unknown data link type\n");
-            return EXIT_FAILURE;
+            //return EXIT_FAILURE;
+            datal_size = ETH2_HEADER_LEN;
     }
     
     // starting the timer here
