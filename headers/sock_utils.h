@@ -64,7 +64,17 @@ static struct sock_filter bpfcode[8] = {
 }; */
 
 
-#define IMPB_HDR_LEN       0x06
+#define IPMB_HDR_LEN    0X6
+
+
+// IP protocols numbers (most common or interesting one)
+
+#define IPV4_ICMP       0x01
+#define IPV4_IGMP       0x02
+#define IPV4_TCP        0x06
+#define IPV4_UDP        0x11
+#define IPV4_EIGRP      0x58
+#define IPV4_SCTP       0x84
 
 #define ETHERNET_MTU                1500
 #define ARP_SPOOFING_PACKET_SIZE    42
@@ -428,7 +438,7 @@ typedef struct nbns_header {
 
 // Usefull generic functions
 
-void print_itf_list();
+int print_itf_list();
 int get_random_device(char*);
 
 int parse_tlv(const unsigned char *const, const size_t, tlv_result *const, int, size_t *const);
@@ -439,6 +449,7 @@ void print_current_time();
 void print_data(unsigned char* , int);
 void print_hex_ascii_line(const u_char*, int, int);
 
+int get_datalink_header_size(int);
 
 // OSI Layer 2 protocols
 
