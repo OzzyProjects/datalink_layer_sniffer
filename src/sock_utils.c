@@ -3,9 +3,77 @@
 
 static int DATALINK_SIZE;
 
-/************************************* IN PROGRESS *************************************/
+/****stderr********************************* IN PROGRESS *************************************/
 
-// checksum function, non implemented yet
+int get_datalink_header_size(int datalink_t){
+
+    
+    // will cointains the size of datalink type
+    int datalink_header_size;
+
+    printf("\nINFO : PCAP_DATA_LINK_TYPE : %x\t", datalink_t);
+
+    // parsing the datalink type to parse correctly
+
+    switch(datalink_t){
+
+        // datalink not supported by capture card
+        case PCAP_ERROR_NOT_ACTIVATED:
+            fprintf(stderr, "ERROR : Failed to get data link type\n");
+            datalink_header_size = -1;
+
+        case DLT_RAW:
+            printf("RAW Datalink\n");
+            datalink_header_size = 0;
+            break;
+
+        case DLT_LINUX_SLL:  // "any" for device will give you this
+            printf("Linux SLL\n");
+            datalink_header_size = SLL_HDR_LEN;
+            break;
+
+        // ethernet
+        case DLT_EN10MB:
+            printf("Ethernet\n");
+            datalink_header_size = ETH2_HEADER_LEN;
+            break;
+
+         case  DLT_AX25:
+            printf("AX 25\n");
+            datalink_header_size = 0;
+            break;
+
+        // wireless radiotap
+        case DLT_IEEE802_11:
+            printf("IEEE802 11\n");
+            datalink_header_size = 0;
+            break;
+
+         // bluetooth    
+        case DLT_BLUETOOTH_HCI_H4_WITH_PHDR:
+            printf("DLT_BLUETOOTH_HCI_H4_WITH_PHDR\n");
+            datalink_header_size = 0;
+            break;
+
+        // impb/ipmi over i2c
+        case DLT_IPMB_LINUX:
+            printf("IPMB/IMPI\n");
+            datalink_header_size = IPMB_HDR_LEN;
+            break;
+
+        // uncommon datalink type
+        default:
+            printf("WARNING : Unknown data link type\n");
+            datalink_header_size = 0;
+    }
+
+
+    return datalink_header_size;
+
+
+}
+
+/* checksum function, non implemented yet */
 
 uint16_t in_cksum(uint16_t *addr, int len){
 
@@ -127,13 +195,16 @@ void process_frame(unsigned char* buffer, int size, int datalink_s){
         proto = ntohs(eth->h_proto);
     }
 
-    else if (datalink_s == IPMP_HDR_LEN){
+    else if (datalink_s == IPMB_HDR_LEN){
 
         print_datalink_header = &print_linux_ipmb_pseudo_header;
+        proto = 0;
     }
 
     else{
         printf("\nUnknown datalink type !\n");
+        print_datalink_header = &print_ethernet_header;
+        proto = 0;
     }
 
     DATALINK_SIZE = datalink_s;
@@ -152,7 +223,7 @@ void process_frame(unsigned char* buffer, int size, int datalink_s){
             print_ieee_1905_header(buffer, size);
             break;
 
-        case ETHERTYPE_HOMEPLUG:
+        case ETHERTYPE_HOMEaPLUG:
             printf("\nETHERTYPE_HOMEPLUG frame there!\n");
             (*print_datalink_header)(buffer, size);
             print_homeplug_header(buffer);
@@ -208,7 +279,8 @@ void process_frame(unsigned char* buffer, int size, int datalink_s){
 
         default:
             printf("\n********* UNKNOWN frame there! **********\n");
-            print_ethernet_header(buffer , size);
+            print_datalink_header(buffer, size);
+            print_data(buffer, size);
     }
 }
 
@@ -304,50 +376,6 @@ void print_linux_ipmb_pseudo_header(unsigned char* buffer, int size){
 
     printf("   |-Hardware Addr     : %x\n", ipmbhdr->hardware_addr);
 
-}
-
-
-/* Display a ipx domain address. */
-static const char *IPX_print(const char *ptr){
-
-    static char buffer[64];
-    sockaddr_ipx *ipx = (struct sockaddr_ipx *) (ptr - 2);
-    int t;
-
-
-    for (t = IPX_NODE_LEN; t; t--)
-    if (ipx->ipx_node[t - 1])
-        break;
-
-    if (t && ntohl(ipx->ipx_network))
-    snprintf(buffer, sizeof(buffer), "%08lX:%02X%02X%02X%02X%02X%02X",
-         (long int) ntohl(ipx->ipx_network),
-         (int) ipx->ipx_node[0], (int) ipx->ipx_node[1],
-         (int) ipx->ipx_node[2], (int) ipx->ipx_node[3],
-         (int) ipx->ipx_node[4], (int) ipx->ipx_node[5]);
-    else if (!t && ntohl(ipx->ipx_network))
-    snprintf(buffer, sizeof(buffer), "%08lX", (long int) ntohl(ipx->ipx_network));
-    else if (t && !ntohl(ipx->ipx_network))
-    snprintf(buffer, sizeof(buffer), "%02X%02X%02X%02X%02X%02X",
-         (int) ipx->ipx_node[0], (int) ipx->ipx_node[1],
-         (int) ipx->ipx_node[2], (int) ipx->ipx_node[3],
-         (int) ipx->ipx_node[4], (int) ipx->ipx_node[5]);
-    else
-    buffer[0] = '\0';
-    return (buffer);
-}
-
-
-/* Display a ipx domain address. */
-static const char *IPX_sprint(const struct sockaddr_storage *sasp, int numeric)
-{
-    const struct sockaddr *sap = (const struct sockaddr *)sasp;
-    static char buf[64];
-
-    if (sap->sa_family != AF_IPX)
-        return strncpy(buf, "[NONE SET]", sizeof(buf));
-
-    return (IPX_print(sap->sa_data));
 }
 
 
@@ -767,7 +795,7 @@ void print_icmp_packet(unsigned char* buffer , int size){
         
     printf("\n\nICMP Header\n");
     printf("   |-Type :          : %x\t", icmph->type);
-    parse_icmp_type_field(icmph->type);https://github.com/AnishGhosh1078/Digital-Design-2-fpga-board-Programming
+    parse_icmp_type_field(icmph->type);
     printf("   |-Code          : %x\n", icmph->code);
     printf("   |-Checksum      : %x\n", ntohs(icmph->checksum));
     printf("   |-ID            : %x\n", ntohs(icmph->un.echo.id));
@@ -785,7 +813,6 @@ void print_icmp_packet(unsigned char* buffer , int size){
     print_data(buffer + iphdrlen , sizeof(icmph));
         
     printf("Data Payload\n");    
-    https://github.com/AnishGhosh1078/Digital-Design-2-fpga-board-Programming
     print_data(buffer + header_size, size-header_size);
     
     printf("\n###########################################################\n");
@@ -857,9 +884,11 @@ void print_icmpv6_packet(unsigned char* buffer, int offset, int size){
 
 // just a function to print interfaces list 
 
-void print_itf_list(){
+int print_itf_list(){
 
     pcap_if_t *first_if;
+    pcap_if_t *cur_if;
+    
     char errbuf[PCAP_ERRBUF_SIZE];
 
     if (pcap_findalldevs(&first_if, errbuf) < 0) {
