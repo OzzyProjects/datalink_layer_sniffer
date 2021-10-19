@@ -1,4 +1,4 @@
-/* Libraries */ 
+
 
 #include <signal.h>
 #include <limits.h>
@@ -57,6 +57,7 @@ int main(int argc, char **argv) {
     bpf_u_int32 net;
 
     pcap_t *handle;
+    
     int datal_size;
 
     // parsing the command line 
@@ -95,6 +96,7 @@ int main(int argc, char **argv) {
             case 'c':
                 // out of range number = exit
                 max_packet = strtol(optarg, &temp, 10);
+
                 if (optarg != temp && *temp == '\0' && max_packet <= UINT_MAX){
                     opt_args.max_packet = max_packet;
                     opt_args.is_limited = 1;
@@ -296,55 +298,13 @@ int main(int argc, char **argv) {
     // getting the data link type to properly dissect frames
 
     int datalink_t = pcap_datalink(handle);
-    printf("\nINFO : PCAP_DATA_LINK_TYPE : %x\t", datalink_t);
 
-    // getting the datalink type to parse correctly TODO
+    datal_size = get_datalink_header_size(datalink_t);
 
-    switch(datalink_t){
+    if (datal_size == -1){
 
-        // datalink not supported by capture card
-        case PCAP_ERROR_NOT_ACTIVATED:
-            fprintf(stderr, "ERROR : Failed to get data link type\n");
-            return EXIT_FAILURE;
-
-        case DLT_RAW:
-            printf("RAW Datalink\n");
-            datal_size = 0;
-            break;
-
-        case DLT_LINUX_SLL:  // "any" for device will give you this
-            printf("Linux SLL\n");
-            datal_size = SLL_HDR_LEN;
-            break;
-
-        // ethernet
-        case DLT_EN10MB:
-            printf("Ethernet\n");
-            datal_size = ETH2_HEADER_LEN;
-            break;
-
-         case  DLT_AX25:
-            printf("AX 25\n");
-            datal_size = 0;
-            break;
-
-        // wireless radiotap TODO
-        case DLT_IEEE802_11:
-            printf("IEEE802 11\n");
-            datal_size = 0;
-            break;
-
-        // impb/ipmi over i2c
-        case DLT_IPMB_LINUX:
-            printf("IPMB/IMPI\n");
-            datal_size = IMPB_HDR_LEN;
-            break;
-
-        // uncommon datalink type
-        default:
-            fprintf(stderr, "ERROR : Unknown data link type\n");
-            //return EXIT_FAILURE;
-            datal_size = ETH2_HEADER_LEN;
+        fprintf(stderr, "ERROR : Datalink type not supported\n");
+        return EXIT_FAILURE;
     }
     
     // starting the timer here
@@ -354,6 +314,7 @@ int main(int argc, char **argv) {
     u_char* dlink_size_ptr = __INT_TO_UCHAR_PTR(datal_size);
 
     // let's loop throuht the network
+
     if (opt_args.is_limited)
 
         // limited capture (number of packets)
@@ -394,12 +355,14 @@ void int_handler(int signum){
 void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet){
 
     unsigned char* raw_packet = (unsigned char*)packet;
+   
 
     int datalink_s = __UCHAR_PTR_TO_INT(args);
 
     ++num_packet;
 
     // let's print the frame
+
     printf("\nFRAME NUMBER : %u\n", num_packet);
 
     process_frame(raw_packet, header->caplen, datalink_s);
@@ -444,4 +407,4 @@ void usage(){
     printf("\nExample : ./raw_sock -i wlp4s0 -r strings_log -f \"not ipx\" -t 1024 -c 0\n");
     printf(" Binding to one device, recording strings to file, applying filters to the capture and setting timeout\n");
 }
-a
+
