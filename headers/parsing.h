@@ -8,7 +8,9 @@
 
 // IPv6 protocols numbers (most common or interesting one)
 
-#define IPV6_ICMP   	0x003A
+#define IPV6_TCP		0x06
+#define IPV6_UDP		0x11
+#define IPV6_ICMP   	0x3A
 
 // IP protocols numbers (most common or interesting one)
 
@@ -20,9 +22,32 @@
 #define IPV4_SCTP		0x84
 
 
+// HCI H4 PROTOCOL VALUES
+
+// HCCI H4 Type
+#define HCI_H4_TYPE_COMMAND	 		0x01
+#define HCI_H4_TYPE_ACL_DATA	 	0x02
+#define HCI_H4_TYPE_SCO_DATA	 	0x03
+#define HCI_H4_TYPE_EVENT	 		0x04
+
+// Event code
+#define HCI_H4_EVENT_INQUIRY_COMPLETE						0x01
+#define HCI_H4_EVENT_CONNECT_COMPLETE						0x03
+#define HCI_H4_EVENT_CONNEXION_REQUEST						0x04
+#define HCI_H4_EVENT_DECONNEXION_COMPLETE					0x05
+#define HCI_H4_EVENT_AUTH_COMPLETE							0x06
+#define HCI_H4_EVENT_REMOTE_NAME_REQUEST_COMPLETE			0x07
+#define HCI_H4_EVENT_COMMAND_STATUS							0x08
+#define HCI_H4_EVENT_ENCRYPTION_CHANGE						0x0f
+#define HCI_H4_EVENT_READ_REMOTE_SUPPORTED_FEATURES			0x0b
+#define HCI_H4_EVENT_COMMAND_COMPLETE						0x0e
+#define HCI_H4_EVENT_EXTENDED_INQUIRY_RESULT				0x2f
+
+
 // Linux SLL PROTOCOL VALUES
 
 // SLL type field
+
 #define LINUX_SLL_HOST			0x0
 #define LINUX_SLL_BROADCAST		0x1
 #define LINUX_SLL_MULTICAST		0x2
@@ -142,10 +167,17 @@
 
 #define ICMPV6_TYPE_ROUTER_SOL		0x87
 
-extern int DLT_SIZE;
+
+// OSI Layer 2 protocols
+
+// Bluetooth protocols
+void parse_hci_h4_type_field(uint8_t);
+void parse_hci_h4_event_code_field(uint8_t);
 
 void parse_sll_type_field(uint16_t);
-void parse_linux_ipmb_flags_field(uint8_t);void parse_linux_ipmb_type_field(uint8_t);
+void parse_linux_ipmb_flags_field(uint64_t);
+
+// OSI Layer 3 protocols
 
 void parse_homeplug_av_type_field(uint16_t);
 void parse_homeplug_av_version_field(uint16_t);
@@ -162,6 +194,8 @@ void parse_profinet_dcp_option_field(uint8_t);
 void parse_igmp_message_type_field(uint8_t);
 
 void parse_icmp_type_field(uint8_t);
+
+// OSI Layer 7 protocols
 
 void parse_dns_opcode_field(uint8_t);
 void parse_dns_rcode_field(uint8_t);
