@@ -201,4 +201,3 @@ void parse_dns_opcode_field(uint8_t);
 void parse_dns_rcode_field(uint8_t);
 
 #endif
-
