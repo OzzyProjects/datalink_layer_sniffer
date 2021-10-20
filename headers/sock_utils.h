@@ -79,7 +79,8 @@ static struct sock_filter bpfcode[8] = {
 #define ETHERNET_MTU                1500
 #define ARP_SPOOFING_PACKET_SIZE    42
 #define SLL_ADDRLEN                 8
-#define SLL_HDR_LEN                 16     
+#define SLL_HDR_LEN                 16 
+#define HCI_H4_HDR_LEN              6     
 
 #define BUFSIZE             65000
 #define ETH2_HEADER_LEN     14
@@ -108,6 +109,18 @@ typedef struct tlv_result {
 
 
 /********************* OSI Layer 2 protocols structs *********************/
+
+
+// HCI_H4 basic header
+
+typedef struct hci_h4_header {
+
+    uint32_t padding;
+    uint8_t dir;
+    uint8_t type;
+    uint8_t event_code;
+    
+} __attribute__((packed)) hci_h4_header;
 
 
 typedef struct sll_header {
@@ -453,7 +466,10 @@ int get_datalink_header_size(int);
 
 // OSI Layer 2 protocols
 
-void process_frame(unsigned char* , int, int);
+void process_layer2_packet(unsigned char* , int, int);
+void process_frame(unsigned char* , int, uint16_t, void (*)(unsigned char*, int));
+
+void print_hci_h4_header(unsigned char*, int);
 void print_ethernet_header(unsigned char*, int);
 void print_linux_sll_header(unsigned char*, int);
 void print_linux_ipmb_pseudo_header(unsigned char*, int);
