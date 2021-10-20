@@ -5,6 +5,90 @@
 
 /************************************* IN PROGRESS *************************************/
 
+
+// parsing the HCI H4 Event Code field
+
+void parse_hci_h4_event_code_field(uint8_t event_code){
+
+ 	switch(event_code){
+
+		case HCI_H4_EVENT_INQUIRY_COMPLETE:
+			printf("(Inquiry Complete)\n");
+		break;
+
+		case HCI_H4_EVENT_CONNECT_COMPLETE: 
+			printf("(Connexion Complete)\n");
+		break;
+
+		case HCI_H4_EVENT_CONNEXION_REQUEST:
+			printf("(Connexion Request)\n");
+		break;
+
+		case HCI_H4_EVENT_DECONNEXION_COMPLETE:
+			printf("(Deconnexion Complete)\n");
+		break;
+
+		case HCI_H4_EVENT_AUTH_COMPLETE:
+			printf("(Authentification Complete)\n");
+		break;
+
+		case HCI_H4_EVENT_REMOTE_NAME_REQUEST_COMPLETE:
+			printf("(Remote Name Request)\n");
+		break;
+
+		case HCI_H4_EVENT_COMMAND_STATUS: 
+			printf("(Command Status)\n");
+		break;
+
+		case HCI_H4_EVENT_ENCRYPTION_CHANGE:
+			printf("(Encryption Change)\n");
+		break;
+
+		case HCI_H4_EVENT_READ_REMOTE_SUPPORTED_FEATURES:
+			printf("(Read Remote Supported Features)\n");
+		break;
+
+		case HCI_H4_EVENT_COMMAND_COMPLETE:
+			printf("(Command Complete)\n");
+		break;
+
+		case HCI_H4_EVENT_EXTENDED_INQUIRY_RESULT:
+			printf("(Extended Inquiry Result)\n");
+		break;
+
+		default:
+			printf("(Unknown | Invalid)\n");
+	}
+
+}
+
+
+void parse_hci_h4_type_field(uint8_t type_field){
+
+	switch(type_field){
+
+		case HCI_H4_TYPE_COMMAND: 
+			printf("(Command)\n");
+		break;
+
+		case HCI_H4_TYPE_ACL_DATA:
+			printf("(ACL Data)\n");
+		break;
+
+		case HCI_H4_TYPE_SCO_DATA:
+			printf("(SCO Data)\n");
+		break;
+
+		case HCI_H4_TYPE_EVENT:
+			printf("(Event)\n");
+		break;
+
+		default:
+			printf("(Invalid)\n");
+	}
+
+}
+
 void parse_sll_type_field(uint16_t type_field){
 
 	switch(type_field){
@@ -38,49 +122,49 @@ void parse_sll_type_field(uint16_t type_field){
 
 // Parsing IPMB over I2C Flags with all registered values
 
-void parse_linux_impb_flags_field(uint64_t flags){
+void parse_linux_ipmb_flags_field(uint64_t flags){
 
 	switch(flags){
 
 		case LINUX_IMPB_FLAGS_PROMISCUOUS_MODE_ENABLED: 
 			printf("(Promisc Mode Enabled)\n");
-		break;
+			break;
 
 		case LINUX_IMPB_FLAGS_PROMISCUOUS_MODE_DISABLED:
 			printf("(Promisc Mode Disabled)\n");
-		break;
+			break;
 
 		case LINUX_IMPB_FLAGS_WENT_OFFLINE:
 			printf("(Went Offline)\n");
-		break;
+			break;
 
 		case LINUX_IMPB_FLAGS_WENT_OFFLINE_2:
 			printf("(Went Offline)\n");
-		break;
+			break;
 
 		case LINUX_IMPB_FLAGS_ATTACHED_TO_I2C_BUS:
 			printf("(Attached to I2C Bus)\n");
-		break;
+			break;
 
 		case LINUX_IMPB_FLAGS_DETACHED_TO_I2C_BUS:
 			printf("(Detached to I2C Bus)\n");
-		break;
+			break;
 
 		case LINUX_IMPB_FLAGS_PROMISC_BUFFER_IS_OVERFLOWED:
 			printf("(Promisc Buffer is Overflowed)\n");
-		break;
+			break;
 
 		case LINUX_IMPB_FLAGS_PROMISC_BUFFER_NOTFULL:
 			printf("(Promisc Buffer No Longer Full)\n");
-		break;
+			break;
 
 		case LINUX_IMPB_FLAGS_I2C_DATA_IS_OVERFLOWED:
 			printf("(I2C Data is Overflowed)\n");
-		break;
+			break;
 
 		case LINUX_IMPB_FLAGS_I2C_DATA_NO_LONGER_FULL:
 			printf("(I2C Data No Longer Full)\n");
-		break;
+			break;
 
 		default:
 			printf("(Unknown | Invalid)\n");
