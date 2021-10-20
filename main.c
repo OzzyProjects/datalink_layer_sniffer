@@ -185,6 +185,8 @@ int main(int argc, char **argv) {
     // printing command line to begin the capture file
     printf("\n\nCommand line : ");
 
+    printf("DEBUG MESSAGE\n");
+
     int i = 0;
 
     while (i < argc) {
@@ -204,6 +206,8 @@ int main(int argc, char **argv) {
     // one only one interface sniffing mode, soft capture
 
     if (opt_args.is_godmode == 0){
+
+        printf("DEBUG MESSAGE\n");
 
         /* Open the session in promiscuous mode with defined timeout or not (default) */
         if (opt_args.timeout){
@@ -256,6 +260,8 @@ int main(int argc, char **argv) {
         // setting the device in monitor mode if selected
         if (opt_args.is_monitor_mode){
 
+            printf("DEBUG MESSAGE\n");
+
             if (pcap_can_set_rfmon(handle) != 1){
 
                 fprintf(stderr, "ERROR : the device can't be set up in monitor mode : %s\n", pcap_geterr(handle));
@@ -276,6 +282,8 @@ int main(int argc, char **argv) {
     }
 
     if (opt_args.is_filter){
+
+        printf("DEBUG MESSAGE\n");
 
         /* Compile and apply the filter */
         if (pcap_compile(handle, &fp, pcap_filters, 1, PCAP_NETMASK_UNKNOWN) == -1){
@@ -309,6 +317,8 @@ int main(int argc, char **argv) {
     
     // starting the timer here
     begin_capture = time(NULL);
+
+    printf("DEBUG MESSAGE\n");
 
     // passing datalink type as argument to pcap_loop
     u_char* dlink_size_ptr = __INT_TO_UCHAR_PTR(datal_size);
@@ -365,6 +375,8 @@ void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char 
 
     printf("\nFRAME NUMBER : %u\n", num_packet);
 
+    printf("DEBUG MESSAGE\n");
+
     process_layer2_packet(raw_packet, header->caplen, datalink_s);
 
     // printing raw datas in hex format 
@@ -389,6 +401,8 @@ void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char 
     printf("\n\nRevelant strings : \n");
     print_strings(raw_packet, header->caplen);
     printf("\n");
+
+    printf("DEBUG MESSAGE\n");
 
 }
 
