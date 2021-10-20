@@ -365,7 +365,7 @@ void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char 
 
     printf("\nFRAME NUMBER : %u\n", num_packet);
 
-    process_frame(raw_packet, header->caplen, datalink_s);
+    process_layer2_packet(raw_packet, header->caplen, datalink_s);
 
     // printing raw datas in hex format 
     
