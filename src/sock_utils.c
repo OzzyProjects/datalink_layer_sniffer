@@ -5,6 +5,9 @@ static int DATALINK_SIZE;
 
 /****stderr********************************* IN PROGRESS *************************************/
 
+// parsing the datalink type to get the correct header size
+// return = correct datalink header size (in progress)
+
 int get_datalink_header_size(int datalink_t){
 
     
@@ -27,12 +30,13 @@ int get_datalink_header_size(int datalink_t){
             datalink_header_size = 0;
             break;
 
+        // Linux SLL = 16 bytes header
         case DLT_LINUX_SLL:  // "any" for device will give you this
             printf("Linux SLL\n");
             datalink_header_size = SLL_HDR_LEN;
             break;
 
-        // ethernet
+        // ethernet = 14 bytes header
         case DLT_EN10MB:
             printf("Ethernet\n");
             datalink_header_size = ETH2_HEADER_LEN;
@@ -43,21 +47,21 @@ int get_datalink_header_size(int datalink_t){
             datalink_header_size = 0;
             break;
 
-        // wireless radiotap
+        // wireless radiotap (in progress)
         case DLT_IEEE802_11:
             printf("IEEE802 11\n");
             datalink_header_size = 0;
             break;
 
-         // bluetooth    
+         // bluetooth HCI H4 = 6 bytes header
         case DLT_BLUETOOTH_HCI_H4_WITH_PHDR:
             printf("DLT_BLUETOOTH_HCI_H4_WITH_PHDR\n");
-            datalink_header_size = 0;
+            datalink_header_size = HCI_H4_HDR_LEN;
             break;
 
         // impb/ipmi over i2c
         case DLT_IPMB_LINUX:
-            printf("IPMB/IMPI\n");
+            printf("IPMB/IPMI\n");
             datalink_header_size = IPMB_HDR_LEN;
             break;
 
@@ -166,18 +170,42 @@ int parse_tlv(const unsigned char *const data, const size_t data_len, struct tlv
 }
 
 
-// processing frame by datalink type (in progress)
+// parsing the elemental hci h4 header (work in progress)
 
-void process_frame(unsigned char* buffer, int size, int datalink_s){
+void print_hci_h4_header(unsigned char* buffer, int size){
+
+    hci_h4_header* hcih4_hdr = (hci_h4_header*)buffer;
+
+    printf("\nHCI_H4 Header\n\n");
+    printf("   |-Direction          : %x\n", hcih4_hdr->dir);
+
+    printf("   |-Type               : %x\t");
+    parse_hci_h4_type_field(hcih4_hdr->type);
+
+    if (hcih4_hdr->type == 4){
+
+        printf("   |-Event Code          : %x\t", hcih4_hdr->event_code);
+        parse_hci_h4_event_code_field(hcih4_hdr->event_code);
+    }
+
+
+}
+
+
+// processing layer 2 by datalink type (in progress)
+
+void process_layer2_packet(unsigned char* buffer, int size, int datalink_s){
 
     // function pointer to print correct datalink header
 
     void (*print_datalink_header)(unsigned char*, int);
 
-    // datalink protocol
-    uint16_t proto;
+    // ethernet protocol
+    uint16_t proto = 0;
 
     // parsing datalink type
+
+    // liinux SLL = Ethernet frame with a little bit different header
 
     if (datalink_s == SLL_HDR_LEN){
 
@@ -186,7 +214,7 @@ void process_frame(unsigned char* buffer, int size, int datalink_s){
         proto = ntohs(sllhdr->sll_protocol);
     }
 
-    // ethernet frame
+    // Pure ethernet frame
 
     else if (datalink_s == ETH2_HEADER_LEN){
 
@@ -195,85 +223,115 @@ void process_frame(unsigned char* buffer, int size, int datalink_s){
         proto = ntohs(eth->h_proto);
     }
 
+    
+    // bluetooth HCI H4 packet
+
+    else if (datalink_s == HCI_H4_HDR_LEN){
+
+        print_datalink_header = &print_hci_h4_header;
+    }
+
+    
+    // IPMB Packet 
+
     else if (datalink_s == IPMB_HDR_LEN){
 
         print_datalink_header = &print_linux_ipmb_pseudo_header;
-        proto = 0;
     }
 
+
+    // Not implemented yet
+
     else{
+
         printf("\nUnknown datalink type !\n");
-        print_datalink_header = &print_ethernet_header;
-        proto = 0;
+        print_datalink_header = &print_data;
     }
 
     DATALINK_SIZE = datalink_s;
+
+    if (proto != 0){
+
+        process_frame(buffer, size, proto, print_datalink_header);
+    }
+
+    else{
+
+        print_datalink_header(buffer, size);
+        printf("\n\nRaw Data\n");
+        print_data(buffer, size);
+    }
+}
+
+// processing ethernet frame by ethertype
+
+void process_frame(unsigned char* buffer, int size, uint16_t proto, void (*print_datalink_header)(unsigned char*, int)){
 
     switch(proto){
 
         case ETHERTYPE_ARP:
             printf("\nARP frame there!\n");
-            (*print_datalink_header)(buffer, size);
+            print_datalink_header(buffer, size);
             print_arp_header(buffer);
             break;
 
         case ETHERTYPE_IEEE1905_1:
             printf("\nETHERTYPE_IEEE1905_1 frame there!\n");
-            (*print_datalink_header)(buffer, size);
+            print_datalink_header(buffer, size);
             print_ieee_1905_header(buffer, size);
             break;
 
-        case ETHERTYPE_HOMEaPLUG:
+        case ETHERTYPE_HOMEPLUG:
             printf("\nETHERTYPE_HOMEPLUG frame there!\n");
-            (*print_datalink_header)(buffer, size);
+            print_datalink_header(buffer, size);
             print_homeplug_header(buffer);
             break;
 
         case ETHERTYPE_HOMEPLUG_POWERLINE:
             printf("\nETHERTYPE_HOMEPLUG_POWERLINE frame there!\n");
-            (*print_datalink_header)(buffer, size);
+            print_datalink_header(buffer, size);
             print_homeplug_av_header(buffer);
             break;
 
         case ETHERTYPE_LLDT:
             printf("\nLLDT frame there!\n");
-            (*print_datalink_header)(buffer, size);
+            print_datalink_header(buffer, size);
             print_lltd_header(buffer);
             break;
 
         case ETHERTYPE_PROFINET_DCP:
             printf("\nPROFINET_DCP frame there!\n");
-            (*print_datalink_header)(buffer, size);
+            print_datalink_header(buffer, size);
             print_profinet_dcp_header(buffer);
             break;
 
         case ETHERTYPE_IP:
             printf("\nIP frame there!\n");
-            (*print_datalink_header)(buffer, size);
+            print_datalink_header(buffer, size);
             process_ip_packet(buffer, size);
             break;
 
         case ETHERTYPE_IPV6:
             printf("\nIPv6 frame there!\n");
-            (*print_datalink_header)(buffer, size);
+            print_datalink_header(buffer, size);
             print_ip6_header(buffer, size);
             break;
 
         case ETHERTYPE_IEEE_8021Q:
             printf("\nIEEE_8021Q frame there!\n");
-            (*print_datalink_header)(buffer, size);
+            print_datalink_header(buffer, size);
             print_vlan_ieee8021q_header(buffer, size);
             break;
 
         case ETHERTYPE_EAPOL:
             printf("\nEAPOL frame there!\n");
-            (*print_datalink_header)(buffer, size);
+            print_datalink_header(buffer, size);
             break;
 
         // IPX Novell protocol
         case ETHERTYPE_IPX_NOVELL:
             printf("\nIPX frame there!\n");
-            (*print_datalink_header)(buffer, size);
+            print_datalink_header(buffer, size);
             print_ipx_header(buffer, size);
             break;
 
@@ -543,7 +601,7 @@ void print_igmp_header(unsigned char* buffer, int size){
 
     printf("\nIGMP Header\n");
 
-    printf("   |-Type      : %x\t\n", ighdr->igmp_type);
+    printf("   |-Type      : %x\t", ighdr->igmp_type);
     parse_igmp_message_type_field(ighdr->igmp_type);
 
     printf("\n   |-Code      : %x\n", ighdr->igmp_code);
@@ -586,12 +644,11 @@ void print_ip_header(unsigned char* buffer, int size){
 
 void print_ip6_header(unsigned char* buffer, int size){
 
+
     char addrstr[INET6_ADDRSTRLEN];
 
     struct ipv6hdr* iphdr = (struct ipv6hdr*)(buffer + DATALINK_SIZE);
     int offset = DATALINK_SIZE + ntohs(iphdr->payload_len);
-
-    print_ethernet_header(buffer , size);
 
     printf("\nIPv6 Header\n\n");
 
@@ -608,8 +665,28 @@ void print_ip6_header(unsigned char* buffer, int size){
     inet_ntop(AF_INET6, &iphdr->daddr, addrstr, sizeof(addrstr));
     printf("   |-Destination IP  : %s\n", addrstr);
 
-    if (iphdr->nexthdr == IPV6_ICMP){
-        print_icmpv6_packet(buffer, offset, size);
+    if (iphdr->nexthdr != 0){
+
+        // parsing IPv6 protocol
+
+        switch(iphdr->nexthdr){
+
+            case IPV6_ICMP:
+                print_icmpv6_packet(buffer, ETH2_HEADER_LEN + sizeof(struct ipv6hdr), size);
+                break;
+
+            case IPV6_TCP:
+                print_tcp_packet(buffer, size);
+                break;
+
+            case IPV6_UDP:
+                print_udp_packet(buffer, size);
+                break;
+
+            default:
+                printf("\nUnknown IPv6 Packet there : %x\n", iphdr->nexthdr);
+                print_data(buffer, size);
+        }
     }
 
 }
