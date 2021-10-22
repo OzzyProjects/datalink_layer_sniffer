@@ -99,7 +99,13 @@ int main(int argc, char **argv){
             case 'm':
                 opt_args.is_monitor_mode = 1;
                 break;
-
+                
+            // Applying capture filters here -f option
+            case 'f':
+                strncpy(pcap_filters, optarg, PCAP_FILTER_SIZE);
+                opt_args.is_filter= 1;
+                break;
+                
             // verbose mode enabled only for the network interfaces search. Will be extend to the capture processs in a while
             case 'v':
                 opt_args.is_verbose_mode = 1;
