@@ -1,6 +1,6 @@
 # Datalink layer sniffer for Linux
 
-**NEW RELEASE - WORK IN PROGRESS**
+**NEW RELEASE WITH BLUETOOTH IMPLEMENTATION - WORK IN PROGRESS**
 
 **Last update : new Bluetooth protocols mananged (L2CAP, HCI H4, OBEX etc...) and a raw sniffer engine designed for Bluetooth will come soon.**
 
