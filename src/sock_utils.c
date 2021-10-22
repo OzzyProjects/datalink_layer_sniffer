@@ -3,79 +3,7 @@
 
 static int DATALINK_SIZE;
 
-/****stderr********************************* IN PROGRESS *************************************/
-
-// parsing the datalink type to get the correct header size
-// return = correct datalink header size (in progress)
-
-int get_datalink_header_size(int datalink_t){
-
-    
-    // will cointains the size of datalink type
-    int datalink_header_size;
-
-    printf("\nINFO : PCAP_DATA_LINK_TYPE : %x\t", datalink_t);
-
-    // parsing the datalink type to parse correctly
-
-    switch(datalink_t){
-
-        // datalink not supported by capture card
-        case PCAP_ERROR_NOT_ACTIVATED:
-            fprintf(stderr, "ERROR : Failed to get data link type\n");
-            datalink_header_size = -1;
-
-        case DLT_RAW:
-            printf("RAW Datalink\n");
-            datalink_header_size = 0;
-            break;
-
-        // Linux SLL = 16 bytes header
-        case DLT_LINUX_SLL:  // "any" for device will give you this
-            printf("Linux SLL\n");
-            datalink_header_size = SLL_HDR_LEN;
-            break;
-
-        // ethernet = 14 bytes header
-        case DLT_EN10MB:
-            printf("Ethernet\n");
-            datalink_header_size = ETH2_HEADER_LEN;
-            break;
-
-         case  DLT_AX25:
-            printf("AX 25\n");
-            datalink_header_size = 0;
-            break;
-
-        // wireless radiotap (in progress)
-        case DLT_IEEE802_11:
-            printf("IEEE802 11\n");
-            datalink_header_size = 0;
-            break;
-
-         // bluetooth HCI H4 = 6 bytes header
-        case DLT_BLUETOOTH_HCI_H4_WITH_PHDR:
-            printf("DLT_BLUETOOTH_HCI_H4_WITH_PHDR\n");
-            datalink_header_size = HCI_H4_HDR_LEN;
-            break;
-
-        // impb/ipmi over i2c
-        case DLT_IPMB_LINUX:
-            printf("IPMB/IPMI\n");
-            datalink_header_size = IPMB_HDR_LEN;
-            break;
-
-        // uncommon datalink type
-        default:
-            printf("WARNING : Unknown data link type\n");
-            datalink_header_size = 0;
-    }
-
-
-    return datalink_header_size;
-
-
-}
+/************************************* IN PROGRESS *************************************/
 
 /* checksum function, non implemented yet */
 
@@ -86,7 +14,6 @@ uint16_t in_cksum(uint16_t *addr, int len){
     uint16_t *w = addr;
     uint16_t answer = 0;
 
-    // Adding 16 bits sequentially in sum
     while (nleft > 1) {
         sum += *w;
         nleft -= 2;
@@ -106,164 +33,241 @@ uint16_t in_cksum(uint16_t *addr, int len){
     return answer;
 }
 
-/* Generic function to parse tlv string */
+/*********************************************** OSI LAYER 2 PROTOCOLS ***********************************************/
 
-int parse_tlv(const unsigned char *const data, const size_t data_len, struct tlv_result *const results,
-    int max_results, size_t *const parsed_len){
+// function used to process each OSI Layer 2 packets to allow them to be dissected
 
-    uint8_t end_found = -1;
-    size_t len = 0;
-    size_t i;
+void process_layer2_packet(unsigned char* buffer, int size, int datalink_type){
 
-    for((*parsed_len) = 0, i = 0; (*parsed_len) < data_len && i < max_results; (*parsed_len) += (3 + len), i++){
+	// the function pointer that displays the datalink header of the packet and the var ethertype will be
+	// used by some OSI datalink protocols which are Ethernet compliant (some padding bytes at the beginning etc...)
+	// Exemple : Linux SLL or some 802.1x protocols
+	 	
+	void (*print_datalink_header)(unsigned char*, int);
+	uint16_t ethertype;
+	
+    // parsing the datalink type to proper dissect the packet after
 
-        size_t j;
+    switch(datalink_type){
 
-        /* enough data for type field ? */
-        if(((*parsed_len) + 1) > data_len){
-            printf("ERROR :malformed TLV\n");
-            return -1;
-        }
-
-        /* parse type */
-        (*(results + i)).type = data[*parsed_len];
-
-        if((*(results + i)).type == 0){
-            end_found = 1;
-            (*parsed_len)++;
+        // the datalink type is not supported by capture card or an error occured
+        case PCAP_ERROR_NOT_ACTIVATED:
+            fprintf(stderr, "ERROR : Failed to get the data link type\n");
+           	exit(EXIT_FAILURE);
+           	break;
+           	
+			// for the datalink type RAW, we do not use a specific header struct but we'gonna try to 
+			// mananage it specifically based on it's size etc...        
+        case DLT_RAW:
+           	printf("RAW DATALINK\n");
+            DATALINK_SIZE = 0;
             break;
-        }
 
-        /* enough data for length field? */
-        if(((*parsed_len) + 3) > data_len){
-            printf("ERROR :malformed TLV\n");
-            return -1;
-        }
+        // Linux SLL = 16 Header bytes but it is Ethernet based (specific to monitor mode)
+        case DLT_LINUX_SLL:
+            printf("Linux SLL\n");
+            DATALINK_SIZE = SLL_HDR_LEN;
+            sll_header* sllhdr = (sll_header*)buffer;
+       		print_datalink_header = &print_linux_sll_header;
+       		
+       		// getting the ethertype number and processing frame
+        	ethertype = ntohs(sllhdr->sll_protocol);
+        	process_frame(buffer, size, ethertype, print_datalink_header);
+            break;
 
-        /* parse length */
-        len = ntohs(*((uint16_t*) (data + (*parsed_len) + 1)));
-        printf("TLV: Length = %zu", len);
+        // Ethernet = 14 Header Bytes
+        case DLT_EN10MB:
+            printf("Ethernet\n");
+           	DATALINK_SIZE = ETH2_HEADER_LEN;
+           	struct ethhdr *eth = (struct ethhdr *)buffer;
+        	print_datalink_header = &print_ethernet_header;
+        		
+        	// getting the ethertype number and processing frame
+        	ethertype = ntohs(eth->h_proto);
+       		process_frame(buffer, size, ethertype, print_datalink_header);
+            break;
 
-        /* parse value */
-        if(((*parsed_len) + 3 + len) > data_len){
-            /* not enough data for value field */
-            printf("ERROR :malformed TLV\n");
-            return -1;
-        }
+         // Bluetooth HCI H4 datalink layer protocol = 2 Header Bytes
+        case DLT_BLUETOOTH_HCI_H4_WITH_PHDR:
+            printf("DLT_BLUETOOTH_HCI_H4_WITH_PHDR\n");
+            DATALINK_SIZE = HCI_H4_HDR_LEN;
+            parse_bluetooth_packet(buffer, size);
+            break;
+            
+			// Many wireless protocols are based on this norm        
+        case DLT_IEEE802_11:
+            printf("IEEE802 11 (not implemented yet )\n");
+            DATALINK_SIZE = 0;
+            break;
 
-        (*(results + i)).value = (unsigned char*)(data + (*parsed_len) + 3);
-        for(j = 0; j < len; j++){
-            printf("TLV: Value = 0x%02x", data[(*parsed_len) + 3 + j]);
-        }
+        // IPMB/IPMI Layer 2 protocol (Not Implemented Yet)
+        case DLT_IPMB_LINUX:
+            printf("IPMB/IPMI\n");
+            DATALINK_SIZE = IPMB_HDR_LEN;
+            print_linux_ipmb_pseudo_header(buffer, size);
+            break;
 
-        /* option is complete */
-        (*(results + i)).used = 1;
+        default:
+            printf("ERROR: Unknown Datalink type or Datalink type is not implemented yet\n");
+            exit(EXIT_FAILURE);
     }
 
-    if(!end_found){
-        printf("ERROR :TLV option 'END' not found\n");
-        return -1;
+    return;
+
+}
+
+/*********************************************** BLUETOOTH PROTOCOLS ***********************************************/
+
+// function which processes each HCI H4 packets (family of Bluetoooth protocols) and manages encapsulation with some other
+// ones lile L2CAP, NBEP, ATT and OBEX
+
+void parse_bluetooth_packet(unsigned char* buffer, int size){
+
+    // We ureceive the packets with 3 bytes of padding or reserved, so we skip them to get the real offset of packet
+    buffer += HCI_H4_PRE_HEADER_LENGTH;
+    size -= HCI_H4_PRE_HEADER_LENGTH;
+    
+    // Printing the minimalist HCI H4 pseudo header
+    print_hci_h4_header(buffer);
+
+    // And we get the type of packet to perform them the dissection
+    uint8_t hci_h4_type = *((uint8_t*)(buffer + 1));
+
+    if (hci_h4_type == HCI_H4_TYPE_COMMAND){
+        parse_hci_h4_command_type(buffer, size);
+    } 
+
+    else if (hci_h4_type == HCI_H4_TYPE_EVENT){
+        parse_hci_h4_event_type(buffer, size);
     }
 
-    return 1;
+    else if (hci_h4_type == HCI_H4_TYPE_ACL_DATA){
+        parse_acl_packet(buffer, size);
+    }
+
+    else{
+        printf("\nUnknown or HCI_H4 SCO Packet : %x\n", hci_h4_type);
+        print_char_to_hex(buffer, 0, size);
+    }
 
 }
 
 
 // parsing the elemental hci h4 header (work in progress)
 
-void print_hci_h4_header(unsigned char* buffer, int size){
+void print_hci_h4_header(unsigned char* buffer){
+
+    // Printing the basic HCI_H4 Header
 
     hci_h4_header* hcih4_hdr = (hci_h4_header*)buffer;
 
     printf("\nHCI_H4 Header\n\n");
-    printf("   |-Direction          : %x\n", hcih4_hdr->dir);
-
-    printf("   |-Type               : %x\t");
+    printf("   |-Direction           : %x\n", hcih4_hdr->dir);
+    printf("   |-Type                : %x\t", hcih4_hdr->type);
     parse_hci_h4_type_field(hcih4_hdr->type);
 
-    if (hcih4_hdr->type == 4){
+}
 
-        printf("   |-Event Code          : %x\t", hcih4_hdr->event_code);
-        parse_hci_h4_event_code_field(hcih4_hdr->event_code);
+
+// function which prints and parse the ACL (Asynchronous Connections Less Link) packets
+
+void parse_acl_packet(unsigned char* buffer, int size){
+
+    // We extract in the first time the ACL Header to print it
+    l2cap_header* l2cap_hdr = (l2cap_header*)(buffer + HCI_H4_HDR_LEN + sizeof(acl_packet_header));
+
+    int offset = HCI_H4_HDR_LEN + sizeof(acl_packet_header) + sizeof(l2cap_header);
+
+    print_acl_packet_header(buffer);
+
+    printf("\nL2CAP Header\n\n");
+    printf("   |-length             : %x\n", ntohs(l2cap_hdr->length));
+    printf("   |-CID                : %x\n", ntohs(l2cap_hdr->cid));
+
+    // And we dispach the packet payload according to the header fields
+
+    if (ntohs(l2cap_hdr->cid) == L2CAP_CID_SIGNALING_CHANNEL){
+
+        printf("   |-Commande Information          : %x\n", ntohs(*((uint16_t*)(buffer + offset))));
+        printf("   |-Command Identifier            : %x\n", *((uint8_t*)(buffer + offset + 2)));
+        printf("   |-Commande Length               : %x\n", ntohs(*((uint16_t*)(buffer + offset + 3))));
+        printf("   |-Information Type              : %x\n", ntohs(*((uint16_t*)(buffer + offset + 5))));
     }
 
+    else if (ntohs(l2cap_hdr->cid) == L2CAP_CID_RESERVED){
+        printf("L2CAP CID Reserved\n");
+        print_char_to_hex(buffer, offset, size);
+    }
+
+    else{
+        printf("\nUnknown CID or Not implemented Yet\n");        
+        print_char_to_hex(buffer, offset, size);
+    }
+
+}
+
+// Displaying the HCI_H4 Command Complete Packet
+
+void print_hci_h4_command_complete_header(unsigned char* buffer){
+
+    hci_h4_command_complete_header* cmphdr = (hci_h4_command_complete_header*)(buffer + HCI_H4_HDR_LEN);
+
+    printf("   |-Event Code         : %x\n", cmphdr->event_code);
+    printf("   |-Param Length       : %x\n", cmphdr->param_len);
+    printf("   |-Allowed packages   : %x\n", cmphdr->allowed_cmd_packets);
+    printf("   |-command Opcode     : %x\n", ntohs(cmphdr->command_opcode)); 
+    printf("   |-Status             : %x\n", cmphdr->status);   
 
 }
 
 
-// processing layer 2 by datalink type (in progress)
+// Displaying the HCI_H4 Remote Name Request Packet
 
-void process_layer2_packet(unsigned char* buffer, int size, int datalink_s){
+void print_hci_h4_rem_name_request(unsigned char* buffer){
 
-    // function pointer to print correct datalink header
+    hci_h4_rem_name_req* rem_request = (hci_h4_rem_name_req*)(buffer + HCI_H4_HDR_LEN);
 
-    void (*print_datalink_header)(unsigned char*, int);
+    printf("   |-Param Length       : %x\n", rem_request->param_len);
+    printf("   |-status             : %x\n", rem_request->status);
+    printf("   |-Device MAC         : %02X-%02X-%02X-%02X-%02X-%02X\\n", rem_request->src_addr[0] , rem_request->src_addr[1] , rem_request->src_addr[2], 
+        rem_request->src_addr[3], rem_request->src_addr[4] , rem_request->src_addr[5]);
 
-    // ethernet protocol
-    uint16_t proto = 0;
+    printf("   |-Device Name        : %s\n", rem_request->remote_name);
 
-    // parsing datalink type
-
-    // liinux SLL = Ethernet frame with a little bit different header
-
-    if (datalink_s == SLL_HDR_LEN){
-
-        sll_header* sllhdr = (sll_header*)buffer;
-        print_datalink_header = &print_linux_sll_header;
-        proto = ntohs(sllhdr->sll_protocol);
-    }
-
-    // Pure ethernet frame
-
-    else if (datalink_s == ETH2_HEADER_LEN){
-
-        struct ethhdr *eth = (struct ethhdr *)buffer;
-        print_datalink_header = &print_ethernet_header;
-        proto = ntohs(eth->h_proto);
-    }
-
-    
-    // bluetooth HCI H4 packet
-
-    else if (datalink_s == HCI_H4_HDR_LEN){
-
-        print_datalink_header = &print_hci_h4_header;
-    }
-
-    
-    // IPMB Packet 
-
-    else if (datalink_s == IPMB_HDR_LEN){
-
-        print_datalink_header = &print_linux_ipmb_pseudo_header;
-    }
-
-
-    // Not implemented yet
-
-    else{
-
-        printf("\nUnknown datalink type !\n");
-        print_datalink_header = &print_data;
-    }
-
-    DATALINK_SIZE = datalink_s;
-
-    if (proto != 0){
-
-        process_frame(buffer, size, proto, print_datalink_header);
-    }
-
-    else{
-
-        print_datalink_header(buffer, size);
-        printf("\n\nRaw Data\n");
-        print_data(buffer, size);
-    }
 }
 
-// processing ethernet frame by ethertype
+// parsing and printing the L2CAP Header
+
+void print_acl_packet_header(unsigned char* buffer){
+    
+    acl_packet_header* aclhdr = (acl_packet_header*)(buffer + HCI_H4_HDR_LEN);
+    
+    printf("\n\nACL Packet Header\n");
+    printf("   |-Connexion Handle        : %x\n", aclhdr->connexion_handle);
+    printf("   |-PB Flag                 : %x\n", aclhdr->pb_flag);
+    printf("   |-BC Flag                 : %x\n", aclhdr->bc_flag);
+    printf("   |-Data Length             : %x\n", ntohs(aclhdr->data_len));
+
+}
+
+void print_attribute_protocol_packet(unsigned char* buffer){
+
+    int offset = HCI_H4_HDR_LEN + sizeof(acl_packet_header) + sizeof(l2cap_header);
+
+    uint16_t opcode = ntohs(*((uint16_t*)(buffer + offset)));
+    uint16_t length = ntohs(*((uint16_t*)(buffer + offset + 2)));
+    
+    printf("\n\nBLUETOOTH Attribute Protocol Packet\n");
+    printf("   |-Opcode           : %x\n", opcode);
+    printf("   |-Length           : %x\n", length);
+
+}
+
+
+
+/*********************************************** ETHERNET PROTOCOLS ***********************************************/
+
+// Processing ethernet frame by ethertype
 
 void process_frame(unsigned char* buffer, int size, uint16_t proto, void (*print_datalink_header)(unsigned char*, int)){
 
@@ -278,7 +282,7 @@ void process_frame(unsigned char* buffer, int size, uint16_t proto, void (*print
         case ETHERTYPE_IEEE1905_1:
             printf("\nETHERTYPE_IEEE1905_1 frame there!\n");
             print_datalink_header(buffer, size);
-            print_ieee_1905_header(buffer, size);
+            print_ieee_1905_header(buffer);
             break;
 
         case ETHERTYPE_HOMEPLUG:
@@ -328,19 +332,15 @@ void process_frame(unsigned char* buffer, int size, uint16_t proto, void (*print
             print_datalink_header(buffer, size);
             break;
 
-        // IPX Novell protocol
-        case ETHERTYPE_IPX_NOVELL:
-            printf("\nIPX frame there!\n");
-            print_datalink_header(buffer, size);
-            print_ipx_header(buffer, size);
-            break;
-
         default:
             printf("\n********* UNKNOWN frame there! **********\n");
             print_datalink_header(buffer, size);
             print_data(buffer, size);
     }
 }
+
+
+/*********************************************** OSI LAYER 2 PROTOCOLS ***********************************************/
 
 // process ip packet by its protocol number
 
@@ -352,19 +352,19 @@ void process_ip_packet(unsigned char* buffer, int size){
 
     switch (iph->protocol)
     {
-        case IPV4_ICMP:  //ICMP Protocol
+        case IPV4_ICMP: 
             print_icmp_packet(buffer , size);
             break;
         
-        case IPV4_IGMP:  //IGMP Protocol
+        case IPV4_IGMP: 
             print_igmp_header(buffer, size);
             break;
         
-        case IPV4_TCP:  //TCP Protocol
+        case IPV4_TCP:
             print_tcp_packet(buffer , size);
             break;
         
-        case IPV4_UDP: //UDP Protocol
+        case IPV4_UDP: 
             print_udp_packet(buffer , size);
             break;
 
@@ -372,33 +372,38 @@ void process_ip_packet(unsigned char* buffer, int size){
             printf("EIGRP Packet (TO DO)\n");
             break;
 
-        case IPV4_SCTP: //SCTP Protocol
-            print_sctp_header(buffer , size);
+        case IPV4_SCTP:
+            print_sctp_header(buffer);
             break;
         
-        default: //Some Other Protocol like ARP etc.
+        default:
             printf("\nUnknown IP Packet there : %x\n", iph->protocol);
             print_data(buffer, size);
     }
 }
 
 
-// printing ethernet header
+// Printing Ethernet Header
 
-void print_ethernet_header(unsigned char* buffer, int size){
+void print_ethernet_header(unsigned char* buffer){
 
     struct ethhdr *eth = (struct ethhdr *)buffer;
     
     printf("\nEthernet Header\n\n");
-    printf("   |-Destination Address : %.2X-%.2X-%.2X-%.2X-%.2X-%.2X \n", eth->h_dest[0] , eth->h_dest[1] , eth->h_dest[2] , eth->h_dest[3] , eth->h_dest[4] , eth->h_dest[5] );
-    printf("   |-Source Address      : %.2X-%.2X-%.2X-%.2X-%.2X-%.2X \n", eth->h_source[0] , eth->h_source[1] , eth->h_source[2] , eth->h_source[3] , eth->h_source[4] , eth->h_source[5] );
-    printf("   |-Protocol            : %x\n", ntohs(eth->h_proto));
+    printf("   |-Destination Address    : %02X-%02X-%02X-%02X-%02X-%02X\n", eth->h_dest[0] , eth->h_dest[1] , eth->h_dest[2] , 
+        eth->h_dest[3] , eth->h_dest[4] , eth->h_dest[5]);
+
+    printf("   |-Source Address         : %02X-%02X-%02X-%02X-%02X-%02X\n", eth->h_source[0] , eth->h_source[1] , 
+        eth->h_source[2] , eth->h_source[3] , eth->h_source[4] , eth->h_source[5]);
+
+    printf("   |-Protocol               : %x\n", ntohs(eth->h_proto));
+
 }
 
 
-// printing linux SLL header
+// Printing linux SLL header
 
-void print_linux_sll_header(unsigned char* buffer, int size){
+void print_linux_sll_header(unsigned char* buffer){
 
     sll_header* sllhdr = (sll_header*)buffer;
     
@@ -409,14 +414,15 @@ void print_linux_sll_header(unsigned char* buffer, int size){
     printf("   |-Link Type              : %x\n", ntohs(sllhdr->sll_hatype));
     printf("   |-Link Address Length    : %x\n", ntohs(sllhdr->sll_halen));
 
-    // printing the datalink address
+    // Printing the datalink address
     printf("   |-Link Address           : ");
+
     unsigned short i = 0;
     while(i < SLL_ADDRLEN){
         (i < SLL_ADDRLEN - 1) ? printf("%02X-", sllhdr->sll_addr[i]) : printf("%02X", sllhdr->sll_addr[i]);
         i++;
     }
-    printf("\n   |-Protocol               : %x\n", ntohs(sllhdr->sll_protocol));
+    printf("\n   |-Protocol             : %x\n", ntohs(sllhdr->sll_protocol));
 
 }
 
@@ -427,7 +433,7 @@ void print_linux_ipmb_pseudo_header(unsigned char* buffer, int size){
 
     printf("\nLinux IMPB over I2C Header\n\n");
     printf("   |-Bus Number         : %x\t", ipmbhdr->bus_number);
-    printf("   |-Type               : %x\n", (ipmbhdr->type & 0x1) ? "Regular" : "Event");
+    printf("   |-Type               : %x\t%s\n", ipmbhdr->type, (ipmbhdr->type & 0x1) ? "Regular" : "Event");
 
     printf("   |-Flags              : %x\t", ntohl(ipmbhdr->flags));
     parse_linux_ipmb_flags_field(ntohl(ipmbhdr->flags));
@@ -436,6 +442,8 @@ void print_linux_ipmb_pseudo_header(unsigned char* buffer, int size){
 
 }
 
+
+/*********************************************** OSI LAYER 3 PROTOCOLS ***********************************************/
 
 void print_arp_header(unsigned char* buffer){
 
@@ -458,6 +466,7 @@ void print_arp_header(unsigned char* buffer){
 void print_homeplug_av_header(unsigned char* buffer){
 
     uint16_t type;
+
     homeplug_av_header* home_av_hdr = (homeplug_av_header*)(buffer + DATALINK_SIZE);
 
     // getting type from unsigned short
@@ -465,14 +474,18 @@ void print_homeplug_av_header(unsigned char* buffer){
 
     printf("\nHomeplug AV Header\n");
 
-    printf("   |-Protocol  : %x\n", home_av_hdr->protocol);
+    printf("   |-Protocol         : %x\n", home_av_hdr->protocol);
     //parse_homeplug_av_version_field(home_av_hdr->protocol);
-    printf("   |-Type      : %x\t", type);
+
+    printf("   |-Type            : %x\t", type);
     parse_homeplug_av_type_field(type);
 
-    printf("   |-Frag     : %x\n", home_av_hdr->frag);
+    printf("   |-Frag           : %x\n", home_av_hdr->frag);
 
 }
+
+
+/* Some protocols here used to manage Zeroconf (only basic network-tools) */ 
 
 void print_homeplug_header(unsigned char* buffer){
 
@@ -482,10 +495,11 @@ void print_homeplug_header(unsigned char* buffer){
     printf("   |-Control Field    : %x\n", home_hdr->ctrl_field);
     printf("   |-MAC Entry        : %x\n", home_hdr->mac_entry);
     printf("   |-Entry Length     : %x\n", home_hdr->entry_length);
-    printf("   |-Vendor Specific  : %02x%02X%02X\t", home_hdr->spe_vendor[0], home_hdr->spe_vendor[1],home_hdr->spe_vendor[2]);
+    printf("   |-Vendor Specific  : %02x%02X%02X\n", home_hdr->spe_vendor[0], home_hdr->spe_vendor[1],home_hdr->spe_vendor[2]);
 }
 
-void print_ieee_1905_header(unsigned char* buffer, int size){
+
+void print_ieee_1905_header(unsigned char* buffer){
 
     ieee_1905_header* ieee_hdr = (ieee_1905_header*)(buffer + DATALINK_SIZE);
 
@@ -497,25 +511,20 @@ void print_ieee_1905_header(unsigned char* buffer, int size){
     /* TODO : parse TLV */  
 }
 
+
 void print_vlan_ieee8021q_header(unsigned char* buffer, int size){
 
     vlan_ieee8021q_header* vlan_hdr = (vlan_ieee8021q_header*)(buffer + DATALINK_SIZE);
 
     printf("\nIEEE_8021Q VLAN Header\n\n");
-    printf("   |-Priority       : %x\t", vlan_hdr->priority);
+    printf("   |-Priority       : %x\t%s\n", vlan_hdr->priority, (vlan_hdr->priority == 0) ? "(Best Effort)" : "(Normal)");
 
-    // parsing vlan priority 
-    if (vlan_hdr->priority == 0)
-        printf("(Best effort)\n");
-    else
-        printf("(Normal)\n");
-
-    // parsing DEI field
-    printf("   |-DEI            : %x\t", vlan_hdr->dei);
-    (vlan_hdr->dei & 0x1 == 0) ? printf("(Ineligible)\n") : printf("(Eligible)\n");
-
+    // Parsing DEI field
+    printf("   |-DEI            : %x\t%s\n", vlan_hdr->dei, ((vlan_hdr->dei & 0x1 ) == 0) ? "(Ineligible)" : "(Eligible)");
     printf("   |-ID             : %x\n", vlan_hdr->id);
     printf("   |-Type           : %x\n", ntohs(vlan_hdr->type));
+
+    // Parsing the VLAN Type to process correctly the protocol(s) encapsulated in the VLAN frame
 
     switch(ntohs(vlan_hdr->type)){
 
@@ -540,6 +549,9 @@ void print_vlan_ieee8021q_header(unsigned char* buffer, int size){
     }
 }
 
+
+// Basic Dissector Function Packets for LLTD
+
 void print_lltd_header(unsigned char* buffer){
 
     lltd_header* lltd_hdr = (lltd_header*)(buffer + DATALINK_SIZE);
@@ -548,14 +560,17 @@ void print_lltd_header(unsigned char* buffer){
     printf("   |-Version               : %x\n", lltd_hdr->version);
     printf("   |-Service Type          : %x\t", lltd_hdr->service_type);
     parse_lltd_service_type_field(lltd_hdr->service_type);
+
     printf("   |-Reserved              : %x\n", lltd_hdr->reserved);
     printf("   |-Function              : %x\t", lltd_hdr->function);
     parse_lltd_function_field(lltd_hdr->function);
+
     printf("   |-Real Dest MAC Address : %.2X-%.2X-%.2X-%.2X-%.2X-%.2X\n",lltd_hdr->real_dest[0],lltd_hdr->real_dest[1],
         lltd_hdr->real_dest[2],lltd_hdr->real_dest[3],lltd_hdr->real_dest[4],lltd_hdr->real_dest[5]);
     printf("   |-Real Src MAC Address  : %.2X-%.2X-%.2X-%.2X-%.2X-%.2X\n",lltd_hdr->real_src[0],lltd_hdr->real_src[1],
         lltd_hdr->real_src[2],lltd_hdr->real_src[3],lltd_hdr->real_src[4],lltd_hdr->real_src[5]);
 }
+
 
 void print_profinet_dcp_header(unsigned char* buffer){
 
@@ -574,22 +589,12 @@ void print_profinet_dcp_header(unsigned char* buffer){
 }
 
 
-void print_ipx_header(unsigned char* buffer, int size){
-
-    sockaddr_ipx* ipxhdr = (sockaddr_ipx*)(buffer + DATALINK_SIZE);
-
-    printf("\nIPX Header\n\n");
-    printf("   |-Family             : %x\n", ntohs(ipxhdr->ipx_family));
-    printf("   |-Port               : %x\n", ntohs(ipxhdr->ipx_port));
-    printf("   |-Network            : %x\n", __my_swab32(ipxhdr->ipx_network));
-    printf("   |-Type               : %x\n", ipxhdr->ipx_type);
-    printf("   |-Zero               : %x\n", ipxhdr->ipx_zero);
-
-}
 
 void print_igmp_header(unsigned char* buffer, int size){
 
+    
     unsigned short iphdrlen;
+
     struct iphdr *iph = (struct iphdr *)(buffer  + DATALINK_SIZE);
     iphdrlen = iph->ihl*4;
 
@@ -597,28 +602,26 @@ void print_igmp_header(unsigned char* buffer, int size){
 
     printf("\n\n***********************IGMP Packet*************************\n"); 
 
-    print_ip_header(buffer,size);
+    print_ip_header(buffer, size);
 
     printf("\nIGMP Header\n");
 
-    printf("   |-Type      : %x\t", ighdr->igmp_type);
+    printf("   |-Type            : %x\t", ighdr->igmp_type);
     parse_igmp_message_type_field(ighdr->igmp_type);
 
-    printf("\n   |-Code      : %x\n", ighdr->igmp_code);
-    printf("   |-Checksum  : %x\n", ntohs(ighdr->igmp_cksum));
-    printf("   |-Group     : %x\n", inet_ntoa(ighdr->igmp_group));
+    printf("\n   |-Code            : %x\n", ighdr->igmp_code);
+    printf("   |-Checksum        : %x\n", ntohs(ighdr->igmp_cksum));
+    printf("   |-Group           : %x\n", inet_ntoa(ighdr->igmp_group));
 
 
 }
 
+
 void print_ip_header(unsigned char* buffer, int size){
 
     struct sockaddr_in source,dest;
-  
-    unsigned short iphdrlen;
         
     struct iphdr *iph = (struct iphdr *)(buffer + DATALINK_SIZE);
-    iphdrlen =iph->ihl*4;
     
     memset(&source, 0, sizeof(source));
     source.sin_addr.s_addr = iph->saddr;
@@ -643,7 +646,6 @@ void print_ip_header(unsigned char* buffer, int size){
 /* print ip6 header */
 
 void print_ip6_header(unsigned char* buffer, int size){
-
 
     char addrstr[INET6_ADDRSTRLEN];
 
@@ -694,7 +696,7 @@ void print_ip6_header(unsigned char* buffer, int size){
 
 // display SCTP Header
 
-void print_sctp_header(unsigned char* buffer, int size){
+void print_sctp_header(unsigned char* buffer){
 
     sctp_header* sctphdr = (sctp_header*)(buffer + DATALINK_SIZE);
 
@@ -753,10 +755,10 @@ void print_tcp_packet(unsigned char* buffer, int size){
     printf("Data Payload\n");    
     print_data(buffer+header_size, size-header_size);
                         
-    printf("\n###########################################################\n");
 }
 
-void print_dns_packet(unsigned char* buffer, int size){
+
+void print_dns_packet(unsigned char* buffer){
     
     struct iphdr *iph = (struct iphdr *)(buffer  + DATALINK_SIZE);
 
@@ -764,8 +766,6 @@ void print_dns_packet(unsigned char* buffer, int size){
     unsigned short iphdrlen = iph->ihl * 4;
     
     dns_header *dndh = (dns_header*)(buffer + iphdrlen + DATALINK_SIZE + sizeof(struct udphdr));
-                
-    printf("\n\n***********************DNS Packet*************************\n");  
         
     printf("\nDNS Header\n\n");
 
@@ -777,15 +777,22 @@ void print_dns_packet(unsigned char* buffer, int size){
     printf("   |-R code         : %x\t",dndh->rcode);
     parse_dns_rcode_field(dndh->rcode);
 
-    printf("   |-Q count        : %x\n",ntohs(dndh->q_count));
-    printf("   |-Answer         : %x\n",ntohs(dndh->ans_count));
-    printf("   |-Auth count     : %x\n",ntohs(dndh->auth_count));
-    printf("   |-Additional     : %x\n",ntohs(dndh->add_count));
+    printf("   |-Q count        : %x\n", ntohs(dndh->q_count));
+    printf("   |-Answer         : %x\n", ntohs(dndh->ans_count));
+    printf("   |-Auth count     : %x\n", ntohs(dndh->auth_count));
+    printf("   |-Additional     : %x\n", ntohs(dndh->add_count));
 
-    printf("\n###########################################################\n");
 }
 
-void print_nbns_header(unsigned char* buffer, int size){
+void parse_ip_protocol_number(uint8_t ip_protocol_number){
+
+    switch(ip_protocol_number){
+
+
+    }
+}
+
+void print_nbns_header(unsigned char* buffer){
     
     struct iphdr *iph = (struct iphdr *)(buffer + DATALINK_SIZE);
 
@@ -806,7 +813,6 @@ void print_nbns_header(unsigned char* buffer, int size){
     printf("   |-Auth RR        : %x\n",ntohs(nbns_hdr->auth_rr));
     printf("   |-Additional RR  : %x\n",ntohs(nbns_hdr->adds_rr));
 
-    printf("\n###########################################################\n");
 }
 
 void print_udp_packet(unsigned char *buffer , int size){
@@ -836,9 +842,9 @@ void print_udp_packet(unsigned char *buffer , int size){
     // let's manage dns, mdns and nbns packages
     
     if (ntohs(udph->dest) == DNS_PORT || ntohs(udph->dest) == MDNS_PORT) 
-        print_dns_packet(buffer, size);
+        print_dns_packet(buffer);
     else if(ntohs(udph->dest) == NBNS_PORT)
-        print_nbns_header(buffer, size);
+        print_nbns_header(buffer);
     
     printf("\n");
     printf("IP Header\n");
@@ -850,9 +856,8 @@ void print_udp_packet(unsigned char *buffer , int size){
     printf("Data Payload\n");    
     
     //Move the pointer ahead and reduce the size of string
-    print_data(buffer+header_size, size-header_size);
+    print_data(buffer + header_size, size - header_size);
     
-    printf("\n###########################################################\n");
 }
 
 void print_icmp_packet(unsigned char* buffer , int size){
@@ -873,12 +878,12 @@ void print_icmp_packet(unsigned char* buffer , int size){
     printf("\n\nICMP Header\n");
     printf("   |-Type :          : %x\t", icmph->type);
     parse_icmp_type_field(icmph->type);
-    printf("   |-Code          : %x\n", icmph->code);
-    printf("   |-Checksum      : %x\n", ntohs(icmph->checksum));
-    printf("   |-ID            : %x\n", ntohs(icmph->un.echo.id));
-    printf("   |-Sequence      : %x\n", ntohs(icmph->un.echo.sequence));
-    printf("   |-Gateway       : %lu\n", icmph->un.gateway);
-    printf("   |-Mysterious    : %x\n", ntohs(icmph->un.frag.__unused));
+    printf("   |-Code            : %x\n", icmph->code);
+    printf("   |-Checksum        : %x\n", ntohs(icmph->checksum));
+    printf("   |-ID              : %x\n", ntohs(icmph->un.echo.id));
+    printf("   |-Sequence        : %x\n", ntohs(icmph->un.echo.sequence));
+    printf("   |-Gateway         : %x\n", icmph->un.gateway);
+    printf("   |-Mysterious      : %x\n", ntohs(icmph->un.frag.__unused));
     printf("\n");
     printf("                        DATA Dump                         ");
     printf("\n");
@@ -890,12 +895,14 @@ void print_icmp_packet(unsigned char* buffer , int size){
     print_data(buffer + iphdrlen , sizeof(icmph));
         
     printf("Data Payload\n");    
-    print_data(buffer + header_size, size-header_size);
-    
-    printf("\n###########################################################\n");
+    print_data(buffer + header_size, size - header_size);
+
 }
 
-/* print icmp6 packet */
+/* 
+Dissector in progress to game etc... 
+The use of ICMPv6 as NDP Protocol is not yet immplemented but , there will be a niew version
+*/
 
 void print_icmpv6_packet(unsigned char* buffer, int offset, int size){
 
@@ -923,6 +930,7 @@ void print_icmpv6_packet(unsigned char* buffer, int offset, int size){
             icmp6->target_mac[3] , icmp6->target_mac[4] , icmp6->target_mac[5]);
 
     }
+
     else{
 
         icmp6_header *icmp6 = (icmp6_header*)(buffer + offset);
@@ -955,35 +963,126 @@ void print_icmpv6_packet(unsigned char* buffer, int offset, int size){
     printf("Data Payload\n");    
     print_data(buffer + header_size, size - header_size);
     
-    printf("\n###########################################################\n");
 }
 
 
-// just a function to print interfaces list 
+/* 
+This function is usefull to display all interfaces available on the pc
+[In Progress] : New registered (and so existing values), will be add soon
+If the verbose_mode variable is set, the function displayq device flags as plein text for each device
+An Update will come soon to allow PCI devices discover too and a D-Bus monitor will be implemented
+*/
 
-int print_itf_list(){
+int print_devices_list(uint8_t verbose_mode){
 
     pcap_if_t *first_if;
     pcap_if_t *cur_if;
+    char* plein_text_flags;
     
     char errbuf[PCAP_ERRBUF_SIZE];
 
-    if (pcap_findalldevs(&first_if, errbuf) < 0) {
-        fprintf(stderr, "pcap_findalldevs: %s\n", errbuf);
-        return EXIT_FAILURE;
+    if (pcap_findalldevs(&first_if, errbuf) < 0){
+
+        fprintf(stderr, "ERROR pcap_findalldevs init error: %s\n", errbuf);
+        return -1;
     }
+    
 
     for (cur_if = first_if ; cur_if ; cur_if = cur_if->next){
 
-        printf("name = %s\t, description = %s\t, flags = %x\n", cur_if->name, cur_if->description, cur_if->flags);
+        printf("Name : %s\t| Description : %s\t| Flags : %x\n", cur_if->name, cur_if->description, cur_if->flags);
+        
+		// if thr verbose mode is set ip, the function displays flags as plein text
 
+        if (verbose_mode){
+
+            plein_text_flags = get_readable_device_flags(cur_if->flags);
+
+            if (plein_text_flags == NULL){
+                fprintf(stderr, "ERROR : Couldn't display the device flags as plein text\n");
+                pcap_freealldevs(first_if);
+                return -1;                
+            }
+
+            else{
+                printf("Flags : %s\n", plein_text_flags);
+            }
+
+            free(plein_text_flags);
+        }
     }  
 
     pcap_freealldevs(first_if);
 
+    return 0;
+
 }
 
-// selecting the first device available on the machine
+
+/*
+function that that takes in input an uint32_t as flags, and return from raw flags a plein text flags
+return NULL if an error occured or a char pointer to the string
+*/
+
+char* get_readable_device_flags(int device_flags){
+
+    const char* flags[] = {"LOOPBACK, ", "UP, ", "RUNNING, ", "WIRELESS, ", "STATUS_CONNECTED, ""STATUS_NOT_AVAILABLE, ",  "STATUS_UNKNOWN, ", "STATUS_NOT_APPLICABLE, "};
+
+    int index = 0;
+    char* readable_flags = malloc(sizeof(char) * READABLE_DEVICE_FLAGS_LENGTH);
+    
+    // malloc() fail ? return the NULL pointer
+
+    if (readable_flags == NULL){
+        fprintf(stderr, "ERROR : Memmory allocation failed for the device flags. Please retry with Valgrind\n");
+        return readable_flags;
+    }
+    
+    //  Let's check the status of the device 
+
+	if ((device_flags & PCAP_IF_CONNECTION_STATUS_CONNECTED) != 0){
+        memcpy(readable_flags + index, flags[5], strlen(flags[5]));
+        index += strlen(flags[5]);
+    }
+
+    else { 
+        memcpy(readable_flags + index, flags[6], strlen(flags[6]));
+        index += strlen(flags[6]);
+    }
+    
+    // applying all flags to  build a string instead of bitmasks
+
+    if ((device_flags & PCAP_IF_LOOPBACK) != 0){
+        memcpy(readable_flags, flags[0], strlen(flags[0]));
+        index += strlen(flags[0]);
+    }
+
+    if ((device_flags & PCAP_IF_UP) != 0){
+        memcpy(readable_flags + index, flags[1], strlen(flags[1]));
+        index += strlen(flags[1]);
+    }
+
+    if ((device_flags & PCAP_IF_RUNNING) != 0){
+        memcpy(readable_flags + index, flags[2], strlen(flags[2]));
+        index += strlen(flags[2]);
+    }
+
+    if ((device_flags & PCAP_IF_WIRELESS) != 0){
+        memcpy(readable_flags + index, flags[3], strlen(flags[3]));
+        index += strlen(flags[3]);
+    }
+
+    *(readable_flags + index - 2) = '\0';
+
+    return readable_flags;
+
+}
+
+
+/* 
+selecting the first device available on the machine (used only if no device was provided
+return  value : -1 in failure (no device available) or 0 if success
+*/
 
 int get_random_device(char* device){
 
@@ -998,10 +1097,13 @@ int get_random_device(char* device){
 
     strncpy(device, first_if->name, IFNAMSIZ -1);
 
-    return 1;
+    pcap_freealldevs(first_if);
+
+    return 0;
 }
 
-// print raw data in ASCII and hex values 
+
+// print raw data in ASCII and hex values to get a basic but clear first aspect of the packet itself
 
 void print_data(unsigned char* data , int size){
 
@@ -1050,6 +1152,9 @@ void print_data(unsigned char* data , int size){
     }
 }
 
+
+// An other function that doeas the same thing  
+
 void print_hex_ascii_line(const u_char *payload, int len, int offset){
 
     int i;
@@ -1096,7 +1201,10 @@ void print_hex_ascii_line(const u_char *payload, int len, int offset){
 
 }
 
-// print current time of the capture for each frame
+/* 
+Printing current time of the capture for each frame to in the end , get the most infos as possible
+Usefull to do post traitment of the logs with AWK, Perl or Python
+*/
 
 void print_current_time(){
 
@@ -1104,4 +1212,27 @@ void print_current_time(){
     struct tm *tm_struct = localtime(&now);
     printf("\n[LOCAL TIME %02d:%02d:%02d]", tm_struct->tm_hour , tm_struct->tm_min , tm_struct->tm_sec);
 
+}
+
+
+/*
+Printing a buffer of bytes from specified offset
+Usefull th extract non fixed size strings in the middle of of payload
+*/
+
+void print_char_to_hex(unsigned char* buffer, int offset, int size){
+
+    int i = offset;
+
+    while(i < size){
+
+        // insert a line feed every 32 bytes to get a cleaner display
+        if (i % 32 == 0)
+            printf("\n");
+
+        printf("%02X", *(buffer + i));
+        ++i;
+    }
+
+    printf("\n");
 }
