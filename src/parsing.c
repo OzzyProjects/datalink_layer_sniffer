@@ -3,8 +3,168 @@
 #include "sock_utils.h"
 #include "parsing.h"
 
-/************************************* IN PROGRESS *************************************/
+/************************************* BLUETOOTH **************************************/
 
+// Parsing and Displaying HCI_H4 Command Type Packets
+
+void parse_hci_h4_command_type(unsigned char* real_header, int size){
+
+	
+	// We need to get the command opcode to parse thne packet
+	uint16_t opcode = __my_swab16(*((uint16_t*)(real_header + 2)));
+
+	switch(opcode){
+
+		// Command Complete Packet
+
+        case HCI_H4_EVENT_COMMAND_COMPLETE:
+
+        	print_hci_h4_command_complete_header(real_header);
+        	break;
+
+
+        case HCI_H4_COMMAND_CREATE_CONNEXION:
+
+            printf("   |-Command Opcode (Create Connexion)  : %x\n", opcode);
+            printf("   |-Param Length                       : %x\n", *((uint8_t*)(real_header + 4)));
+            printf("   |-Device MAC                         : %02X-%02X-%02X-%02X-%02X-%02X\n", *((uint8_t*)(real_header + 5)), *((uint8_t*)(real_header + 6)) , *((uint8_t*)(real_header + 7)), 
+                *((uint8_t*)(real_header + 8)), *((uint8_t*)(real_header + 9)), *((uint8_t*)(real_header + 10)));
+
+            printf("   |-Page Scan Mode                     : %x\n", *((uint8_t*)(real_header + 11)));
+            printf("   |-Packet Type                        : %x\n", ntohs(*((uint16_t*)(real_header + 12))));
+            printf("   |-Clock Offset                       : %x\n", ntohs(*((uint16_t*)(real_header + 14)) >> 15) & 0x1);
+            break;
+
+        case HCI_H4_COMMAND_LINK_KEY_REQUUEST_REPLY:
+
+            printf("   |-Command Opcode (Link Key Reply)  : %x\n", opcode);
+            printf("   |-Param Length                     : %x\n", (uint8_t)(*(real_header + 4)));            
+            printf("   |-Device MAC                       : %02X-%02X-%02X-%02X-%02X-%02X\n", (uint8_t)(*(real_header + 5)), (uint8_t)(*(real_header + 6)), (uint8_t)(*(real_header + 7)), 
+                (uint8_t)(*(real_header + 8)), (uint8_t)(*(real_header + 9)), (uint8_t)(*(real_header + 10)));
+
+            printf("   |-Link Key                         : ");
+            print_char_to_hex(real_header, 11, size - 11);
+            break;
+
+        case HCI_H4_COMMAND_READ_REMOTE_EXTENDED_FEATURES:
+
+			printf("   |-Command Opcode (Read Remote Extended Features)  	: %x\n", opcode);
+            printf("   |-Param Length                                       : %x\n", *((uint8_t*)(real_header + 4)));
+            printf("   |-Connexion Handle                                   : %x\n", ntohs(*((uint16_t*)(real_header + 5))));
+            printf("   |-Page Number                                        : %x\n", *((uint8_t*)(real_header + 7)));
+            break;
+
+        case HCI_H4_COMMAND_SENT_INQUIRY:
+
+            printf("   |-Command Opcode (Inquiry)         : %x\n", opcode);
+            printf("   |-Param Length                     : %x\n", *((uint8_t*)(real_header + 4)));
+            printf("   |-LAP                              : %02x%02x%02x\n", *((uint8_t*)(real_header + 7)), *((uint8_t*)(real_header + 6)), *((uint8_t*)(real_header + 5)));
+            printf("   |-Num Response                     : %x\n", (uint8_t)(*(real_header + 8)));
+            break;
+
+        case HCI_H4_COMMAND_LE_SET_SCAN_ENABLED:
+
+            printf("   |-Command Opcode (Set Scan Enabled)      : %x\n", opcode);
+            printf("   |-Param Length                           : %x\n", *((uint8_t*)(real_header + 4)));
+            printf("   |-Scan Enabled                           : %x\n", *((uint8_t*)(real_header + 5)));
+            printf("   |-Filter Duplicate                       : %x\n", *((uint8_t*)(real_header + 6)));
+            printf("   |-Duration                               : %x\n", ntohs(*((uint16_t*)(real_header + 8))));
+            printf("   |-Period                                 : %x\n", ntohs(*((uint16_t*)(real_header + 11))));
+            break;
+
+        default:
+            printf("   |-Command Opcode (Unknown)               : %x\n", opcode);
+    }
+
+}
+
+// Parsing and Displaying HCI_H4 Event Type Packets
+
+void parse_hci_h4_event_type(unsigned char* real_header, int size){
+
+
+	uint8_t event = *((uint8_t*)(real_header + 2)); 
+
+	switch(event){
+
+        case HCI_H4_EVENT_REMOTE_NAME_REQUEST_COMPLETE:
+        	break;
+
+        case HCI_H4_EVENT_EXTENDED_INQUIRY_RESULT:
+
+ 		    printf("   |-Event Type (Extended Inquiry Result)   : %x\n", event);
+            printf("   |-Param Length                           : %x\n", *((uint8_t*)(real_header + 3)));
+            printf("   |-Number of Responses                    : %x\n", *((uint8_t*)(real_header + 4)));
+           	printf("   |-Device MAC                             : %02X-%02X-%02X-%02X-%02X-%02X\n", *((uint8_t*)(real_header + 5)), *((uint8_t*)(real_header + 6)) , 
+                *((uint8_t*)(real_header + 7)), *((uint8_t*)(real_header + 8)), *((uint8_t*)(real_header + 9)), *((uint8_t*)(real_header + 10)));
+
+            printf("   |-Port Scan Repetiton Mode               : %x\n", *((uint8_t*)(real_header + 11)));
+            printf("   |-Class Device                           : %02x%02x%02x\n", *((uint8_t*)(real_header + 14)), *((uint8_t*)(real_header + 13)), *((uint8_t*)(real_header + 12)));
+            printf("   |-Clock Offset                           : %x\n", ntohs(*((uint16_t*)(real_header + 15))));
+            printf("   |-RSSI                                   : %x\n", ntohs(*((uint16_t*)(real_header + 17))));
+            printf("   |-Extended Inquiry Data                  :\n");
+            print_char_to_hex(real_header, 19, size);
+            break;
+
+        case HCI_H4_EVENT_ENCRYPTION_CHANGE:
+
+            printf("   |-Event Type (Encryption Change)     : %x\n", event);
+            printf("   |-Param Length                       : %x\n", *((uint8_t*)(real_header + 3)));
+            printf("   |-status                             : %x\n", ntohs(*((uint16_t*)(real_header + 4))));
+            printf("   |-Connexion Handle                   : %x\n", ntohs(*((uint16_t*)(real_header + 6))));
+            printf("   |-Encryption Handle                  : %x\n", *((uint8_t*)(real_header + 8)));
+            break;
+
+        case HCI_H4_EVENT_LINK_KEY_NOTIFICATION:
+
+            printf("   |-Event Type (Link Key Notification) : %x\n", *((uint8_t*)(real_header + 2)));
+            printf("   |-Param Length                       : %x\n", *((uint8_t*)(real_header + 3)));
+            printf("   |-Device MAC                         : %02X-%02X-%02X-%02X-%02X-%02X\n", *((uint8_t*)(real_header + 4)), *((uint8_t*)(real_header + 5)) , 
+                *((uint8_t*)(real_header + 6)), *((uint8_t*)(real_header + 7)), *((uint8_t*)(real_header + 8)), *((uint8_t*)(real_header + 9)));
+
+            // getting the encryption key 
+
+            printf("   |-Key                                : ");
+            print_char_to_hex(real_header, 10, size - 1);
+            
+            printf("   |-Key Type                           : %x\n", *((uint8_t*)(real_header + size - 1)));
+            break;
+
+
+        case HCI_H4_EVENT_INTEL_VENDOR_SPECIFIC:
+
+            printf("   |-Event Type (Encryption Change)     : %x\n", event);
+            printf("   |-Param Length                       : %x\n", *((uint8_t*)(real_header + 3)));
+            printf("   |-status                             : %x\n", ntohs(*((uint16_t*)(real_header + 4))));
+            printf("   |-Connexion Handle                   : %x\n", ntohs(*((uint16_t*)(real_header + 6))));
+            printf("   |-Encryption Handle                  : %x\n", *((uint8_t*)(real_header + 8)));
+            break;
+
+        case HCI_H4_EVENT_NUMBER_COMPLETE_PACKAGES:
+
+            printf("   |-Event Type (Number of Complete Packages)       : %x\n", event);
+            printf("   |-Param Length                                   : %x\n", *((uint8_t*)(real_header + 3)));
+            printf("   |-Number of Connexion Handles                    : %x\n", *((uint8_t*)(real_header + 4)));
+            printf("   |-Connexion Handle                               : %x\n", ntohs(*((uint16_t*)(real_header + 5))));
+            printf("   |-Number of Complete Packages                    : %x\n", ntohs(*((uint16_t*)(real_header + 7))));
+            break;
+
+        case HCI_H4_EVENT_LE_META:
+
+            printf("   |-Event Type (LE Meta)               : %x\n", event);
+            printf("   |-Param Length                       : %x\n", *((uint8_t*)(real_header + 3)));
+            printf("   |-Sub Event                          : %x\n", *((uint8_t*)(real_header + 4)));
+            printf("   |-Connexion Handle                   : %x\n", ntohs(*((uint16_t*)(real_header + 5))));
+            printf("   |-Max TX Octets                      : %x\n", ntohs(*((uint16_t*)(real_header + 7))));
+            printf("   |-Max TX Time                        : %x\n", ntohs(*((uint16_t*)(real_header + 9))));
+            printf("   |-Max RX Octets                      : %x\n", ntohs(*((uint16_t*)(real_header + 11))));
+            break;
+
+        default:
+            printf("   |-Event Type                         : %x\t", event);
+            parse_hci_h4_event_code_field(event);
+    }
+}
 
 // parsing the HCI H4 Event Code field
 
@@ -22,6 +182,10 @@ void parse_hci_h4_event_code_field(uint8_t event_code){
 
 		case HCI_H4_EVENT_CONNEXION_REQUEST:
 			printf("(Connexion Request)\n");
+		break;
+
+		case HCI_H4_EVENT_MODE_CHANGE:
+			printf("(Mode Change)\n");
 		break;
 
 		case HCI_H4_EVENT_DECONNEXION_COMPLETE:
