@@ -2,6 +2,8 @@
 
 **NEW RELEASE - WORK IN PROGRESS**
 
+**Last update : new Bluetooth protocols mananged (L2CAP, HCI H4, OBEX etc...) and a raw sniffer engine designed for Bluetooth will come soon.**
+
 **DO NOT HESITATE TO LEAVE YOUR FEEDBACK TO LET ME DO SOME IMPROVEMENTS**
 
 **New release working with libpcap. The older one dealt with raw sockets only**
