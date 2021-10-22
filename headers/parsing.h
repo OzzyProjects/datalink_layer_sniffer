@@ -24,6 +24,9 @@
 
 // HCI H4 PROTOCOL VALUES
 
+#define HCI_H4_MAX_KEY_LENGTH		64
+#define HCI_H4_MAX_DEVICE_LENGTH	64
+
 // HCCI H4 Type
 #define HCI_H4_TYPE_COMMAND	 		0x01
 #define HCI_H4_TYPE_ACL_DATA	 	0x02
@@ -37,11 +40,30 @@
 #define HCI_H4_EVENT_DECONNEXION_COMPLETE					0x05
 #define HCI_H4_EVENT_AUTH_COMPLETE							0x06
 #define HCI_H4_EVENT_REMOTE_NAME_REQUEST_COMPLETE			0x07
-#define HCI_H4_EVENT_COMMAND_STATUS							0x08
-#define HCI_H4_EVENT_ENCRYPTION_CHANGE						0x0f
+#define HCI_H4_EVENT_ENCRYPTION_CHANGE						0x08
+#define HCI_H4_EVENT_NUMBER_COMPLETE_PACKAGES				0x13
+#define HCI_H4_EVENT_MODE_CHANGE							0x14
+#define HCI_H4_EVENT_LINK_KEY_NOTIFICATION					0x18
 #define HCI_H4_EVENT_READ_REMOTE_SUPPORTED_FEATURES			0x0b
 #define HCI_H4_EVENT_COMMAND_COMPLETE						0x0e
+#define HCI_H4_EVENT_COMMAND_STATUS							0x0f
 #define HCI_H4_EVENT_EXTENDED_INQUIRY_RESULT				0x2f
+#define HCI_H4_EVENT_LE_META								0x3e
+#define HCI_H4_EVENT_INTEL_VENDOR_SPECIFIC					0xff
+
+// HCI H4 Command
+
+#define HCI_H4_COMMAND_LE_SET_SCAN_ENABLED					0x2042
+#define HCI_H4_COMMAND_SENT_INQUIRY							0x0401
+#define HCI_H4_COMMAND_READ_REMOTE_EXTENDED_FEATURES		0x041c
+#define HCI_H4_COMMAND_CREATE_CONNEXION						0x0405
+#define HCI_H4_COMMAND_LINK_KEY_REQUUEST_REPLY				0x040b
+#define HCI_H4_COMMAND_READ_CURRENT_IAP_SETTINGS			0x0c39
+#define HCI_H4_COMMAND_READ_VOICE_SETTINGS					0x0c45
+
+#define L2CAP_CID_ATTRIBUTE_PROTOCOL 						0x0004
+#define L2CAP_CID_RESERVED 									0x0007
+#define L2CAP_CID_SIGNALING_CHANNEL 						0x004d
 
 
 // Linux SLL PROTOCOL VALUES
@@ -171,6 +193,9 @@
 // OSI Layer 2 protocols
 
 // Bluetooth protocols
+void parse_hci_h4_command_type(unsigned char*, int);
+void parse_hci_h4_event_type(unsigned char*, int);
+
 void parse_hci_h4_type_field(uint8_t);
 void parse_hci_h4_event_code_field(uint8_t);
 
@@ -201,3 +226,4 @@ void parse_dns_opcode_field(uint8_t);
 void parse_dns_rcode_field(uint8_t);
 
 #endif
+
