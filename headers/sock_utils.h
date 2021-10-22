@@ -29,7 +29,10 @@
 
 #include <pcap.h>
 
+
 /********************* Usefull macros *********************/
+
+// Really Helpfull function for low level netwoork  programmming
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
@@ -63,10 +66,6 @@ static struct sock_filter bpfcode[8] = {
 
 }; */
 
-
-#define IPMB_HDR_LEN    0X6
-
-
 // IP protocols numbers (most common or interesting one)
 
 #define IPV4_ICMP       0x01
@@ -76,65 +75,142 @@ static struct sock_filter bpfcode[8] = {
 #define IPV4_EIGRP      0x58
 #define IPV4_SCTP       0x84
 
+
+// 3 bytes of padding before all HCI_H4 packets
+#define HCI_H4_PRE_HEADER_LENGTH    3
+
 #define ETHERNET_MTU                1500
 #define ARP_SPOOFING_PACKET_SIZE    42
 #define SLL_ADDRLEN                 8
-#define SLL_HDR_LEN                 16 
-#define HCI_H4_HDR_LEN              6     
+#define SLL_HDR_LEN                 16
+#define IPMB_HDR_LEN                6 
+#define HCI_H4_HDR_LEN              2     
 
-#define BUFSIZE             65000
-#define ETH2_HEADER_LEN     14
-#define MAC_LENGTH          6
-#define IPV4_LENGTH         4
+#define BUFSIZE                     65000
+#define ETH2_HEADER_LEN             14
+#define MAC_LENGTH                  6
+#define IPV4_LENGTH                 4
+#define HCI_H4_DEVICE_NAME_LENGTH   32
 
-#define PCAP_FILTER_SIZE            64
-#define RECORD_FILENAME_SIZE        32
-#define MAX_PACKETS_NUMBER_LENGTH   128
+#define PCAP_FILTER_SIZE                64
+#define RECORD_FILENAME_SIZE            32
+#define MAX_PACKETS_NUMBER_LENGTH       128
+#define READABLE_DEVICE_FLAGS_LENGTH    128   
 
 #define PCAP_NETMASK_UNKNOWN        0xffffffff
 
 #define IPX_NODE_LEN        6
 #define IPX_MTU             576
 
-// Generic class for TLV type
-
-typedef struct tlv_result {
-
-    uint8_t         used;
-    char            type;
-    uint16_t        length;
-    unsigned char*  value;
-
-} __attribute__((packed)) tlv_result;
+//typedef void (*)(unsigned char*, int) hdr_funct_ptr;
 
 
-/********************* OSI Layer 2 protocols structs *********************/
+/*********************************** OSI LAYER 2 PROTOCOL STRUCTS ***********************************/
 
-
-// HCI_H4 basic header
+// HCI_H4 PROTOCOL (BLUETOOTH)
 
 typedef struct hci_h4_header {
 
-    uint32_t padding;
     uint8_t dir;
     uint8_t type;
-    uint8_t event_code;
     
 } __attribute__((packed)) hci_h4_header;
 
 
+// Pseudo Header for HCI_H4 Event Packets
+
+typedef struct pseudo_hci_event_header {
+
+    uint8_t event_code;
+    uint8_t param_len;
+    uint16_t connexion_handle;
+    
+} __attribute__((packed)) pseudo_hci_event_header;
+
+
+// Struct of HCI_H4 Command Complete Header
+
+typedef struct hci_h4_command_complete_header {
+
+    uint8_t event_code;
+    uint8_t param_len;
+    uint8_t allowed_cmd_packets;
+    uint16_t command_opcode;
+    uint8_t status;
+    
+} __attribute__((packed)) hci_h4_command_complete_header;
+
+
+// Pseudo Header for HCI_H4 Remote Request Names Packets
+
+typedef struct hci_h4_rem_name_req {
+
+    uint8_t param_len;
+    uint8_t status;
+    char src_addr[MAC_LENGTH];
+    char remote_name[HCI_H4_DEVICE_NAME_LENGTH];
+
+} __attribute__((packed)) hci_h4_rem_name_req;
+
+
+// LPCAP Protocol Header for encapsulation
+
+typedef struct l2cap_header {
+
+    uint16_t length;
+    uint16_t cid;
+    
+} __attribute__((packed)) l2cap_header;
+
+
+// L2CAP Protocol Header with no encapsulation
+
+typedef struct acl_packet_header {
+
+    uint16_t connexion_handle   : 12;
+    uint16_t pb_flag            : 2;
+    uint16_t bc_flag            : 2;
+    uint16_t data_len;
+    
+} __attribute__((packed)) acl_packet_header;
+
+
+// BNEF Protocol Header Struct with Encapsulation
+
+typedef struct bnep_header {
+
+    uint8_t bnep_type;
+    uint8_t ctrl_type;
+    
+} __attribute__((packed)) bnep_header;
+
+
+// Attribute Data struct for Bluetooth Attribute Protocol
+
+typedef struct att_attribute_data {
+
+    uint16_t handle;
+    uint16_t properties;
+    uint16_t value_handle;
+    uint16_t uuid;
+
+} __attribute__((packed)) att_attribute_data; 
+
+
+// Linux SLL Header Struct (usefull in mode monitor)
+
 typedef struct sll_header {
 
-    uint16_t sll_pkttype;       /* packet type */
-    uint16_t sll_hatype;        /* link-layer address type */
-    uint16_t sll_halen;     /* link-layer address length */
-    uint8_t  sll_addr[SLL_ADDRLEN]; /* link-layer address */
-    uint16_t sll_protocol;      /* protocol */
+    uint16_t sll_pkttype;
+    uint16_t sll_hatype;
+    uint16_t sll_halen; 
+    uint8_t  sll_addr[SLL_ADDRLEN];
+    uint16_t sll_protocol; 
 
 } sll_header;
 
 
-// IMPB/IPMI over I2C linux pseudo header
+// IMPB/IPMI over I2C Linux Pseudo Header
 
 typedef struct ipmb_header {
 
@@ -146,7 +222,8 @@ typedef struct ipmb_header {
 }  __attribute__((packed)) ipmb_header;
 
 
-// RADIOTAP Generic header TODO
+
+// RADIOTAP Generic Header Struct (in progress)
 
 typedef struct ieee80211_radiotap_header {
 
@@ -158,29 +235,10 @@ typedef struct ieee80211_radiotap_header {
 } __attribute__((__packed__)) ieee80211_radiotap_header;
 
 
-// IPX Generic Header TODO
-
-typedef struct sockaddr_ipx {
-
-#if LINUX_VERSION_CODE > 131328
-    sa_family_t ipx_family;
-
-#else
-    uint16_t ipx_family;
-
-#endif
-    uint16_t ipx_port;
-    uint32_t ipx_network;
-    uint8_t  ipx_node[IPX_NODE_LEN];
-    uint8_t ipx_type;
-    uint8_t ipx_zero;
-
-} __attribute__((packed)) sockaddr_ipx;
+/*********************************** OSI LAYER 3 PROTOCOL STRUCTS ***********************************/
 
 
-/********************* OSI Layer 3 protocols structs *********************/
-
-// VLAN 802 1Q Header
+// VLAN 802 1Q Protocol Header Struct
 
 typedef struct vlan_ieee8021q_header {
 
@@ -192,6 +250,8 @@ typedef struct vlan_ieee8021q_header {
 } __attribute__((packed)) vlan_ieee8021q_header;
 
 
+// SCTP Header Struct
+
 typedef struct sctp_header {
 
     uint16_t  src_port;
@@ -202,7 +262,7 @@ typedef struct sctp_header {
 } __attribute__((packed)) sctp_header;
 
 
-// IEEE 1905 1a Header
+// IEEE 1905 1a Header (probably the most cheated protoool overall)
 
 typedef struct ieee_1905_header {
 
@@ -216,7 +276,7 @@ typedef struct ieee_1905_header {
 } __attribute__((packed)) ieee_1905_header;
 
 
-// LLTD Header 
+// LLTD PROTOCOL Protocol Header Struct
 
 typedef struct lltd_header {
 
@@ -230,7 +290,8 @@ typedef struct lltd_header {
 } __attribute__((packed)) lltd_header;
 
 
-// HOMEPLUG AV (POWERLINE) Header
+// HOMEPLUG AV (POWERLINE) Header (the same purpose than IEEE 1905 1a but Wireless based)
+
 
 typedef struct homeplug_av_header {
 
@@ -241,7 +302,7 @@ typedef struct homeplug_av_header {
 } __attribute__((packed)) homeplug_av_header;
 
 
-// HOMEPLUG Standard Header
+// HOMEPLUG PROTOCOL Standard Header Struct
 
 typedef struct homeplug_header {
 
@@ -253,7 +314,7 @@ typedef struct homeplug_header {
 } __attribute__((packed)) homeplug_header;
 
 
-// PN-DCP Header
+// PN-DCP PROTOCOL Header Struct (usefull when working with PLC)
 
 typedef struct profinet_dcp_header {
 
@@ -270,7 +331,7 @@ typedef struct profinet_dcp_header {
 } __attribute__((packed)) profinet_dcp_header;
 
 
-// IPv6 Header 
+// IPv6 PROTOCOL Header Struct
 
 typedef struct ipv6_header {
 
@@ -289,7 +350,7 @@ typedef struct ipv6_header {
 } __attribute__((packed)) ipv6_header;
 
 
-// ICMPv6 Header
+// ICMPv6 PROTOCOL Pseudo Header Struct
 
 typedef struct icmp6_header{
 
@@ -303,7 +364,7 @@ typedef struct icmp6_header{
 } __attribute__((packed)) icmp6_header;
 
 
-// ICMPv6 NDP Header
+// ICMPv6 NDP Header Struct
 
 typedef struct icmp6_NDP_header {
 
@@ -320,7 +381,7 @@ typedef struct icmp6_NDP_header {
 } __attribute__((packed)) icmp6_NDP_header;
 
 
-// ARP Header
+// ARP PROTOCOL Packet Struct
 
 typedef struct arp_header {
 
@@ -337,7 +398,7 @@ typedef struct arp_header {
 } __attribute__((packed)) arp_header;
 
 
-// ICMPv4 Header
+// ICMPv4 PROTCOL Header Struct
 
 typedef struct icmp_header {
 
@@ -364,6 +425,8 @@ typedef struct icmp_header {
 
 } __attribute__((packed)) icmp_header;
 
+
+// Various DHCP Protocol Strcuts (Not Implemented Yet)
 
 typedef struct dhcpc_result_s {
 
@@ -399,9 +462,9 @@ typedef struct dhcp_msg_s {
 } __attribute__((packed)) dhcp_msg_t;
 
 
-/********************* OSI Layer 7 protocols structs *********************/
+/*********************************** OSI LAYER 7 PROTOCOL STRUCTS ***********************************/
 
-// DNS Header 
+// DNS PROTOCOL Header Struct
 
 typedef struct dns_header {
 
@@ -427,7 +490,7 @@ typedef struct dns_header {
 } __attribute__((packed)) dns_header;
 
 
-// NBNS common header
+// NBNS Common Header Struct
 
 typedef struct nbns_header {
 
@@ -451,37 +514,43 @@ typedef struct nbns_header {
 
 // Usefull generic functions
 
-int print_itf_list();
+int print_devices_list(uint8_t);
+char* get_readable_device_flags(int);
 int get_random_device(char*);
 
-int parse_tlv(const unsigned char *const, const size_t, tlv_result *const, int, size_t *const);
 uint16_t in_cksum(uint16_t *, int);
-
 void print_current_time();
 
+void print_char_to_hex(unsigned char*, int, int);
 void print_data(unsigned char* , int);
 void print_hex_ascii_line(const u_char*, int, int);
 
-int get_datalink_header_size(int);
 
-// OSI Layer 2 protocols
+// OSI Layer 2/3 Protocol Functions
 
 void process_layer2_packet(unsigned char* , int, int);
 void process_frame(unsigned char* , int, uint16_t, void (*)(unsigned char*, int));
+void parse_bluetooth_packet(unsigned char*, int);
 
-void print_hci_h4_header(unsigned char*, int);
-void print_ethernet_header(unsigned char*, int);
-void print_linux_sll_header(unsigned char*, int);
+void print_attribute_protocol_packet(unsigned char*);
+
+void print_hci_h4_header(unsigned char*);
+void print_hci_h4_rem_name_request(unsigned char*);
+void print_hci_h4_command_complete_header(unsigned char*);
+
+void parse_acl_packet(unsigned char*, int);
+void print_acl_packet_header(unsigned char*);
+void print_ethernet_header(unsigned char*);
+void print_linux_sll_header(unsigned char*);
 void print_linux_ipmb_pseudo_header(unsigned char*, int);
 
 
-// OSI Layer 3 protocols
+// OSI Layer 3 protocols functions
 
 void print_vlan_ieee8021q_header(unsigned char*, int);
 void print_homeplug_av_header(unsigned char*);
 void print_homeplug_header(unsigned char*);
-void print_ieee_1905_header(unsigned char*, int);
-void print_ipx_header(unsigned char*, int);
+void print_ieee_1905_header(unsigned char*);
 void print_lltd_header(unsigned char*);
 void print_arp_header(unsigned char*);
 void print_profinet_dcp_header(unsigned char*);
@@ -492,18 +561,19 @@ void print_icmpv6_packet(unsigned char*, int, int);
 void process_ip_packet(unsigned char* , int);
 void print_ip_header(unsigned char* , int);
 void print_ip6_header(unsigned char*, int);
-void print_sctp_header(unsigned char*, int);
+void print_sctp_header(unsigned char*);
 
 
-// OSI Layer 4 protocols
+// OSI Layer 4 protocols functions
 
 void print_tcp_packet(unsigned char * , int );
 void print_udp_packet(unsigned char * , int );
 
 
-// OSI Layer 7 protocols
+// OSI Layer 7 protocols (bnut a chdeaarrzz)
 
-void print_dns_packet(unsigned char*, int);
+void print_dns_packet(unsigned char*);
+void print_nbns_header(unsigned char*);
 
 // agressive sniffing TODO = active sniffing (ARP poisonning etc...)
 
