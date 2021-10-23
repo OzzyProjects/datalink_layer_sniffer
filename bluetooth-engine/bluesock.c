@@ -1,5 +1,5 @@
-/* New sniffing module for Bluetooth only*/
-/* Many things to do but i think it's a good idea */
+/* New sniffing module for Bluetooth only which dosnn't use libpcap but still be a datalink link sniffier */
+/* Many things to come soon like dbus implementation, tries for PCI but i think it's a good idea */
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
