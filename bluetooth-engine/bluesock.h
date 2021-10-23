@@ -4,16 +4,29 @@ Now, it is based  and implemented to work with HCI as main prottocol but it will
 manage OBEX, L2CAP and ATT Encapsulations.
 */
 
+/* Header of new bluetooth sniffer engine */
+
 #ifndef BLUESOCK_H
 #define BLUESOCK_H
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdint.h>
 #include <string.h>
 #include <sys/time.h>
+
+
+#define BLUESOCK_EXIT_SUCCESS			0
+#define BLUESOCK_EXIT_FAILURE			-1
+
+
+#define BLUESOCK_LIST_ERRORS_LENGTH		6
+#define BLUESOCKK_ERROR_LENGTH			64
+#define BLUESOCK_ID_LENGTH 				8
+
 
 // Some Bluetooth Protocols families
 
@@ -37,9 +50,23 @@ manage OBEX, L2CAP and ATT Encapsulations.
 #define BLUESOCK_OPCODE_SCO_RX_PKT		7
 
 
+// Messages value errors
+
+#define BLUESOCK_STATUS_EXIT_SUCCUES 			0
+#define BLUESOCK_STATUS_ERROR_INVALID_FD		-1
+#define BLUESOCK_STATUS_ERROR_IO_FILE 			-2
+#define BLUESOCK_STATUS_ERROR_SOCKET 			-3
+#define BLUESOCK_STATUS_ERROR_ACCESS_DENIED 	-4
+#define BLUESOCK_STATUS_ERROR_INVALID_PARAM 	-5
+#define BLUESOCK_STATUS_ERROR_FATAL_ERROR	 	-6
+	
+
+/*********************************************** STRUCTURES /***********************************************/
+
+
 typedef struct bluesock_hdr{
 
-	uint8_t		id[8];
+	uint8_t		id[BLUESOCK_ID_LENGTH];
 	uint32_t	version;
 	uint32_t	type;
 
@@ -66,29 +93,42 @@ typedef struct bluesock_pkt {
 #define BLUESOCK_PKT_SIZE (sizeof(struct bluesock_pkt))
 
 
-typedef enum BLUESOCK_STATUS {
-
-	BLUESOCK_STATUS_EXIT_SUCCUES = 0,
-	BLUESOCK_STATUS_ERROR_INVALID_FD,
-	BLUESOCK_STATUS_ERROR_IO_FILE,
-	BLUESOCK_STATUS_ERROR_SOCKET,
-	BLUESOCK_STATUS_ERROR_ACCESS_DENIED,
-	BLUESOCK_STATUS_ERROR_INVALID_PARAM,
-	BLUESOCK_STATUS_ERROR_FATAL_ERROR,
+typedef struct hcidump_data {
 	
-} BLUESOCK_STATUS;
+	uint16_t index;
+	int sock_
+	fd;
+
+} __attribute__((packed)) hcidump_data;
 
 
-static uint32_t get_flags_from_opcode(uint16_t);
+#define HCIDUMP_DATA_SIZE (sizeof(struct hcidump_data));
+
+/*********************************************** CALLBACK FUNCTIONS /***********************************************/
+
+static void callback_error(int, char*);
+static void stack_internal_callback(int, uint32_t, void*);
+static void device_callback(int, uint32_t, void *);
+
+/**************************************************Usefull fontions **************************************************/
+
+static uint32_t get_flags_from_opcode(uint16_t opcode);
 static uint16_t get_opcode_from_flags(uint8_t, uint32_t);
 
-BLUESOCK_STATUS bluesock_create(const char *path, uint32_t type);
-BLUESOCK_STATUS bluesock_write(struct timeval *tv, uint32_t flags, const void *data, uint16_t size);
-BLUESOCK_STATUS bluesock_write_hci(struct timeval *tv, uint16_t index, uint16_t opcode, const void *data, uint16_t size);
-BLUESOCK_STATUS bluesock_write_phy(struct timeval *tv, uint16_t frequency, const void *data, uint16_t size);
-BLUESOCK_STATUS bluesock_open(const char *path, uint32_t *type);
-BLUESOCK_STATUS bluesock_read_hci(struct timeval *tv, uint16_t *index, uint16_t *opcode, void *data, uint16_t *size);
-BLUESOCK_STATUS bluesock_read_phy(struct timeval *tv, uint16_t *frequency, void *data, uint16_t *size);
+/************************************************** HCI SOCKETS PART  **************************************************/
+
+static int bluesock_device_info(int, uint16_t, uint8_t*, uint8_t*, bdaddr_t*, char*);
+static void bluesock_device_list(int, int, char*);
+static int bluesock_create(const char*, uint32_t);
+static int bluesock_open_hci_dev(uint16_t, char*);
+static int open_stack_internal(void);
+
+static int bluesock_read_phy(struct timeval*, uint16_t* void*, uint16_t*);
+
+static int hcidump_tracing(void);
+
+static void bluesock_free_data(void *);
 void bluesock_close(void);
+
 
 #endif
