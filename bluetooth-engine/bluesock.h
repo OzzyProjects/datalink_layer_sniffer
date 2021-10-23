@@ -1,4 +1,7 @@
-/* Header of new bluetooth sniffer engine */
+/* 
+Header of new bluetooth sniffer engine 
+Now, it will be based on HCI as main prottocol but will be manage OBEX, L2CAP and ATT Encapsulations.
+*/
 
 #ifndef BLUESOCK_H
 #define BLUESOCK_H
