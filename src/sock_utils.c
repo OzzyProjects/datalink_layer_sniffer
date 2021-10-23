@@ -784,13 +784,6 @@ void print_dns_packet(unsigned char* buffer){
 
 }
 
-void parse_ip_protocol_number(uint8_t ip_protocol_number){
-
-    switch(ip_protocol_number){
-
-
-    }
-}
 
 void print_nbns_header(unsigned char* buffer){
     
