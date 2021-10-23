@@ -175,6 +175,19 @@ typedef struct acl_packet_header {
 } __attribute__((packed)) acl_packet_header;
 
 
+// Bluetooth Security Protocol Pairing Querry/Response
+
+typedef struct bluetooth_smp_pairing_packet {
+
+    uint8_t opcode;
+    uint8_t io_cap;
+    uint8_t oob_data_flags;
+    uint8_t auth_flags;
+    uint8_t init_key_distrib;
+
+} __attribute__((packed)) bluetooth_smp_pairing_packet;
+
+
 // BNEF Protocol Header Struct with Encapsulation
 
 typedef struct bnep_header {
@@ -195,6 +208,16 @@ typedef struct att_attribute_data {
     uint16_t uuid;
 
 } __attribute__((packed)) att_attribute_data; 
+
+// 802.11 Protocols (Known also as Radiotap)
+
+typedef struct radiotap_header {
+
+        uint8_t it_rev; // Revision: Version of RadioTap
+        uint8_t it_pad; // Padding: 0 - Aligns the fields onto natural word boundaries
+        uint16_t it_len;// Length: 26 - entire length of RadioTap header
+
+} radiotap_header;
 
 
 // Linux SLL Header Struct (usefull in mode monitor)
@@ -537,6 +560,8 @@ void print_attribute_protocol_packet(unsigned char*);
 void print_hci_h4_header(unsigned char*);
 void print_hci_h4_rem_name_request(unsigned char*);
 void print_hci_h4_command_complete_header(unsigned char*);
+
+void parse_bluetooth_smp_packet(unsigned char*, int);
 
 void parse_acl_packet(unsigned char*, int);
 void print_acl_packet_header(unsigned char*);
