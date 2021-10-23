@@ -199,6 +199,10 @@ void parse_acl_packet(unsigned char* buffer, int size){
         print_char_to_hex(buffer, offset, size);
     }
 
+    else if (ntohs(l2cap_hdr->cid) == L2CAP_CID_SECURITY_MANAGER_PROTOCOL){
+        parse_bluetooth_smp_packet(buffer, size);
+    }
+
     else{
         printf("\nUnknown CID or Not implemented Yet\n");        
         print_char_to_hex(buffer, offset, size);
@@ -229,7 +233,7 @@ void print_hci_h4_rem_name_request(unsigned char* buffer){
 
     printf("   |-Param Length       : %x\n", rem_request->param_len);
     printf("   |-status             : %x\n", rem_request->status);
-    printf("   |-Device MAC         : %02X-%02X-%02X-%02X-%02X-%02X\\n", rem_request->src_addr[0] , rem_request->src_addr[1] , rem_request->src_addr[2], 
+    printf("   |-Device MAC         : %02X-%02X-%02X-%02X-%02X-%02X\n", rem_request->src_addr[0] , rem_request->src_addr[1] , rem_request->src_addr[2], 
         rem_request->src_addr[3], rem_request->src_addr[4] , rem_request->src_addr[5]);
 
     printf("   |-Device Name        : %s\n", rem_request->remote_name);
@@ -263,6 +267,62 @@ void print_attribute_protocol_packet(unsigned char* buffer){
 
 }
 
+// Parsing Bluetooth Security Protocol Packets 
+
+void parse_bluetooth_smp_packet(unsigned char* buffer, int size){
+    
+    int public_key_size;
+    unsigned char public_key_1[128];
+    bluetooth_smp_pairing_packet* smp_packet;
+
+    printf("\n\nBluetooth Security Protocol Header\n");
+    int offset = HCI_H4_HDR_LEN + sizeof(struct l2cap_header);
+
+    // We need first to get the SMP opcode because it's him that determimes the entire packet format
+    uint8_t smp_opcode = *((uint8_t*)(buffer));
+
+    switch(smp_opcode){
+
+        // Pairing Key Request and Pairing Key Response have exactly the same format so we threat them together
+        case SMP_OPCODE_PAIRING_REQUEST:
+        case SMP_OPCODE_PAIRING_RESPONSE:
+            smp_packet = (bluetooth_smp_pairing_packet*)(buffer + offset);
+            printf("   |-Opcode                            : %x\n", *((uint8_t*)(buffer + offset)));
+            printf("   |-IO Capabilities                   : %x\n", *((uint8_t*)(buffer + offset + 1)));
+            printf("   |-OOB Data Flags                    : %x\n", *((uint8_t*)(buffer + offset + 2)));
+            printf("   |-Authentification Flages           : %x\n", *((uint8_t*)(buffer + offset + 3)));
+            printf("   |-Initiation Key Distrib            : %x\n", *((uint8_t*)(buffer + offset + 4)));
+            break;
+
+        case SMP_OPCODE_PAIRING_CONFIRM:
+            printf("   |-Opcode (Pairing Key Confirm)      : %x\n", *((uint8_t*)(buffer + offset)));
+            printf("   |-Confirm values                    : %s\n", buffer + offset + 1);
+            break;
+
+        case SMP_OPCODE_PAIRING_RANDOM:
+            printf("   |-Opcode (Pairing Key Confirm)      : %x\n", *((uint8_t*)(buffer + offset)));
+            printf("   |-Random values                     : %s\n", buffer + offset + 1);
+            break;
+
+        // if it's a Pairing Public Key, we need first to calculate the key size from the L2CAP header
+        //  the 2 public keys shared have for sure the same size
+        case SMP_OPCODE_PAIRING_PUBLIC_KEY:
+
+            // Getting the public key size from the L2CAP header
+            public_key_size = (int)((*((uint8_t*)(buffer + offset)) -1) / 2);
+            memcpy(&public_key_1, buffer + offset + 1, public_key_size);
+
+            printf("   |-Public Key 1                   : %s\n", public_key_1);
+            printf("   |-Random values                  : %s\n", buffer + offset + 1 + public_key_size);
+            break;
+
+        default:
+            printf("   |-Unknown Opcode                  : %x\n", *((uint8_t*)(buffer + offset)));
+    }
+
+}
+
+/*********************************************** 802.11 PROTOCOLS (RADIOTAP) ***********************************************/
 
 
 /*********************************************** ETHERNET PROTOCOLS ***********************************************/
@@ -611,7 +671,7 @@ void print_igmp_header(unsigned char* buffer, int size){
 
     printf("\n   |-Code            : %x\n", ighdr->igmp_code);
     printf("   |-Checksum        : %x\n", ntohs(ighdr->igmp_cksum));
-    printf("   |-Group           : %x\n", inet_ntoa(ighdr->igmp_group));
+    printf("   |-Group           : %s\n", inet_ntoa(ighdr->igmp_group));
 
 
 }
@@ -784,6 +844,13 @@ void print_dns_packet(unsigned char* buffer){
 
 }
 
+void parse_ip_protocol_number(uint8_t ip_protocol_number){
+
+    switch(ip_protocol_number){
+
+
+    }
+}
 
 void print_nbns_header(unsigned char* buffer){
     
