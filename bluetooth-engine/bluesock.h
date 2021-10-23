@@ -1,7 +1,6 @@
 /* 
 Header of new bluetooth sniffer engine 
 Now, it is based  and implemented to work with HCI as main prottocol but it will be able to 
-1 contributor
 manage OBEX, L2CAP and ATT Encapsulations.
 */
 
