@@ -1,4 +1,14 @@
-
+/********************************************************************************
+ *                                                                              *
+ *  Program      : Datalink layer sniffer                                       *
+ *                                                                              *
+ *  Version      : 2.1                                                          *
+ *                                                                              *    
+ *  Ahthor       : Armangau Etienne                                             *
+ *                                                                              *
+ *  Contact      : <armangau_etienne@yahoo.fr>                                  *
+ *                                                                              * 
+ *******************************************************************************/                                                              
 
 #include <signal.h>
 #include <limits.h>
@@ -90,6 +100,12 @@ int main(int argc, char **argv){
                 opt_args.is_file = 1;
                 break;
 
+            // Applying capture filters here -f option
+            case 'f':
+                strncpy(pcap_filters, optarg, PCAP_FILTER_SIZE);
+                opt_args.is_filter= 1;
+                break;
+
             // binding to any (all) devices = all frames are sniffed in theory but it's more complex actually
             case 'g':
                 opt_args.is_godmode = 1;
@@ -99,13 +115,7 @@ int main(int argc, char **argv){
             case 'm':
                 opt_args.is_monitor_mode = 1;
                 break;
-                
-            // Applying capture filters here -f option
-            case 'f':
-                strncpy(pcap_filters, optarg, PCAP_FILTER_SIZE);
-                opt_args.is_filter= 1;
-                break;
-                
+
             // verbose mode enabled only for the network interfaces search. Will be extend to the capture processs in a while
             case 'v':
                 opt_args.is_verbose_mode = 1;
@@ -151,6 +161,12 @@ int main(int argc, char **argv){
                 print_devices_list(opt_args.is_verbose_mode);
                 return EXIT_SUCCESS;
                 break;
+
+            // option -h (help) : displays all options available
+            case 'h':
+                usage();
+                return EXIT_SUCCESS;
+                break;
             
             // some options need a non optionnal argument, no argument = error
             case '?':
@@ -171,14 +187,14 @@ int main(int argc, char **argv){
                 exit(EXIT_FAILURE);
 
             case 1:
-                printf("ERROR : Non-option argument : %s\n", optarg);
+                fprintf(stderr, "ERROR : Non-option argument : %s\n", optarg);
                 usage();
                 exit(EXIT_FAILURE);
                 break;
 
             default:
                 usage();
-                printf("FATAL ERROR : Couldn't parse command line arguments\n");
+                fprintf(stderr, "FATAL ERROR : Couldn't parse command line arguments\n");
                 abort();
         }
     }
@@ -430,4 +446,5 @@ void usage(){
     printf("\nExample : ./raw_sock -i wlp4s0 -r strings_log -f \"not ipx\" -t 1024 -c 0\n");
     printf(" Binding to one device, recording strings to file, applying filters to the capture and setting timeout\n");
 }
+
 
