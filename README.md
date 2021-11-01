@@ -1,7 +1,6 @@
 # Datalink layer sniffer for Linux
 
-<ins>Added : NTP, SMB/Mailslot/Browser, the obscure one Canon BJNP and 802.3 frames with LLC</ins>
-
++ LAST UPDATE : NTP, SMB/Mailslot/Browser, the obscure one Canon BJNP and 802.3 frames with LLC
 
 **NEW RELEASE WITH BLUETOOTH IMPLEMENTATION - WORK IN PROGRESS**
 
