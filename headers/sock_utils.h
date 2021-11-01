@@ -77,20 +77,22 @@ static struct sock_filter bpfcode[8] = {
 
 
 // 3 bytes of padding before all HCI_H4 packets
-#define HCI_H4_PRE_HEADER_LENGTH    3
 
-#define ETHERNET_MTU                1500
-#define ARP_SPOOFING_PACKET_SIZE    42
-#define SLL_ADDRLEN                 8
-#define SLL_HDR_LEN                 16
-#define IPMB_HDR_LEN                6 
-#define HCI_H4_HDR_LEN              2     
+#define HCI_H4_PRE_HEADER_LENGTH        3
 
-#define BUFSIZE                     65000
-#define ETH2_HEADER_LEN             14
-#define MAC_LENGTH                  6
-#define IPV4_LENGTH                 4
-#define HCI_H4_DEVICE_NAME_LENGTH   32
+#define ETHERNET_MTU                    1500
+#define ARP_SPOOFING_PACKET_SIZE        42
+#define SLL_ADDRLEN                     8
+#define SLL_HDR_LEN                     16
+#define IPMB_HDR_LEN                    6 
+#define HCI_H4_HDR_LEN                   2     
+
+#define BUFSIZE                         65000
+#define ETH2_HEADER_LEN                 14
+#define MAC_LENGTH                      6
+#define IPV4_LENGTH                     4
+#define HCI_H4_DEVICE_NAME_LENGTH       32
+#define NETBIOS_DATAGRAM_NAME_LENGTH    34
 
 #define PCAP_FILTER_SIZE                64
 #define RECORD_FILENAME_SIZE            32
@@ -101,6 +103,7 @@ static struct sock_filter bpfcode[8] = {
 
 #define IPX_NODE_LEN        6
 #define IPX_MTU             576
+
 
 //typedef void (*)(unsigned char*, int) hdr_funct_ptr;
 
@@ -485,6 +488,115 @@ typedef struct dhcp_msg_s {
 } __attribute__((packed)) dhcp_msg_t;
 
 
+/*********************************** OSI LAYER 5 PROTOCOL STRUCTS ***********************************/
+
+
+// NTP Protocol Packet struct
+
+typedef struct ntp_packet {
+
+    uint8_t flags;
+    uint8_t stratum;
+    uint8_t poll;
+    uint8_t precision;
+    uint32_t root_delay;
+    uint32_t root_dispersion;
+    uint8_t reference_id[4];
+    uint32_t ref_ts_sec;
+    uint32_t ref_ts_frac;
+    uint32_t origin_ts_sec;
+    uint32_t origin_ts_frac;
+    uint32_t recv_ts_sec;
+    uint32_t recv_ts_frac;
+    uint32_t trans_ts_sec;
+    uint32_t trans_ts_frac;
+
+} __attribute__((__packed__)) ntp_packet; 
+
+
+// NETBIOS DATAGRAMM Protocol struct
+
+typedef struct netbios_datagram_header {
+
+    uint8_t msg_type;
+    uint8_t flags;
+    uint16_t dgram_id;
+    struct in_addr ip_src;
+    uint16_t port_src;
+    uint16_t offset;
+    unsigned char src_name[NETBIOS_DATAGRAM_NAME_LENGTH];
+    unsigned char dst_name[NETBIOS_DATAGRAM_NAME_LENGTH];
+
+
+} __attribute__((packed)) netbios_dgram_header;
+
+
+// SMB Protocol Header Struct
+
+typedef struct smb_header {
+
+    uint64_t smb_cmpt;
+    uint8_t smb_command;
+    uint8_t error_class;
+    uint8_t reserved;
+    uint16_t error_code;
+    uint8_t flags;
+    uint16_t flags2;
+    uint16_t process_id_high;
+    uint8_t signature[8];
+    uint16_t reserved2;
+    uint16_t tree_id;
+    uint16_t process_id;
+    uint16_t user_id;
+    uint16_t multiplex_id;
+
+} __attribute__((packed)) smb_header;
+
+
+// SMB MAILSLOT Protocol Header Struct
+
+typedef struct smb_mailslot_header {
+
+    uint16_t opcode;
+    uint16_t priority;
+    uint16_t mclass;
+    uint16_t size;
+    // unsigned char* mailslot_name, a string ending by null char
+
+} __attribute__((packed)) smb_mailslot_header;
+
+
+
+// CANON BJNP Protocol Packet struct (kinda weird this one )
+
+typedef struct canon_bjnp_header {
+
+    uint64_t id;
+    uint8_t type;
+    uint8_t code;
+    uint64_t seq_nbr;
+    uint16_t session_id;
+    uint64_t payload_len;
+
+
+} __attribute__((packed)) canon_bjnp_header;
+
+
+
+// LLMNR Protocol Header Struct
+
+typedef struct llmnr_header {
+
+    uint16_t trans_id;
+    uint16_t flags;
+    uint16_t question;
+    uint16_t answer_rr;
+    uint16_t auth_rr;
+    uint16_t adds_rr;
+
+} __attribute__((packed)) llmnr_header;
+
+
 /*********************************** OSI LAYER 7 PROTOCOL STRUCTS ***********************************/
 
 // DNS PROTOCOL Header Struct
@@ -549,10 +661,11 @@ void print_data(unsigned char* , int);
 void print_hex_ascii_line(const u_char*, int, int);
 
 
-// OSI Layer 2/3 Protocol Functions
+// ---------------- OSI Layer 2/3 Protocol Functions
 
-void process_layer2_packet(unsigned char* , int, int);
+
 void process_frame(unsigned char* , int, uint16_t, void (*)(unsigned char*, int));
+void process_layer2_packet(unsigned char* , int, int);
 void parse_bluetooth_packet(unsigned char*, int);
 
 void print_attribute_protocol_packet(unsigned char*);
@@ -570,7 +683,7 @@ void print_linux_sll_header(unsigned char*);
 void print_linux_ipmb_pseudo_header(unsigned char*, int);
 
 
-// OSI Layer 3 protocols functions
+// ---------------- OSI Layer 3 protocols functions
 
 void print_vlan_ieee8021q_header(unsigned char*, int);
 void print_homeplug_av_header(unsigned char*);
@@ -589,13 +702,29 @@ void print_ip6_header(unsigned char*, int);
 void print_sctp_header(unsigned char*);
 
 
-// OSI Layer 4 protocols functions
-
-void print_tcp_packet(unsigned char * , int );
-void print_udp_packet(unsigned char * , int );
+// ---------------- OSI Layer 4 protocols functions
 
 
-// OSI Layer 7 protocols (bnut a chdeaarrzz)
+void print_tcp_packet(unsigned char* , int );
+void print_udp_packet(unsigned char* , int );
+
+
+// ---------------- OSI Layer 5 protocols functions
+
+
+void process_udp_encapsulation(unsigned char*, int, int, int);
+
+void print_ntp_packet(unsigned char*, int);
+void print_netbios_datagram_header(unsigned char*, int);
+void print_smb_header(unsigned char*, int);
+void print_smb_header(unsigned char*, int);
+void print_smb_mailslot_header(unsigned char*, int);
+
+void print_canon_bjnp_header(unsigned char*, int);
+
+
+// ---------------- OSI Layer 7 protocols (bnut a chdeaarrzz)
+
 
 void print_dns_packet(unsigned char*);
 void print_nbns_header(unsigned char*);
