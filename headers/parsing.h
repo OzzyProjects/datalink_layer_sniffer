@@ -1,16 +1,16 @@
+/* Header file */
+
 #ifndef PARSING_H
 #define PARSING_H
+
+
+#define LLC_CONTROL_FIELD_FORMAT_XID		0xaf
 
 #define ETHERTYPE_IPV6			0x86dd
 #define ETHERTYPE_IEEE_8021Q	0x8100
 #define ETHERTYPE_EAPOL			0x888e
 #define ETHERTYPE_IPX_NOVELL    0x8137
 
-// IPv6 protocols numbers (most common or interesting one)
-
-#define IPV6_TCP		0x06
-#define IPV6_UDP		0x11
-#define IPV6_ICMP   	0x3A
 
 // IP protocols numbers (most common or interesting one)
 
@@ -22,7 +22,26 @@
 #define IPV4_SCTP		0x84
 
 
-// HCI H4 PROTOCOL VALUES
+// IPv6 protocols numbers (most common or interesting one)
+
+#define IPV6_TCP		0x06
+#define IPV6_UDP		0x11
+#define IPV6_ICMP   	0x3A
+
+
+// UDP protocols ports numbers
+
+#define UDP_PORT_DEST_DNS					0x0035
+#define UDP_PORT_DEST_NTP					0x007b
+#define UDP_PORT_DEST_SNMP				 	0x00a1
+#define UDP_PORT_DEST_NBNS				 	0x0089
+#define UDP_PORT_DEST_NETBIOS				0x008a
+#define UDP_PORT_DEST_MDNS				 	0x14e9
+#define UDP_PORT_DEST_LLMNR				 	0x14eb
+#define UDP_PORT_DEST_CANON_BJNP 			0x21a4
+
+
+// HCI H4 PROTOCOL VALUES (BLUETOOTH)
 
 #define HCI_H4_MAX_KEY_LENGTH		64
 #define HCI_H4_MAX_DEVICE_LENGTH	64
@@ -72,8 +91,6 @@
 #define SMP_OPCODE_PAIRING_RANDOM							0x04
 #define SMP_OPCODE_PAIRING_PUBLIC_KEY						0x0c
 
-
-
 // Linux SLL PROTOCOL VALUES
 
 // SLL type field
@@ -116,6 +133,7 @@
 
 
 // DNS PROTOCOL VALUES
+
 #define DNS_OPCODE_QUERRY		0x00
 #define DNS_OPCODE_STATUS		0x02
 #define DNS_OPCODE_NOTIFY		0x04
@@ -129,6 +147,7 @@
 
 
 // HOMEPLUG PROTOCOLS
+
 #define ETHERTYPE_HOMEPLUG     			0x887b
 #define ETHERTYPE_HOMEPLUG_POWERLINE    0x88e1
 
@@ -143,6 +162,7 @@
 
 
 // LLTD PROTOCOL
+
 #define ETHERTYPE_LLDT  		0x88d9
 #define ETHERTYPE_IEEE1905_1    0x893a
 #define ETHERTYPE_PROFINET_DCP	0x8892
@@ -162,13 +182,13 @@
 
 
 // Profinet values for option field
-#define PROFINET_DCP_OPTION_IP                 0x01
-#define PROFINET_DCP_OPTION_DEVICE             0x02
-#define PROFINET_DCP_OPTION_DHCP               0x03
-#define PROFINET_DCP_OPTION_RESERVED           0x04
-#define PROFINET_DCP_OPTION_CONTROL            0x05
-#define PROFINET_DCP_OPTION_DEVICEINITIATIVE   0x06
-#define PROFINET_DCP_OPTION_ALL				0xff
+#define PROFINET_DCP_OPTION_IP                 	0x01
+#define PROFINET_DCP_OPTION_DEVICE             	0x02
+#define PROFINET_DCP_OPTION_DHCP               	0x03
+#define PROFINET_DCP_OPTION_RESERVED           	0x04
+#define PROFINET_DCP_OPTION_CONTROL            	0x05
+#define PROFINET_DCP_OPTION_DEVICEINITIATIVE   	0x06
+#define PROFINET_DCP_OPTION_ALL					0xff
 
 
 // LLTD values  for function field
@@ -195,10 +215,17 @@
 #define IGMPV3_MESSAGE_MEMBERSHIP_REPORT	0X22
 #define IGMP_MESSAGE_LEAVE_GROUP			0X17
 
-#define ICMPV6_TYPE_ROUTER_SOL		0x87
+#define ICMPV6_TYPE_ECHO_REQUEST							0x80
+#define ICMPV6_TYPE_ECHO_REPLY								0x81
+#define ICMPV6_TYPE_ROUTER_SOLICITATION						0x85
+#define ICMPV6_TYPE_NEIGHBOOR_SOLICITATION					0x87
+#define ICMPV6_TYPE_NEIGHBOOR_ADVERTISEMENT					0x88
+#define ICMPV6_TYPE_REDIRECT								0x89
+#define ICMPV6_TYPE_MULTICAST_LISTENER_REPORT_MESSAGE		0x8f
 
 
-// OSI Layer 2 protocols
+// ------------------------------------------------------------------------ OSI Layer 2 protocols
+
 
 // Bluetooth protocols
 void parse_hci_h4_command_type(unsigned char*, int);
@@ -210,7 +237,8 @@ void parse_hci_h4_event_code_field(uint8_t);
 void parse_sll_type_field(uint16_t);
 void parse_linux_ipmb_flags_field(uint64_t);
 
-// OSI Layer 3 protocols
+// ------------------------------------------------------------------------ OSI Layer 3 protocols
+
 
 void parse_homeplug_av_type_field(uint16_t);
 void parse_homeplug_av_version_field(uint16_t);
@@ -227,8 +255,10 @@ void parse_profinet_dcp_option_field(uint8_t);
 void parse_igmp_message_type_field(uint8_t);
 
 void parse_icmp_type_field(uint8_t);
+void parse_icmpv6_type_field(uint8_t);
 
-// OSI Layer 7 protocols
+// ------------------------------------------------------------------------ OSI Layer 7 protocols
+
 
 void parse_dns_opcode_field(uint8_t);
 void parse_dns_rcode_field(uint8_t);
