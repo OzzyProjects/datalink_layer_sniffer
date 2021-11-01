@@ -561,6 +561,48 @@ void parse_icmp_type_field(uint8_t type_field){
 	}
 }
 
+
+// parsing ICMPv6 (also known as NDP) type field with the most common values
+
+void parse_icmpv6_type_field(uint8_t type_field){
+
+	switch(type_field){
+
+		case ICMPV6_TYPE_ECHO_REQUEST: 
+			printf("(Echo Request)\n");
+		break;
+
+		case ICMPV6_TYPE_ECHO_REPLY: 
+			printf("(Echo Reply)\n");
+		break;
+
+		case ICMPV6_TYPE_ROUTER_SOLICITATION: 
+			printf("(Router Solicitation)\n");
+		break;
+
+		case ICMPV6_TYPE_NEIGHBOOR_SOLICITATION: 
+			printf("(Neighboor Solicitation)\n");
+		break;
+
+		case ICMPV6_TYPE_NEIGHBOOR_ADVERTISEMENT: 
+			printf("(Neighboor Advertisement)\n");
+		break;
+
+		case ICMPV6_TYPE_REDIRECT: 
+			printf("(Redirect)\n");
+		break;
+
+		case ICMPV6_TYPE_MULTICAST_LISTENER_REPORT_MESSAGE: 
+			printf("(Multicast Listener Report Message)\n");
+		break;
+
+		default:
+			printf("(Unknown | Invalid)\n");
+
+	}
+}
+
+
 // parse the IGMP field service type with the most common values
 
 void parse_igmp_message_type_field(uint8_t message_field){
