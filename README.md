@@ -1,14 +1,12 @@
 # Datalink layer sniffer for Linux
 
-+ LAST UPDATE : NTP, SMB/Mailslot/Browser, the obscure one Canon BJNP and 802.3 frames with LLC
++ **LAST UPDATE : NTP, SMB/Mailslot/Browser, the obscure one Canon BJNP and 802.3 frames with LLC**
 
-**NEW RELEASE WITH BLUETOOTH IMPLEMENTATION - WORK IN PROGRESS**
+NEW RELEASE WITH BLUETOOTH IMPLEMENTATION - WORK IN PROGRESS
 
 **/!\ <ins>THE MODULE ENGINE FOR BLUETOOTH</ins> IS DEVELOPPED IN THE EXPERIMENTAL BRANCH. NO REAL BUG CHECKS, JUST THINKING ABOUT NEW APPROACHS AND CONCEPTS/!\ !**
 
-**Last update : new Bluetooth protocols mananged (L2CAP, HCI H4, OBEX etc...) and a raw sniffer engine designed for Bluetooth will come soon.**
-
-**DO NOT HESITATE TO LEAVE YOUR FEEDBACK TO LET ME DO SOME IMPROVEMENTS**
+DO NOT HESITATE TO LEAVE YOUR FEEDBACK TO LET ME DO SOME IMPROVEMENTS
 
 **New release working with libpcap. The older one dealt with raw sockets only**
 
@@ -16,7 +14,7 @@
 
 Right now, it can manage **Ethernet, 802.1x and Linux SLL datalink frames (more to come)**
 
-**It works also as a string extractor, displaying in output file revelant strings**
+It works also as a string extractor, displaying in output file revelant strings
 
 It grabs all revelant strings from packets : url, domain names, json requests etc...
 
