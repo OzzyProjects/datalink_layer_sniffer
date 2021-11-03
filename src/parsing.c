@@ -3,6 +3,7 @@
 #include "sock_utils.h"
 #include "parsing.h"
 
+
 /************************************* BLUETOOTH **************************************/
 
 // Parsing and Displaying HCI_H4 Command Type Packets
@@ -283,6 +284,44 @@ void parse_sll_type_field(uint16_t type_field){
 
 }
 
+/************************************* LLC PROTOCOL **************************************/
+
+void parse_llc_control_field(uint8_t ctrl_field){
+
+	switch(ctrl_field){
+
+		case LLC_CONTROL_FIELD_FORMAT_UI: 
+			printf("(Format UI)\n");
+			break;
+
+		case LLC_CONTROL_FIELD_FORMAT_DISC:
+			printf("(Format DISC)\n");
+			break;
+
+		case LLC_CONTROL_FIELD_FORMAT_UA:
+			printf("(Format UA)\n");
+			break;
+
+		case LLC_CONTROL_FIELD_FORMAT_DM:
+			printf("(Format DM)\n");
+			break;
+
+		case LLC_CONTROL_FIELD_FORMAT_XID_SABME:
+			printf("(Format XID SABME)\n");
+			break;
+
+		case LLC_CONTROL_FIELD_FORMAT_XID:
+			printf("(Format XID)\n");
+			break;
+
+		default:
+			printf("(Not implemented or Unknown\n");
+	}
+
+}
+
+
+/************************************* OTHER OSI LAYER 2 PROTOCOLS **************************************/
 
 // Parsing IPMB over I2C Flags with all registered values
 
@@ -290,43 +329,43 @@ void parse_linux_ipmb_flags_field(uint64_t flags){
 
 	switch(flags){
 
-		case LINUX_IMPB_FLAGS_PROMISCUOUS_MODE_ENABLED: 
+		case LINUX_IPMB_FLAGS_PROMISCUOUS_MODE_ENABLED: 
 			printf("(Promisc Mode Enabled)\n");
 			break;
 
-		case LINUX_IMPB_FLAGS_PROMISCUOUS_MODE_DISABLED:
+		case LINUX_IPMB_FLAGS_PROMISCUOUS_MODE_DISABLED:
 			printf("(Promisc Mode Disabled)\n");
 			break;
 
-		case LINUX_IMPB_FLAGS_WENT_OFFLINE:
+		case LINUX_IPMB_FLAGS_WENT_OFFLINE:
 			printf("(Went Offline)\n");
 			break;
 
-		case LINUX_IMPB_FLAGS_WENT_OFFLINE_2:
+		case LINUX_IPMB_FLAGS_WENT_OFFLINE_2:
 			printf("(Went Offline)\n");
 			break;
 
-		case LINUX_IMPB_FLAGS_ATTACHED_TO_I2C_BUS:
+		case LINUX_IPMB_FLAGS_ATTACHED_TO_I2C_BUS:
 			printf("(Attached to I2C Bus)\n");
 			break;
 
-		case LINUX_IMPB_FLAGS_DETACHED_TO_I2C_BUS:
+		case LINUX_IPMB_FLAGS_DETACHED_TO_I2C_BUS:
 			printf("(Detached to I2C Bus)\n");
 			break;
 
-		case LINUX_IMPB_FLAGS_PROMISC_BUFFER_IS_OVERFLOWED:
+		case LINUX_IPMB_FLAGS_PROMISC_BUFFER_IS_OVERFLOWED:
 			printf("(Promisc Buffer is Overflowed)\n");
 			break;
 
-		case LINUX_IMPB_FLAGS_PROMISC_BUFFER_NOTFULL:
+		case LINUX_IPMB_FLAGS_PROMISC_BUFFER_NOTFULL:
 			printf("(Promisc Buffer No Longer Full)\n");
 			break;
 
-		case LINUX_IMPB_FLAGS_I2C_DATA_IS_OVERFLOWED:
+		case LINUX_IPMB_FLAGS_I2C_DATA_IS_OVERFLOWED:
 			printf("(I2C Data is Overflowed)\n");
 			break;
 
-		case LINUX_IMPB_FLAGS_I2C_DATA_NO_LONGER_FULL:
+		case LINUX_IPMB_FLAGS_I2C_DATA_NO_LONGER_FULL:
 			printf("(I2C Data No Longer Full)\n");
 			break;
 
@@ -380,6 +419,48 @@ void parse_profinet_dcp_service_id_field(uint8_t service_id){
 
 	}
 }
+
+
+void parse_ieee_19051a_message_type_field(uint16_t msg_type){
+
+
+	switch(msg_type){
+
+		case IEEE_19051A_TOPOLOGY_DISCOVERY_MESSAGE: 
+			printf("(Topology Discovery)\n");
+			break;
+
+		case IEEE_19051A_TOPOLOGY_NOTIFICATION_MESSAGE : 
+			printf("(Topology Notification)\n");
+			break;
+
+		case IEEE_19051A_TOPOLOGY_QUERY_MESSAGE: 
+			printf("(Topology Query)\n");
+			break;
+
+		case IEEE_19051A_TOPOLOGY_RESPONSE_MESSAGE: 
+			printf("(Topology Response\n");
+			break;
+
+		case IEEE_19051A_VENDOR_SPECIFIC_MESSAGE: 
+			printf("(Vendor Specific)\n");
+			break;
+
+		case IEEE_19051A_LINK_METRIC_QUERY_MESSAGE: 
+			printf("(Link Metric Query\n");
+			break;
+ 
+ 		case IEEE_19051A_AP_AUTOCONFIGURATION_RENEW_MESSAGE: 
+			printf("(AP AUtoconfiguration Renew\n");
+			break;
+
+		default:
+			printf("Other Value or Unknown Value\n");
+
+	}
+
+}
+
 
 
 void parse_homeplug_av_type_field(uint16_t type){
