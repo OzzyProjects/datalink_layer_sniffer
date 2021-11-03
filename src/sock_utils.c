@@ -52,63 +52,72 @@ void process_layer2_packet(unsigned char* buffer, int size, int datalink_type){
 
         // the datalink type is not supported by capture card or an error occured
         case PCAP_ERROR_NOT_ACTIVATED:
-            fprintf(stderr, "ERROR : Failed to get the data link type\n");
+            fprintf(stderr, "\nFATAL ERROR : Failed to get the data link type !\n");
            	exit(EXIT_FAILURE);
            	break;
            	
 			// for the datalink type RAW, we do not use a specific header struct but we'gonna try to 
 			// mananage it specifically based on it's size etc...        
         case DLT_RAW:
-           	printf("RAW DATALINK\n");
+           	printf("\nRAW DATALINK\n");
             DATALINK_SIZE = 0;
             break;
 
         // Linux SLL = 16 Header bytes but it is Ethernet based (specific to monitor mode)
         case DLT_LINUX_SLL:
-            printf("Linux SLL\n");
+
+            printf("\nLinux SLL\n");
             DATALINK_SIZE = SLL_HDR_LEN;
             sll_header* sllhdr = (sll_header*)buffer;
        		print_datalink_header = &print_linux_sll_header;
        		
        		// getting the ethertype number and processing frame
         	ethertype = ntohs(sllhdr->sll_protocol);
-        	process_frame(buffer, size, ethertype, print_datalink_header);
+        	process_ethernet_frame(buffer, size, ethertype, print_datalink_header);
             break;
 
         // Ethernet = 14 Header Bytes
         case DLT_EN10MB:
-            printf("Ethernet\n");
+
+            printf("\nEthernet\n");
            	DATALINK_SIZE = ETH2_HEADER_LEN;
            	struct ethhdr *eth = (struct ethhdr *)buffer;
         	print_datalink_header = &print_ethernet_header;
         		
         	// getting the ethertype number and processing frame
         	ethertype = ntohs(eth->h_proto);
-       		process_frame(buffer, size, ethertype, print_datalink_header);
+
+            if (ethertype < 800){
+                process_802_3_frame(buffer, size);
+            }
+            else{
+                process_ethernet_frame(buffer, size, ethertype, print_datalink_header);
+            }
+
             break;
 
          // Bluetooth HCI H4 datalink layer protocol = 2 Header Bytes
         case DLT_BLUETOOTH_HCI_H4_WITH_PHDR:
-            printf("DLT_BLUETOOTH_HCI_H4_WITH_PHDR\n");
+            printf("\nDLT_BLUETOOTH_HCI_H4_WITH_PHDR\n");
             DATALINK_SIZE = HCI_H4_HDR_LEN;
             parse_bluetooth_packet(buffer, size);
             break;
             
 			// Many wireless protocols are based on this norm        
         case DLT_IEEE802_11:
-            printf("IEEE802 11 (not implemented yet )\n");
+            printf("\nIEEE802 11 (not implemented yet )\n");
             DATALINK_SIZE = 0;
             break;
 
         // IPMB/IPMI Layer 2 protocol (Not Implemented Yet)
         case DLT_IPMB_LINUX:
-            printf("IPMB/IPMI\n");
+            printf("\nIPMB/IPMI\n");
             DATALINK_SIZE = IPMB_HDR_LEN;
             print_linux_ipmb_pseudo_header(buffer, size);
             break;
 
         default:
-            printf("ERROR: Unknown Datalink type or Datalink type is not implemented yet\n");
+            printf("\nERROR: Unknown Datalink type or Datalink type is not implemented yet\n");
             exit(EXIT_FAILURE);
     }
 
@@ -120,12 +129,88 @@ void process_layer2_packet(unsigned char* buffer, int size, int datalink_type){
 
 /*********************************************** 802.11 PROTOCOLS (RADIOTAP) ***********************************************/
 
+/*********************************************** 802.3 FRAME ***********************************************/
+
+// Printing IEEE 802.3 Frame Header
+
+void print_802_3_frame_header(unsigned char* buffer){
+
+    struct ieee_802_3_frame_header* _802_3_hdr = (struct ieee_802_3_frame_header*)buffer;
+
+    printf("\nIEEE 802.3 Frame Header\n\n");
+
+    printf("   |-Destination Address    : %02X-%02X-%02X-%02X-%02X-%02X\n", _802_3_hdr->mac_dest[0] , _802_3_hdr->mac_dest[1] , _802_3_hdr->mac_dest[2] , 
+        _802_3_hdr->mac_dest[3] , _802_3_hdr->mac_dest[4] , _802_3_hdr->mac_dest[5]);
+
+    printf("   |-Source Address         : %02X-%02X-%02X-%02X-%02X-%02X\n", _802_3_hdr->mac_src[0] , _802_3_hdr->mac_src[1] , 
+        _802_3_hdr->mac_src[2] , _802_3_hdr->mac_src[3] , _802_3_hdr->mac_src[4] , _802_3_hdr->mac_src[5]);
+
+    printf("   |-Length                 : %x\n", ntohs(_802_3_hdr->length));
+
+}
+
+// Printing IEEE 802.3 LLC Header
+
+void print_llc_header(unsigned char* buffer, int* offset){
+
+    struct llc_header* llc_hdr = (struct llc_header*)(buffer + *offset);
+
+    *offset += sizeof(struct llc_header);
+
+    printf("\nLLC Header\n\n");
+
+    printf("   |-DSAP                   : %x\n", llc_hdr->dsap);
+    printf("   |-SSAP                   : %x\n", llc_hdr->ssap);
+
+    printf("   |-Control Field          : %x\t", llc_hdr->ctrl_field);
+    parse_llc_control_field(llc_hdr->ctrl_field);
+
+    if (llc_hdr->ctrl_field == LLC_CONTROL_FIELD_FORMAT_UI){
+
+        printf("   |-Organisation Code      : %02X%02X%02X\n", *((uint8_t*)(buffer + *offset)), *((uint8_t*)(buffer + *offset + 1)),
+            *((uint8_t*)(buffer + *offset + 2)));
+        printf("   |-PID                    : %x\n", *((uint8_t*)(buffer + *offset + 3)));
+
+    }
+
+    else if (llc_hdr->ctrl_field == LLC_CONTROL_FIELD_FORMAT_XID){
+
+        struct llc_basic_xid_header* xid_hdr = (struct llc_basic_xid_header*)(buffer + *offset);
+
+        printf("   |-XID Format             : %x\n", xid_hdr->xid_format);
+        printf("   |-LLC Types              : %x\n", xid_hdr->llc_types);
+        printf("   |-Windows Size           : %x\n", xid_hdr->windows_size);
+
+    }
+
+    else{
+
+        printf("This LLC Type  %x is not implemented yet ! In Progress...\n", llc_hdr->ctrl_field);
+    }
+
+}
+
+
+// Processing the IEEE 802.3 Frame
+
+void process_802_3_frame(unsigned char* buffer, int size){
+
+    int offset = sizeof(struct ieee_802_3_frame_header);
+
+    uint8_t llc_ctrl_field = *((uint8_t*)(buffer + offset + 2));
+
+    print_802_3_frame_header(buffer);
+
+    print_llc_header(buffer, &offset);
+
+}
+
 
 /*********************************************** ETHERNET PROTOCOLS ***********************************************/
 
 // Processing ethernet frame by ethertype
 
-void process_frame(unsigned char* buffer, int size, uint16_t proto, void (*print_datalink_header)(unsigned char*, int)){
+void process_ethernet_frame(unsigned char* buffer, int size, uint16_t proto, void (*print_datalink_header)(unsigned char*, int)){
 
     switch(proto){
 
@@ -358,8 +443,7 @@ void print_attribute_protocol_packet(unsigned char* buffer){
 void parse_bluetooth_smp_packet(unsigned char* buffer, int size){
     
     int public_key_size;
-    unsigned char public_key_1[128];
-    bluetooth_smp_pairing_packet* smp_packet;
+    unsigned char public_key_1[SMP_PUBLIC_KEY_MAX_LENGTH];
 
     printf("\n\nBluetooth Security Protocol Header\n");
     int offset = HCI_H4_HDR_LEN + sizeof(struct l2cap_header);
@@ -372,7 +456,6 @@ void parse_bluetooth_smp_packet(unsigned char* buffer, int size){
         // Pairing Key Request and Pairing Key Response have exactly the same format so we threat them together
         case SMP_OPCODE_PAIRING_REQUEST:
         case SMP_OPCODE_PAIRING_RESPONSE:
-            smp_packet = (bluetooth_smp_pairing_packet*)(buffer + offset);
             printf("   |-Opcode                            : %x\n", *((uint8_t*)(buffer + offset)));
             printf("   |-IO Capabilities                   : %x\n", *((uint8_t*)(buffer + offset + 1)));
             printf("   |-OOB Data Flags                    : %x\n", *((uint8_t*)(buffer + offset + 2)));
@@ -579,17 +662,17 @@ void print_homeplug_av_header(unsigned char* buffer){
     homeplug_av_header* home_av_hdr = (homeplug_av_header*)(buffer + DATALINK_SIZE);
 
     // getting type from unsigned short
-    type = *((uint16_t*)(buffer + DATALINK_SIZE + sizeof(home_av_hdr->protocol)));
+    type = ntohs(*((uint16_t*)(buffer + DATALINK_SIZE + sizeof(home_av_hdr->protocol))));
 
-    printf("\nHomeplug AV Header\n");
+    printf("\nHomeplug AV Header\n\n");
 
-    printf("   |-Protocol         : %x\n", home_av_hdr->protocol);
+    printf("   |-Protocol           : %x\n", home_av_hdr->protocol);
     //parse_homeplug_av_version_field(home_av_hdr->protocol);
 
-    printf("   |-Type            : %x\t", type);
+    printf("   |-Type               : %x\t", type);
     parse_homeplug_av_type_field(type);
 
-    printf("   |-Frag           : %x\n", home_av_hdr->frag);
+    printf("   |-Frag               : %x\n", home_av_hdr->frag);
 
 }
 
@@ -601,6 +684,7 @@ void print_homeplug_header(unsigned char* buffer){
     homeplug_header* home_hdr = (homeplug_header*)(buffer + DATALINK_SIZE);
 
     printf("\nHomeplug Header\n\n");
+
     printf("   |-Control Field    : %x\n", home_hdr->ctrl_field);
     printf("   |-MAC Entry        : %x\n", home_hdr->mac_entry);
     printf("   |-Entry Length     : %x\n", home_hdr->entry_length);
@@ -613,9 +697,15 @@ void print_ieee_1905_header(unsigned char* buffer){
     ieee_1905_header* ieee_hdr = (ieee_1905_header*)(buffer + DATALINK_SIZE);
 
     printf("\nIEEE 1905.1 Header\n\n");
-    printf("   |-Message version    : %x\n", ieee_hdr->msg_version);
-    printf("   |-Message type       : %x\n", ntohs(ieee_hdr->msg_type));
-    printf("   |-Message ID         : %x\n", ntohs(ieee_hdr->msg_id));
+
+    printf("   |-Message version        : %x\n", ieee_hdr->msg_version);
+
+    printf("   |-Message type           : %x\t", ntohs(ieee_hdr->msg_type));
+    parse_ieee_19051a_message_type_field(ntohs(ieee_hdr->msg_type));
+
+    printf("   |-Message ID             : %x\n", ntohs(ieee_hdr->msg_id));
+    printf("   |-Frag ID                : %x\n", ieee_hdr->frag_id);
+    printf("   |-Last Frag              : %x\n", ieee_hdr->last_frag);
 
     /* TODO : parse TLV */  
 }
@@ -627,7 +717,8 @@ void print_lltd_header(unsigned char* buffer){
 
     lltd_header* lltd_hdr = (lltd_header*)(buffer + DATALINK_SIZE);
 
-    printf("\nLLTD Header\n");
+    printf("\nLLTD Header\n\n");
+
     printf("   |-Version               : %x\n", lltd_hdr->version);
     printf("   |-Service Type          : %x\t", lltd_hdr->service_type);
     parse_lltd_service_type_field(lltd_hdr->service_type);
@@ -802,7 +893,9 @@ void print_icmpv6_packet(unsigned char* buffer, int offset, int size){
 
         printf("\n\nICMPv6_NDP Header\n");
 
-        printf("   |-Type            : %x\n", icmp6->type);
+        printf("   |-Type            : %x\t", icmp6->type);
+        parse_icmpv6_type_field(icmp6->type);
+
         printf("   |-Code            : %x\n", icmp6->code);
         printf("   |-Checksum        : %x\n", ntohs(icmp6->cksum));
         printf("   |-Subtype         : %x\n", icmp6->sub_type);
@@ -823,7 +916,9 @@ void print_icmpv6_packet(unsigned char* buffer, int offset, int size){
 
         printf("\n\nICMPv6 Header\n");
 
-        printf("   |-Type            : %x\n", icmp6->type);
+        printf("   |-Type            : %x\t", icmp6->type);
+        parse_icmpv6_type_field(icmp6->type);
+
         printf("   |-Code            : %x\n", icmp6->code);
         printf("   |-Checksum        : %x\n", ntohs(icmp6->cksum));
 
@@ -958,10 +1053,7 @@ void print_udp_packet(unsigned char *buffer , int size){
 
     // let's manage dns, mdns and nbns packages
     
-    if (ntohs(udph->dest) == DNS_PORT || ntohs(udph->dest) == MDNS_PORT) 
-        print_dns_packet(buffer);
-    else if(ntohs(udph->dest) == NBNS_PORT)
-        print_nbns_header(buffer);
+    process_udp_encapsulation(buffer, header_size, size, ntohs(udph->dest));
     
     printf("\n");
     printf("IP Header\n");
@@ -984,7 +1076,6 @@ void process_udp_encapsulation(unsigned char* buffer, int offset, int size, int 
 
 
     switch(dest_port){
-
         
         case UDP_PORT_DEST_DNS:
             print_dns_packet(buffer);
@@ -999,7 +1090,7 @@ void process_udp_encapsulation(unsigned char* buffer, int offset, int size, int 
             break;
 
         case UDP_PORT_DEST_NETBIOS:
-            print_netbios_datagram_header(buffer, offset);
+            print_netbios_datagram_header(buffer, offset, size);
             break;
 
         case UDP_PORT_DEST_MDNS:
@@ -1016,6 +1107,9 @@ void process_udp_encapsulation(unsigned char* buffer, int offset, int size, int 
     }
 
 }
+
+
+// Displays Network Time Protocol Packet (NTP)
 
 
 void print_ntp_packet(unsigned char* buffer, int offset){
@@ -1039,58 +1133,181 @@ void print_ntp_packet(unsigned char* buffer, int offset){
 }
 
 
-void print_netbios_datagram_header(unsigned char* buffer, int offset){
+/* function used to extract string field in Netbios packet because it's kinda hard to do it proprely in another way
+   it's about non fixed strings with one char suffix
+    - buffer    : unsigned char pointer to packet
+    - offset    : int pointer standing for current offset, will be updated during the call
+    - name      : char pointer that will be assignated to the string extracted
+*/
 
-    char ip_src[IPV4_LENGTH];
+
+int extract_netbios_datagramm_name(unsigned char* buffer, int* offset, char* name){
+
+    // firstable, we save the base offset to compute after possible overflow troubles
+    int base_offset = *offset;
+
+    // 0x20 is the value of highest netbios suffix value + every char below are also non printable
+    while(*(buffer + *offset) <= 0x20 && *offset - base_offset < NETBIOS_DATAGRAM_NAME_LENGTH)
+        ++*offset;
+
+    // finally, index will be size of netbios name
+    int name_index = 0;
+
+    // we can now iterate over consecutive printable chars = concrete netbios name without garbage prefix and suffix
+    while (*(buffer + *offset) > 0x20 && name_index < NETBIOS_DATAGRAM_NAME_LENGTH){
+        name[name_index] = (char)(*(buffer + *offset));
+        ++*offset;
+        name_index++;
+    }
+
+    // null terminated string for sure
+    name[name_index] = '\0';
+
+    // we continue to loop over non printable chars ( = Netbios suffix names)
+
+    while(*(buffer + *offset) <= 0x20 &&  *offset - base_offset < NETBIOS_DATAGRAM_NAME_LENGTH)
+        ++*offset;
+
+    // and we have now the current offset up to date and we can return the size of netbios name string + 1 (null char added at the end)
+    return ++name_index;
+}
+
+
+// Displays the NETBIOS Datagram Header
+
+void print_netbios_datagram_header(unsigned char* buffer, int offset, int size){
+
+    // the last two fields are null terminated strings with non fixed size
+    char src_name[NETBIOS_DATAGRAM_NAME_LENGTH];
+    char dst_name[NETBIOS_DATAGRAM_NAME_LENGTH];
+
+    // we compute the new offset value 
+    int new_offset = offset + sizeof(struct netbios_datagram_header);
 
     struct netbios_datagram_header* nbios_hdr = (struct netbios_datagram_header*)(buffer + offset);
 
     printf("\nNETBIOS DATAGRAM Header\n\n");
 
-    printf("   |-Message Type       : %x\n" , nbios_hdr->msg_type);
-    printf("   |-Flags              : %x\n" , nbios_hdr->flags);
-    printf("   |-Datagram ID        : %x\n" , ntohs(nbios_hdr->dgram_id));
+    printf("   |-Message Type           : %x\n" , nbios_hdr->msg_type);
+    printf("   |-Flags                  : %x\n" , nbios_hdr->flags);
+    printf("   |-Datagram ID            : %x\n" , ntohs(nbios_hdr->dgram_id));
+    printf("   |-IP Source              : %s\n" , inet_ntoa(nbios_hdr->ip_src));
+    printf("   |-Port Source            : %x\n" , ntohs(nbios_hdr->port_src));
+    printf("   |-Datagram Length        : %x\n" , ntohs(nbios_hdr->dgram_len));
+    printf("   |-Offset                 : %x\n" , ntohs(nbios_hdr->offset));
 
-    inet_ntop(AF_INET, &nbios_hdr->ip_src, ip_src, sizeof(struct in_addr));
-    printf("   |-IP Source          : %s\n" , ip_src);
+    // from the base header, we can get the last two fields header : source name and destination name
+    // because it's two null terminated non fixed size strings
 
-    printf("   |-Port Source        : %x\n" , ntohs(nbios_hdr->port_src));
-    printf("   |-Offset             : %x\n" , nbios_hdr->offset);
-    printf("   |-Source Name        : %s\n" , nbios_hdr->src_name);
-    printf("   |-Destination Name   : %s\n" , nbios_hdr->dst_name);
+    extract_netbios_datagramm_name(buffer, &new_offset, src_name);
+    printf("   |-Source Name            : %s\n" , src_name);
+
+    extract_netbios_datagramm_name(buffer, &new_offset, dst_name);
+    printf("   |-Destination Name       : %s\n" , dst_name);
+
+    printf("\n\nSIZE OF SRC NAME : %lu\n\n", strlen(src_name));
+    // now, we can display the next protocol header, SMB, based on new offset
+
+    print_smb_header(buffer, new_offset, size);
 
 }
 
 
-void print_smb_header(unsigned char* buffer, int offset){
+// Displays the Service Message Block Header
+
+void print_smb_header(unsigned char* buffer, int offset, int size){
 
     struct smb_header* smbhdr = (struct smb_header*)(buffer + offset);
 
-    printf("\nNETBIOS DATAGRAM Header\n\n");
+    // we compute the new offset to get the new valid one after the struct
+    int new_offset = offset + sizeof(struct smb_header);
 
-    printf("   |-Server Componant       : %x\n" , ntohl(smbhdr->smb_cmpt));
+    printf("\nSERVER MESSAGE BLOCK Header\n\n");
+
+    printf("   |-Server Componant       : %x\n" , __my_swab32(smbhdr->smb_cmpt));
     printf("   |-Server Command         : %x\n" , smbhdr->smb_command);
     printf("   |-Error Class            : %x\n" , smbhdr->error_class);
     printf("   |-Error Class            : %x\n" , ntohs(smbhdr->error_code));
     printf("   |-Flags 1                : %x\n" , smbhdr->flags);
     printf("   |-Flags 2                : %x\n" , ntohs(smbhdr->flags2));
     printf("   |-Process ID High        : %x\n" , ntohs(smbhdr->process_id_high));
-
-    printf("   |-Signature              : %02X%02X%02X%02X%02X%02X%02X%02X\n" , smbhdr->signature[0], smbhdr->signature[1], smbhdr->signature[2], smbhdr->signature[3],
-        smbhdr->signature[4], smbhdr->signature[5], smbhdr->signature[6], smbhdr->signature[7]);
-
+    printf("   |-Signature              : %x\n" , ntohl(smbhdr->signature));
     printf("   |-Tree ID                : %x\n" , ntohs(smbhdr->tree_id));
     printf("   |-Process ID             : %x\n" , ntohs(smbhdr->process_id));
     printf("   |-User ID                : %x\n" , ntohs(smbhdr->user_id));
     printf("   |-Multiplex ID           : %x\n" , ntohs(smbhdr->multiplex_id));
 
+    // next, we parse the last part of header according to server command type field (in progress)
+    // now only one value for SMB command is processed
+
+    if (smbhdr->smb_command == SMB_COMMAND_TRANS_REQUEST){
+
+        print_smb_command_trans_request(buffer, &new_offset); 
+    }
+    else{
+        printf("The SMB Command %x is not yet implemented ! In Progress...\n", smbhdr->smb_command);
+    }
+
+    print_smb_mailslot_header(buffer, new_offset, size);
 
 }
 
 
-void print_smb_mailslot_header(unsigned char* buffer, int offset){
+// Displays the part of SMB Header when it's Trans Command SMB packet
+
+void print_smb_command_trans_request(unsigned char* buffer, int* offset){
+
+
+    // the transaction name is the last field of SMB Header :  non fixed size string
+    char transaction_name[SMB_COMMAND_TRANSACTION_NAME_LENGTH];
+    int transac_name_size = 0;
+
+    struct smb_command_trans_request* smb_trans_cmd = (struct smb_command_trans_request*)(buffer + *offset);
+
+    // we compute the new offset value to be able to process the next steps
+    int new_offset = *offset + sizeof(struct smb_command_trans_request);
+
+    printf("\nSMB Command Trans Request\n\n");
+
+    printf("   |-Word Count                 : %x\n" , smb_trans_cmd->word_cnt);
+    printf("   |-Total Parameters           : %x\n" , __my_swab16(smb_trans_cmd->total_param));
+    printf("   |-Total Data Count           : %x\n" , __my_swab16(smb_trans_cmd->total_data_cnt));
+    printf("   |-Max Parameters Count       : %x\n" , ntohs(smb_trans_cmd->max_param_cnt));
+    printf("   |-Max Data Count             : %x\n" , ntohs(smb_trans_cmd->max_data_cnt));
+    printf("   |-Max Setup Count            : %x\n" , smb_trans_cmd->max_setup_cnt);
+    printf("   |-Flags                      : %x\n" , ntohs(smb_trans_cmd->flags));
+    printf("   |-Timeout                    : %x\n" , __my_swab32(smb_trans_cmd->timeout));
+    printf("   |-Parameters Count           : %x\n" , ntohs(smb_trans_cmd->param_cnt));
+    printf("   |-Parame Offset              : %x\n" , ntohs(smb_trans_cmd->param_offset));
+    printf("   |-Data Count                 : %x\n" , ntohs(smb_trans_cmd->data_cnt));
+    printf("   |-Data Offset                : %x\n" , ntohs(smb_trans_cmd->data_offset));
+    printf("   |-Setup Count                : %x\n" , ntohs(smb_trans_cmd->setup_cnt));
+    printf("   |-Byte Count (BCC)           : %x\n" , __my_swab16(smb_trans_cmd->byte_cnt));
+
+    // we can extract from the SMB packet, the string field transaction name
+
+    transac_name_size = extract_netbios_datagramm_name(buffer, &new_offset, transaction_name);
+
+    if (transac_name_size != NETBIOS_DATAGRAM_NAME_LENGTH){
+
+        printf("   |-Transaction Name           : %s\n" , transaction_name);
+
+    }
+
+}
+
+// Displays the SMB MAILSLOT Header (allways encapsulated in Netbios packets)
+
+void print_smb_mailslot_header(unsigned char* buffer, int offset, int size){
+
+    // last field of maislot header, null terminated non fixed size string
+    char mailslot_name[MAILSLOT_NAME_MAX_LENGTH];
+    int mailslot_name_size = 0;
 
     struct smb_mailslot_header* smb_mslot_hdr = (struct smb_mailslot_header*)(buffer + offset);
+
+    // we compute the new offset value for the last field : mailslot name
+    int new_offset = offset + sizeof(struct smb_mailslot_header);
 
     printf("\nSMB MAILSLOT Header\n\n");
 
@@ -1098,10 +1315,105 @@ void print_smb_mailslot_header(unsigned char* buffer, int offset){
     printf("   |-Priority           : %x\n", ntohs(smb_mslot_hdr->priority));
     printf("   |-Class              : %x\n", ntohs(smb_mslot_hdr->mclass));
     printf("   |-Size               : %x\n", ntohs(smb_mslot_hdr->size));
-    printf("   |-Mailslot Name      : %s\n", buffer + offset + 8);
+
+    mailslot_name_size = extract_netbios_datagramm_name(buffer, &new_offset, mailslot_name);
+    printf("   |-Mailslot Name      : %s\n", mailslot_name);
+
+    if (mailslot_name_size <= MAILSLOT_NAME_MAX_LENGTH + 1){
+
+        // after printing the mailslot header, we can now display the browser packet
+        print_microsoft_browser_packet(buffer, new_offset, size);
+
+    }
 
 }
 
+
+// The top OSI Layer Porotocol based on SMB : Microsoft Browser
+// this function parses the Browser Packets according to their Browser Command values
+
+void print_microsoft_browser_packet(unsigned char* buffer, int offset, int size){
+
+    
+    printf("\nMICROSOFT BROWSER Packet\n\n");
+
+    // we need to get the command value before processing packet
+    uint8_t browser_command = *((uint8_t*)(buffer + offset));
+
+    // for these command values, the packet struct is the same
+    if (browser_command == BROWSER_COMMAND_HOST_ANNOUNCEMENT || browser_command == BROWSER_COMMAND_LOCAL_MASTER_ANNOUNCEMENT ||
+        browser_command == BROWSER_COMMAND_WORKGROUP_ANNOUNCEMENT){
+
+        print_browser_announcement_packet(buffer, offset, size);
+
+    }
+    else if (browser_command == BROWSER_COMMAND_ELECTION_REQUEST){
+
+        print_browser_election_request_packet(buffer, offset, size);
+
+    }
+
+    else{
+
+        printf("The Browser Command %x is not yet implemented ! In Progress...\n", browser_command);        
+
+    }
+
+}
+
+// The top OSI Layer Porotocol based on SMB : Microsoft Browser
+// Here a particular type of Browser packet is processed : Browser Announcement Packet
+
+void print_browser_announcement_packet(unsigned char* buffer, int offset, int size){
+
+    // we compute the new offset value for the last field : host comment, non fixed size string 
+    int new_offset = offset + sizeof(struct browser_announcement_packet);
+
+    struct browser_announcement_packet* announ_pkt = (struct browser_announcement_packet*)(buffer + offset);
+
+    printf("   |-Command                    : %x\n" , announ_pkt->command);
+    printf("   |-Update Count               : %x\n" , announ_pkt->update_cnt);
+    printf("   |-Update Period              : %x\n" , ntohl(announ_pkt->update_period));
+    printf("   |-Host Name                  : %s\n" , announ_pkt->host_name);
+    printf("   |-Windows Version            : %x\n" , ntohs(announ_pkt->windows_ver));
+    printf("   |-OS Major Version           : %x\n" , announ_pkt->os_maj_version);
+    printf("   |-OS Minor Version           : %x\n" , announ_pkt->os_min_version);
+    printf("   |-Server Type                : %x\n" , ntohl(announ_pkt->server_type));
+    printf("   |-Browser Major Version      : %x\n" , announ_pkt->os_maj_version);
+    printf("   |-Browser Minor Version      : %x\n" , announ_pkt->os_min_version);
+    printf("   |-Signature                  : %x\n" , ntohs(announ_pkt->os_min_version));
+
+    printf("   |-Host Comment               : ");
+    fwrite(buffer + new_offset, sizeof(char), size - new_offset, stdout);
+    printf("\n");
+
+}
+
+// The top OSI Layer Porotocol based on SMB : Microsoft Browser
+// Here a particular type of Browser packet is processed : Browser Election Request Packet
+
+void print_browser_election_request_packet(unsigned char* buffer, int offset, int size){
+
+    // we compute the new offset value for the last field : host comment, non fixed size string 
+    int new_offset = offset + sizeof(struct browser_election_request_packet);
+
+    struct browser_election_request_packet* elect_packet = (struct browser_election_request_packet*)(buffer + offset);
+
+    printf("   |-Command                    : %x\n" , elect_packet->command);
+    printf("   |-Election Version           : %x\n" , elect_packet->election_ver);
+    printf("   |-Election Desire            : %x\n" , elect_packet->election_desire);
+    printf("   |-Browser Major Version      : %x\n" , elect_packet->browser_maj_ver);
+    printf("   |-Browser Minor Version      : %x\n" , elect_packet->browser_min_ver);
+    printf("   |-Election OS                : %x\n" , elect_packet->election_os);
+
+    printf("   |-Server Name                : ");
+    fwrite(buffer + new_offset, sizeof(char), size - new_offset, stdout);
+    printf("\n");
+
+}
+
+
+// Displays BJNP Protocol Header (a custom protocol by Canon and a preferential choice to exploit)
 
 void print_canon_bjnp_header(unsigned char* buffer, int offset){
 
@@ -1119,6 +1431,8 @@ void print_canon_bjnp_header(unsigned char* buffer, int offset){
 
 }
 
+
+// Displays LLMNR Protocol Header
 
 void print_llmnr_header(unsigned char* buffer, int offset){
 
@@ -1389,54 +1703,6 @@ void print_data(unsigned char* data , int size){
     }
 }
 
-
-// An other function that doeas the same thing  
-
-void print_hex_ascii_line(const u_char *payload, int len, int offset){
-
-    int i;
-    int gap;
-    const u_char *ch;
-
-    /* offset */
-    printf("%05d   ", offset);
-
-    /* hex */
-    ch = payload;
-    for(i = 0; i < len; i++) {
-        printf("%02x ", *ch);
-        ch++;
-        /* print extra space after 8th byte for visual aid */
-        if (i == 7)
-            printf(" ");
-    }
-    /* print space to handle line less than 8 bytes */
-    if (len < 8)
-        printf(" ");
-
-    /* fill hex gap with spaces if not full line */
-    if (len < 16) {
-        gap = 16 - len;
-        for (i = 0; i < gap; i++) {
-            printf("   ");
-        }
-    }
-    
-    printf("   ");
-
-    /* ascii (if printable) */
-    ch = payload;
-    for(i = 0; i < len; i++) {
-        if (isprint(*ch))
-            printf("%c", *ch);
-        else
-            printf(".");
-        ch++;
-    }
-
-    printf("\n");
-
-}
 
 /* 
 Printing current time of the capture for each frame to in the end , get the most infos as possible
