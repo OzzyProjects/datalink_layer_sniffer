@@ -1,8 +1,11 @@
 /********************************************************************************
  *                                                                              *
  *  Program      : Datalink layer sniffer                                       *
+ *                                                                              *
  *  Version      : 2.1                                                          *
+ *                                                                              *    
  *  Ahthor       : Armangau Etienne                                             *
+ *                                                                              *
  *  Contact      : <armangau_etienne@yahoo.fr>                                  *
  *                                                                              * 
  *******************************************************************************/                                                              
@@ -398,6 +401,8 @@ void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char 
 
     ++num_packet;
 
+    print_current_time();
+
     // let's process the frames now
 
     process_layer2_packet(raw_packet, header->caplen, datalink_type);
@@ -443,5 +448,4 @@ void usage(){
     printf("\nExample : ./raw_sock -i wlp4s0 -r strings_log -f \"not ipx\" -t 1024 -c 0\n");
     printf(" Binding to one device, recording strings to file, applying filters to the capture and setting timeout\n");
 }
-
 
