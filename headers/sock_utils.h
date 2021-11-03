@@ -92,7 +92,14 @@ static struct sock_filter bpfcode[8] = {
 #define MAC_LENGTH                      6
 #define IPV4_LENGTH                     4
 #define HCI_H4_DEVICE_NAME_LENGTH       32
-#define NETBIOS_DATAGRAM_NAME_LENGTH    34
+#define SMP_PUBLIC_KEY_MAX_LENGTH       128
+
+#define NETBIOS_DATAGRAM_NAME_LENGTH            64
+#define SMB_COMMAND_TRANSACTION_NAME_LENGTH     64
+
+// because i don't know the specifications about mailslot name max length, i've fixed to the same value as windows max path length
+#define MAILSLOT_NAME_MAX_LENGTH        64
+#define BROWSER_HOSTNAME_LENGTH         64
 
 #define PCAP_FILTER_SIZE                64
 #define RECORD_FILENAME_SIZE            32
@@ -107,8 +114,45 @@ static struct sock_filter bpfcode[8] = {
 
 //typedef void (*)(unsigned char*, int) hdr_funct_ptr;
 
+/*********************************** OSI LAYER 2 FRAME STRUCTS ***********************************/
+
+
+typedef struct ieee_802_3_frame_header{
+
+    uint8_t mac_dest[MAC_LENGTH];
+    uint8_t mac_src[MAC_LENGTH];
+    uint16_t length;
+
+} __attribute__((packed)) ieee_802_3_frame_header;
+
+
 
 /*********************************** OSI LAYER 2 PROTOCOL STRUCTS ***********************************/
+
+
+// Logigal Link Control Header encapsulated into 802.3 frames
+
+typedef struct llc_header {
+
+    uint8_t dsap;
+    uint8_t ssap;
+    uint8_t ctrl_field;
+
+} __attribute__((packed)) llc_header;
+
+
+// Basic Xid Struct Header (an LLC format type among others)
+
+typedef struct llc_basic_xid_header {
+
+    uint8_t xid_format;
+    uint8_t llc_types;
+    uint8_t windows_size;
+
+
+} __attribute__((packed)) llc_basic_xid_header;
+
+
 
 // HCI_H4 PROTOCOL (BLUETOOTH)
 
@@ -127,6 +171,7 @@ typedef struct pseudo_hci_event_header {
     uint8_t event_code;
     uint8_t param_len;
     uint16_t connexion_handle;
+
     
 } __attribute__((packed)) pseudo_hci_event_header;
 
@@ -140,6 +185,7 @@ typedef struct hci_h4_command_complete_header {
     uint8_t allowed_cmd_packets;
     uint16_t command_opcode;
     uint8_t status;
+
     
 } __attribute__((packed)) hci_h4_command_complete_header;
 
@@ -152,6 +198,7 @@ typedef struct hci_h4_rem_name_req {
     uint8_t status;
     char src_addr[MAC_LENGTH];
     char remote_name[HCI_H4_DEVICE_NAME_LENGTH];
+
 
 } __attribute__((packed)) hci_h4_rem_name_req;
 
@@ -188,6 +235,7 @@ typedef struct bluetooth_smp_pairing_packet {
     uint8_t auth_flags;
     uint8_t init_key_distrib;
 
+
 } __attribute__((packed)) bluetooth_smp_pairing_packet;
 
 
@@ -197,6 +245,7 @@ typedef struct bnep_header {
 
     uint8_t bnep_type;
     uint8_t ctrl_type;
+
     
 } __attribute__((packed)) bnep_header;
 
@@ -210,15 +259,17 @@ typedef struct att_attribute_data {
     uint16_t value_handle;
     uint16_t uuid;
 
+
 } __attribute__((packed)) att_attribute_data; 
 
 // 802.11 Protocols (Known also as Radiotap)
 
 typedef struct radiotap_header {
 
-        uint8_t it_rev; // Revision: Version of RadioTap
-        uint8_t it_pad; // Padding: 0 - Aligns the fields onto natural word boundaries
-        uint16_t it_len;// Length: 26 - entire length of RadioTap header
+    uint8_t hdr_revision;
+    uint8_t hdr_pad;
+    uint16_t hdr_len;
+
 
 } radiotap_header;
 
@@ -514,6 +565,7 @@ typedef struct ntp_packet {
 } __attribute__((__packed__)) ntp_packet; 
 
 
+
 // NETBIOS DATAGRAMM Protocol struct
 
 typedef struct netbios_datagram_header {
@@ -523,19 +575,22 @@ typedef struct netbios_datagram_header {
     uint16_t dgram_id;
     struct in_addr ip_src;
     uint16_t port_src;
+    uint16_t dgram_len;
     uint16_t offset;
-    unsigned char src_name[NETBIOS_DATAGRAM_NAME_LENGTH];
-    unsigned char dst_name[NETBIOS_DATAGRAM_NAME_LENGTH];
+
+    //unsigned char* src_name;
+    //unsigned char* dst_name;
 
 
-} __attribute__((packed)) netbios_dgram_header;
+} __attribute__((packed)) netbios_datagram_header;
+
 
 
 // SMB Protocol Header Struct
 
 typedef struct smb_header {
 
-    uint64_t smb_cmpt;
+    uint32_t smb_cmpt;
     uint8_t smb_command;
     uint8_t error_class;
     uint8_t reserved;
@@ -543,14 +598,45 @@ typedef struct smb_header {
     uint8_t flags;
     uint16_t flags2;
     uint16_t process_id_high;
-    uint8_t signature[8];
+    uint64_t signature;
     uint16_t reserved2;
     uint16_t tree_id;
     uint16_t process_id;
     uint16_t user_id;
     uint16_t multiplex_id;
 
+
 } __attribute__((packed)) smb_header;
+
+
+
+// SMB struct for SMB Command Trans Request Packets
+
+typedef struct smb_command_trans_request {
+
+    uint8_t word_cnt;
+    uint16_t total_param;
+    uint16_t total_data_cnt;
+    uint16_t max_param_cnt;
+    uint16_t max_data_cnt;
+    uint8_t max_setup_cnt;
+    uint8_t reserved;
+    uint16_t flags;
+    uint32_t timeout;
+    uint16_t reserved2;
+    uint16_t param_cnt;
+    uint16_t param_offset;
+    uint16_t data_cnt;
+    uint16_t data_offset;
+    uint8_t setup_cnt;
+    uint8_t reserved3;
+    uint16_t byte_cnt;
+
+    // unsigned char* trans_name
+
+
+} __attribute__((packed)) smb_command_trans_request;
+
 
 
 // SMB MAILSLOT Protocol Header Struct
@@ -564,6 +650,48 @@ typedef struct smb_mailslot_header {
     // unsigned char* mailslot_name, a string ending by null char
 
 } __attribute__((packed)) smb_mailslot_header;
+
+
+
+// BROWSER announcement packet struct
+
+typedef struct browser_announcement_packet {
+
+
+    uint8_t command;
+    uint8_t update_cnt;
+    uint64_t update_period;
+    char host_name[BROWSER_HOSTNAME_LENGTH];
+    uint16_t windows_ver;
+    uint8_t os_maj_version;
+    uint8_t os_min_version;
+    uint64_t server_type;
+    uint8_t browser_maj_ver;
+    uint8_t browser_min_ver;
+    uint16_t signature;
+
+    // char* host_comment
+
+} __attribute__((packed)) browser_announcement_packet;
+
+
+
+// BROWSER Election Request packet struct
+
+typedef struct browser_election_request_packet {
+
+    uint8_t command;
+    uint8_t election_ver;
+    uint8_t election_desire;
+    uint8_t browser_maj_ver;
+    uint8_t browser_min_ver;
+    uint8_t election_os;
+    uint64_t uptime;
+
+    // char* server_name
+
+
+} __attribute__((packed)) browser_election_request_packet;
 
 
 
@@ -647,6 +775,7 @@ typedef struct nbns_header {
 
 /************************************* Functions declarations *************************************/
 
+
 // Usefull generic functions
 
 int print_devices_list(uint8_t);
@@ -658,13 +787,15 @@ void print_current_time();
 
 void print_char_to_hex(unsigned char*, int, int);
 void print_data(unsigned char* , int);
-void print_hex_ascii_line(const u_char*, int, int);
 
 
 // ---------------- OSI Layer 2/3 Protocol Functions
 
+void process_802_3_frame(unsigned char*, int);
+void print_802_3_frame_header(unsigned char*);
+void print_llc_header(unsigned char*, int*);
 
-void process_frame(unsigned char* , int, uint16_t, void (*)(unsigned char*, int));
+void process_ethernet_frame(unsigned char* , int, uint16_t, void (*)(unsigned char*, int));
 void process_layer2_packet(unsigned char* , int, int);
 void parse_bluetooth_packet(unsigned char*, int);
 
@@ -702,28 +833,38 @@ void print_ip6_header(unsigned char*, int);
 void print_sctp_header(unsigned char*);
 
 
-// ---------------- OSI Layer 4 protocols functions
+// ---------------- OSI Layer 4 protocol functions
 
 
-void print_tcp_packet(unsigned char* , int );
-void print_udp_packet(unsigned char* , int );
+void print_tcp_packet(unsigned char* , int);
+void print_udp_packet(unsigned char* , int);
 
 
-// ---------------- OSI Layer 5 protocols functions
+// ---------------- OSI Layer 5 protocol functions
 
 
 void process_udp_encapsulation(unsigned char*, int, int, int);
 
 void print_ntp_packet(unsigned char*, int);
-void print_netbios_datagram_header(unsigned char*, int);
-void print_smb_header(unsigned char*, int);
-void print_smb_header(unsigned char*, int);
-void print_smb_mailslot_header(unsigned char*, int);
+
+// NETBIOS / SMB Protocols (tricky and smart DNS bypass which still works)
+
+void print_netbios_datagram_header(unsigned char*, int, int);
+
+void print_smb_header(unsigned char*, int, int);
+void print_smb_command_trans_request(unsigned char*, int*);
+void print_smb_mailslot_header(unsigned char*, int, int);
+void print_microsoft_browser_packet(unsigned char*, int, int);
+void print_browser_announcement_packet(unsigned char*, int, int);
+void print_browser_election_request_packet(unsigned char*, int, int);
+int extract_netbios_datagramm_name(unsigned char*, int*, char*);
+
+// BJNP : the custom protocol protocol implemented by Canon to interact with Pixma devices (nice target to exploit)
 
 void print_canon_bjnp_header(unsigned char*, int);
 
 
-// ---------------- OSI Layer 7 protocols (bnut a chdeaarrzz)
+// ---------------- OSI Layer 7 protocol functions
 
 
 void print_dns_packet(unsigned char*);
