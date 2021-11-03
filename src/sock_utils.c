@@ -1205,9 +1205,7 @@ void print_netbios_datagram_header(unsigned char* buffer, int offset, int size){
     extract_netbios_datagramm_name(buffer, &new_offset, dst_name);
     printf("   |-Destination Name       : %s\n" , dst_name);
 
-    printf("\n\nSIZE OF SRC NAME : %lu\n\n", strlen(src_name));
     // now, we can display the next protocol header, SMB, based on new offset
-
     print_smb_header(buffer, new_offset, size);
 
 }
