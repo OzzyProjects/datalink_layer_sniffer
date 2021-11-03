@@ -191,7 +191,7 @@ void print_llc_header(unsigned char* buffer, int* offset){
 }
 
 
-// Processing the IEEE 802.3 Frame
+// Processing the IEEE 802.3 Frame (IN PROGRESS...)
 
 void process_802_3_frame(unsigned char* buffer, int size){
 
