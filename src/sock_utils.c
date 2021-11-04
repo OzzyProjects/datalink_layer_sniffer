@@ -149,12 +149,14 @@ void print_802_3_frame_header(unsigned char* buffer){
 
 }
 
+
 // Printing IEEE 802.3 LLC Header
 
 void print_llc_header(unsigned char* buffer, int* offset){
 
     struct llc_header* llc_hdr = (struct llc_header*)(buffer + *offset);
 
+    // we compute the new offset avalaible by increment it by the size of the actual struct
     *offset += sizeof(struct llc_header);
 
     printf("\nLLC Header\n\n");
@@ -171,6 +173,9 @@ void print_llc_header(unsigned char* buffer, int* offset){
             *((uint8_t*)(buffer + *offset + 2)));
         printf("   |-PID                    : %x\n", *((uint8_t*)(buffer + *offset + 3)));
 
+        // 4 bytes : the size of two more fields for UI format -> updating the current offset value
+        *offset += 4;
+
     }
 
     else if (llc_hdr->ctrl_field == LLC_CONTROL_FIELD_FORMAT_XID){
@@ -180,6 +185,9 @@ void print_llc_header(unsigned char* buffer, int* offset){
         printf("   |-XID Format             : %x\n", xid_hdr->xid_format);
         printf("   |-LLC Types              : %x\n", xid_hdr->llc_types);
         printf("   |-Windows Size           : %x\n", xid_hdr->windows_size);
+
+        // updating the current offset value
+        *offset += sizeof(struct llc_basic_xid_header);
 
     }
 
@@ -191,9 +199,9 @@ void print_llc_header(unsigned char* buffer, int* offset){
 }
 
 
-// Processing the IEEE 802.3 Frame (IN PROGRESS...)
+// Processing the IEEE 802.3 Frame
 
-void process_802_3_frame(unsigned char* buffer, int size){
+void process_802_3_frame(unsigned char* buffer, int size __attribute__((unused))){
 
     int offset = sizeof(struct ieee_802_3_frame_header);
 
@@ -440,7 +448,7 @@ void print_attribute_protocol_packet(unsigned char* buffer){
 
 // Parsing Bluetooth Security Protocol Packets 
 
-void parse_bluetooth_smp_packet(unsigned char* buffer, int size){
+void parse_bluetooth_smp_packet(unsigned char* buffer, int size __attribute__((unused))){
     
     int public_key_size;
     unsigned char public_key_1[SMP_PUBLIC_KEY_MAX_LENGTH];
@@ -511,6 +519,38 @@ void print_ethernet_header(unsigned char* buffer){
 }
 
 
+/*********************************************** ETHERCAT PROTOCOL ***********************************************/
+
+
+void print_ethercat_frame_header(unsigned char* buffer){
+
+    uint16_t ethercat_hdr = FIRST_TWO_BYTES(buffer);
+
+    printf("\nETHERCAT Frame Headerr\n\n");
+    printf("   |-EtherCAT Length            : %x\n", ETHERCAT_LEN(ethercat_hdr));
+    printf("   |-EtherCAT (Reserved)        : %x\n", ETHERCAT_RES(ethercat_hdr));
+    printf("   |-EtherCAT Command           : %x\n", ETHERCAT_COMMAND(ethercat_hdr));
+
+}
+
+void print_ethercat_datagram_header(unsigned char* buffer, int* offset){
+
+    struct ethercat_datagram_header* ethcat_dgram = (struct ethercat_datagram_header*)(buffer + *offset);
+
+    printf("\nETHERCAT Datagram Header\n\n");
+
+    printf("   |-Command                : %x\n", ethcat_dgram->command);
+    printf("   |-Index                  : %x\n", ethcat_dgram->index);
+    printf("   |-Slave Address          : %x\n", ntohs(ethcat_dgram->slave_addr));
+    printf("   |-Offset Address         : %x\n", ntohs(ethcat_dgram->offset_addr));
+    printf("   |-Length                 : %x\n", ntohs(ethcat_dgram->length));
+    printf("   |-Interrupt              : %x\n", ntohs(ethcat_dgram->interrupt));
+
+    *offset = sizeof(struct ethercat_datagram_header);
+
+}
+
+
 // Printing linux SLL header
 
 void print_linux_sll_header(unsigned char* buffer){
@@ -537,7 +577,7 @@ void print_linux_sll_header(unsigned char* buffer){
 }
 
 
-void print_linux_ipmb_pseudo_header(unsigned char* buffer, int size){
+void print_linux_ipmb_pseudo_header(unsigned char* buffer, int size __attribute__((unused))){
 
     struct ipmb_header* ipmbhdr = (struct ipmb_header*)buffer;
 
@@ -796,7 +836,7 @@ void print_sctp_header(unsigned char* buffer){
 /*********************************** OSI LAYER 3 PROTOCOL STRUCTS ***********************************/
 
 
-void print_ip_header(unsigned char* buffer, int size){
+void print_ip_header(unsigned char* buffer, int size __attribute__((unused))){
 
     struct sockaddr_in source,dest;
         
@@ -824,12 +864,12 @@ void print_ip_header(unsigned char* buffer, int size){
 
 /* print ip6 header */
 
-void print_ip6_header(unsigned char* buffer, int size){
+void print_ip6_header(unsigned char* buffer, int size __attribute__((unused))){
 
     char addrstr[INET6_ADDRSTRLEN];
 
     struct ipv6hdr* iphdr = (struct ipv6hdr*)(buffer + DATALINK_SIZE);
-    int offset = DATALINK_SIZE + ntohs(iphdr->payload_len);
+    int offset __attribute__((unused)) = DATALINK_SIZE + ntohs(iphdr->payload_len);
 
     printf("\nIPv6 Header\n\n");
 
@@ -1205,7 +1245,9 @@ void print_netbios_datagram_header(unsigned char* buffer, int offset, int size){
     extract_netbios_datagramm_name(buffer, &new_offset, dst_name);
     printf("   |-Destination Name       : %s\n" , dst_name);
 
+    printf("\n\nSIZE OF SRC NAME : %lu\n\n", strlen(src_name));
     // now, we can display the next protocol header, SMB, based on new offset
+
     print_smb_header(buffer, new_offset, size);
 
 }
@@ -1329,6 +1371,7 @@ void print_smb_mailslot_header(unsigned char* buffer, int offset, int size){
 
 // The top OSI Layer Porotocol based on SMB : Microsoft Browser
 // this function parses the Browser Packets according to their Browser Command values
+// Honestly this is one of the most ball breaker protocol : boring and tricky
 
 void print_microsoft_browser_packet(unsigned char* buffer, int offset, int size){
 
@@ -1711,7 +1754,7 @@ void print_current_time(){
 
     time_t now = time(NULL);
     struct tm *tm_struct = localtime(&now);
-    printf("\n[LOCAL TIME %02d:%02d:%02d]", tm_struct->tm_hour , tm_struct->tm_min , tm_struct->tm_sec);
+    printf("\n[LOCAL TIME %02d:%02d:%02d]\n", tm_struct->tm_hour , tm_struct->tm_min , tm_struct->tm_sec);
 
 }
 
