@@ -22,6 +22,10 @@
 
 typedef struct opt_args_main {
 
+    char device[IFNAMSIZ];
+    char record_file[RECORD_FILENAME_SIZE];
+    char pcap_filters[PCAP_FILTER_SIZE];
+
     uint32_t max_packet;
     uint32_t timeout;
     uint8_t is_filter       : 2;
@@ -35,6 +39,7 @@ typedef struct opt_args_main {
 
 } __attribute__((packed)) opt_args_main;
 
+
 // function to display the command line options (help)
 
 void usage();
@@ -42,6 +47,10 @@ void usage();
 // get SIGINT to proper exit freeing memory
 
 void int_handler(int);
+
+// function to parse the command line
+
+int parse_command_line(int, char**, struct opt_args_main*);
 
 // the callback function for the PCAP session
 
@@ -60,11 +69,7 @@ int main(int argc, char **argv){
     signal(SIGINT, int_handler);
 
     // global params for the PCAP session
-    char device[IFNAMSIZ];
-    char record_file[RECORD_FILENAME_SIZE];
-    char pcap_filters[PCAP_FILTER_SIZE];
     char errbuf[PCAP_ERRBUF_SIZE];
-    char* temp;
     uint64_t defined_timeout;
     uint64_t max_packet;
 
@@ -73,139 +78,38 @@ int main(int argc, char **argv){
     bpf_u_int32  mask;
     bpf_u_int32 net;
 
+    int parsing_status;
+
     // This var will save the actual datalink type of the session capture
     int datalink_type;
     
     pcap_t *handle;
 
-    // parsing the command line to set up the capture environment. More options will arrive soon like integrated bpf filters.
-    int opt;
-    opt_args_main opt_args;
+    struct opt_args_main* opt_args = malloc(sizeof(struct opt_args_main));
 
-    memset(&opt_args, 0, sizeof(opt_args_main));
+    // checking the return value of malloc, if NULL -> aborting
+    if (opt_args == NULL){
+        fprintf(stderr, "FATAL ERROR : couldn't allocate memory for main struct !\n");
+        return EXIT_FAILURE;
+    }
 
-    while ((opt = getopt(argc, argv, "i:r:f:d:t:c:vgmlh")) != -1){
+    memset(opt_args, 0, sizeof(opt_args_main));
 
-        switch (opt){
+    parsing_status = parse_command_line(argc, argv, opt_args);
 
-            // device name to bind to -i option
-            case 'i':
-                strncpy(device, optarg, IFNAMSIZ - 1);
-                opt_args.is_itf = 1;
-                break;
-
-            // string record filename -r option, otherwise file named strings_log by default
-            case 'r':
-                strncpy(record_file, optarg, RECORD_FILENAME_SIZE - 1);
-                opt_args.is_file = 1;
-                break;
-
-            // Applying capture filters here -f option
-            case 'f':
-                strncpy(pcap_filters, optarg, PCAP_FILTER_SIZE);
-                opt_args.is_filter= 1;
-                break;
-
-            // binding to any (all) devices = all frames are sniffed in theory but it's more complex actually
-            case 'g':
-                opt_args.is_godmode = 1;
-                break;
-
-            // monitor mode selected -m option, some cards don't allow this mode and some of them crash until network-manager restart
-            case 'm':
-                opt_args.is_monitor_mode = 1;
-                break;
-
-            // verbose mode enabled only for the network interfaces search. Will be extend to the capture processs in a while
-            case 'v':
-                opt_args.is_verbose_mode = 1;
-                break;
-
-            // limit the number of sniffed packets : -c option (number of packets to capture). Otherwise infinite loop
-            case 'c':
-
-                // check here for out of range number and if so exit failure
-                max_packet = strtol(optarg, &temp, 10);
-
-                if (optarg != temp && *temp == '\0' && max_packet <= UINT_MAX){
-                    opt_args.max_packet = max_packet;
-                    opt_args.is_limited = 1;
-                }
-                else {
-                    fprintf(stderr, "ERROR : Incorrect number for max packet (unsigned int required)\n");
-                    return EXIT_FAILURE;
-                }
-                break;
-
-            // option to set up a provided timeout, 0 by default = non blocking mode
-            case 't':
-
-                // again we have to check carrefully the input and convert it int uint32_t
-
-                defined_timeout = strtoul(optarg, &temp, 10);
-
-                // argument is properly parsed: set the timeout
-                if (optarg != temp && *temp == '\0' && defined_timeout <= UINT_MAX){
-                    opt_args.timeout = defined_timeout;
-                }
-                else{
-                    fprintf(stderr, "ERROR : Timeout value format error (unsigned int required or 0 for non blocking)\n");
-                    return EXIT_FAILURE;
-                }
-
-                break;
-
-            // just an option to print the list of interfaces available. Add option -v (verbose mode) for more details
-            // about device flags
-            case 'l':
-                print_devices_list(opt_args.is_verbose_mode);
-                return EXIT_SUCCESS;
-                break;
-
-            // option -h (help) : displays all options available
-            case 'h':
-                usage();
-                return EXIT_SUCCESS;
-                break;
-            
-            // some options need a non optionnal argument, no argument = error
-            case '?':
-
-                if (optopt == 'i')
-                    fprintf(stderr, "Option -%c requires an argument [interface_name] !\n", optopt);
-                else if (optopt == 'r')
-                    fprintf(stderr, "Option -%c requires an argument [record_file_name] !\n", optopt);
-                else if (optopt == 'f')
-                    fprintf(stderr, "Option -%c requires an argument [pcap_filters] !\n", optopt);
-                else if (optopt == 'c')
-                    fprintf(stderr, "Option -%c requires an argument [max packets] !\n", optopt);
-                else if (optopt == 't')
-                    fprintf(stderr, "Option -%c requires an argument [timeout] | 0 for non blocking mode!\n", optopt);
-                else
-                    fprintf(stderr, "Unknown option `-%c'.\n", optopt);
-
-                exit(EXIT_FAILURE);
-
-            case 1:
-                fprintf(stderr, "ERROR : Non-option argument : %s\n", optarg);
-                usage();
-                exit(EXIT_FAILURE);
-                break;
-
-            default:
-                usage();
-                fprintf(stderr, "FATAL ERROR : Couldn't parse command line arguments\n");
-                abort();
-        }
+    if (parsing_status == -1){
+        fprintf(stderr, "An error occured while parsing the command line ! Aborting\n");
+        free(opt_args);
+        return EXIT_FAILURE;
     }
 
     // if no interface was provided by the user, the programm will try to find one available on the machine
 
-    if (opt_args.is_itf == 0){
+    if (!opt_args->is_itf){
 
         // selecting the first device available if none was provided 
 
-        if (get_random_device(device) == -1){
+        if (get_random_device(opt_args->device) == -1){
             fprintf(stderr, "ERROR : Couldn't find a network device to bind to\n");
             return EXIT_FAILURE;
         }
@@ -214,8 +118,8 @@ int main(int argc, char **argv){
 
     // setting up the string record filename if it was provided. if not, just use the default one
 
-    if(opt_args.is_file == 0){
-        strncpy(record_file, DEFAULT_RECORD_FILENAME, RECORD_FILENAME_SIZE - 1);
+    if(!opt_args->is_file){
+        strncpy(opt_args->record_file, DEFAULT_RECORD_FILENAME, RECORD_FILENAME_SIZE - 1);
     }
 
     // printing command line to begin the capture file to keep the context of the capture
@@ -230,32 +134,32 @@ int main(int argc, char **argv){
 
     // Starting the capture session displaying capture session type and capture variables used
 
-    printf("\n\nDevice selected   : %s\n", device);
-    printf("\nRecord filename     : %s\n", record_file);
-    printf("\nTimeout set         : %u\t%s\n", opt_args.timeout, (!opt_args.timeout) ? "non blocking mode" : "");
+    printf("\n\nDevice selected   : %s\n", opt_args->device);
+    printf("\nRecord filename     : %s\n", opt_args->record_file);
+    printf("\nTimeout set         : %u\t%s\n", opt_args->timeout, (!opt_args->timeout) ? "non blocking mode" : "");
 
     // let's open the string record file now
 
-    init_string_record_file(record_file);
+    init_string_record_file(opt_args->record_file);
 
     printf("\nRecord file successfully set\n");
 
     // one and only one interface sniffing mode, just do a soft capture
 
-    if (opt_args.is_godmode == 0){
+    if (opt_args->is_godmode == 0){
 
         /* Open the session in promiscuous mode with defined timeout or not (default) */
 
-        handle = pcap_open_live(device, BUFSIZE, -1, opt_args.timeout, errbuf);
+        handle = pcap_open_live(opt_args->device, BUFSIZE, -1, opt_args->timeout, errbuf);
 
 
         if (handle == NULL){
-            fprintf(stderr, "ERROR : Couldn't open device %s: %s\n", device, errbuf);
+            fprintf(stderr, "ERROR : Couldn't open device %s: %s\n", opt_args->device, errbuf);
             return EXIT_FAILURE;
         }
 
         /* Find the properties for the device */
-        if (pcap_lookupnet(device, &net, &mask, errbuf) == -1){
+        if (pcap_lookupnet(opt_args->device, &net, &mask, errbuf) == -1){
             fprintf(stderr, "ERROR : Couldn't get netmask for device : %s\n", errbuf);
             return EXIT_FAILURE;
         }
@@ -267,8 +171,8 @@ int main(int argc, char **argv){
 
     else{
 
-        strncpy(device, "any", IFNAMSIZ -1);
-        handle = pcap_create(device, errbuf);
+        strncpy(opt_args->device, "any", IFNAMSIZ -1);
+        handle = pcap_create(opt_args->device, errbuf);
 
         if (handle == NULL){
             fprintf(stderr, "ERROR : Couldn't create socket handle for device any: %s\n", errbuf);
@@ -279,8 +183,8 @@ int main(int argc, char **argv){
 
         // setting up a custom timeout or by default it's the value 0 (non blocking mode)
         
-        if (opt_args.timeout){
-            assert(pcap_set_timeout(handle, opt_args.timeout) == 0);
+        if (opt_args->timeout){
+            assert(pcap_set_timeout(handle, opt_args->timeout) == 0);
             printf("\nTimeout successfully set\n");
         }
         else{
@@ -294,7 +198,7 @@ int main(int argc, char **argv){
 
         // setting the device in monitor mode if it was selected
 
-        if (opt_args.is_monitor_mode){
+        if (opt_args->is_monitor_mode){
 
             // if we can't put the device in monitor mode, so display a warning but keep continue the capture
             if (pcap_can_set_rfmon(handle) != 1){
@@ -322,18 +226,18 @@ int main(int argc, char **argv){
 
     // If a filter has been chosen for the capture, it's time to apply it
 
-    if (opt_args.is_filter){
+    if (opt_args->is_filter){
 
         // Compile and apply filter
 
-        if (pcap_compile(handle, &fp, pcap_filters, 1, PCAP_NETMASK_UNKNOWN) == -1){
-            fprintf(stderr, "Counldn't parse capture filters %s: %s\n", pcap_filters, pcap_geterr(handle));
+        if (pcap_compile(handle, &fp, opt_args->pcap_filters, 1, PCAP_NETMASK_UNKNOWN) == -1){
+            fprintf(stderr, "Counldn't parse capture filters %s: %s\n", opt_args->pcap_filters, pcap_geterr(handle));
             return EXIT_FAILURE;
         }
 
         // applying filters 
         if (pcap_setfilter(handle, &fp) == -1){
-            fprintf(stderr, "ERROR : Couldn't install the filter %s: %s\n", pcap_filters, pcap_geterr(handle));
+            fprintf(stderr, "ERROR : Couldn't install the filter %s: %s\n", opt_args->pcap_filters, pcap_geterr(handle));
             return EXIT_FAILURE;
         }
 
@@ -355,9 +259,9 @@ int main(int argc, char **argv){
 
     // let's loop throughtout the network
 
-    if (opt_args.is_limited){
+    if (opt_args->is_limited){
         // limited capture (number of packets)
-        pcap_loop(handle, opt_args.max_packet, handle_packet, datalink_type_ptr);
+        pcap_loop(handle, opt_args->max_packet, handle_packet, datalink_type_ptr);
     }
     else{
         // otherwise, infinite loop
@@ -366,9 +270,142 @@ int main(int argc, char **argv){
 
     pcap_close(handle);
 
+    free(opt_args);
+
     int_handler(-1);
 
     return EXIT_SUCCESS;
+
+}
+
+// function used to parse the command line
+
+int parse_command_line(int argc, char** argv, struct opt_args_main* opt_args){
+
+    char* temp;
+    int opt;
+    int max_packet = 0;
+    int defined_timeout = 0; 
+
+    while ((opt = getopt(argc, argv, "i:r:f:d:t:c:vgmlh")) != -1){
+
+        switch (opt){
+
+            // device name to bind to -i option
+            case 'i':
+                strncpy(opt_args->device, optarg, IFNAMSIZ - 1);
+                opt_args->is_itf = 1;
+                break;
+
+            // string record filename -r option, otherwise file named strings_log by default
+            case 'r':
+                strncpy(opt_args->record_file, optarg, RECORD_FILENAME_SIZE - 1);
+                opt_args->is_file = 1;
+                break;
+
+            // Applying capture filters here -f option
+            case 'f':
+                strncpy(opt_args->pcap_filters, optarg, PCAP_FILTER_SIZE);
+                opt_args->is_filter= 1;
+                break;
+
+            // binding to any (all) devices = all frames are sniffed in theory but it's more complex actually
+            case 'g':
+                opt_args->is_godmode = 1;
+                break;
+
+            // monitor mode selected -m option, some cards don't allow this mode and some of them crash until network-manager restart
+            case 'm':
+                opt_args->is_monitor_mode = 1;
+                break;
+
+            // verbose mode enabled only for the network interfaces search. Will be extend to the capture processs in a while
+            case 'v':
+                opt_args->is_verbose_mode = 1;
+                break;
+
+            // limit the number of sniffed packets : -c option (number of packets to capture). Otherwise infinite loop
+            case 'c':
+
+                // check here for out of range number and if so exit failure
+                max_packet = strtol(optarg, &temp, 10);
+
+                if (optarg != temp && *temp == '\0' && max_packet <= UINT_MAX){
+                    opt_args->max_packet = max_packet;
+                    opt_args->is_limited = 1;
+                }
+                else {
+                    fprintf(stderr, "ERROR : Incorrect number for max packet (unsigned int required)\n");
+                    return -1;
+                }
+                break;
+
+            // option to set up a provided timeout, 0 by default = non blocking mode
+            case 't':
+
+                // again we have to check carrefully the input and convert it int uint32_t
+
+                defined_timeout = strtoul(optarg, &temp, 10);
+
+                // argument is properly parsed: set the timeout
+                if (optarg != temp && *temp == '\0' && defined_timeout <= UINT_MAX){
+                    opt_args->timeout = defined_timeout;
+                }
+                else{
+                    fprintf(stderr, "ERROR : Timeout value format error (unsigned int required or 0 for non blocking)\n");
+                    return -1;
+                }
+
+                break;
+
+            // just an option to print the list of interfaces available. Add option -v (verbose mode) for more details
+            // about device flags
+            case 'l':
+                print_devices_list(opt_args->is_verbose_mode);
+                free(opt_args);
+                exit(EXIT_SUCCESS);
+                break;
+
+            // option -h (help) : displays all options available
+            case 'h':
+                usage();
+                free(opt_args);
+                exit(EXIT_SUCCESS);
+                break;
+            
+            // some options need a non optionnal argument, no argument = error
+            case '?':
+
+                if (optopt == 'i')
+                    fprintf(stderr, "Option -%c requires an argument [interface_name] !\n", optopt);
+                else if (optopt == 'r')
+                    fprintf(stderr, "Option -%c requires an argument [record_file_name] !\n", optopt);
+                else if (optopt == 'f')
+                    fprintf(stderr, "Option -%c requires an argument [pcap_filters] !\n", optopt);
+                else if (optopt == 'c')
+                    fprintf(stderr, "Option -%c requires an argument [max packets] !\n", optopt);
+                else if (optopt == 't')
+                    fprintf(stderr, "Option -%c requires an argument [timeout] | 0 for non blocking mode!\n", optopt);
+                else
+                    fprintf(stderr, "Unknown option `-%c'.\n", optopt);
+
+                free(opt_args);
+                exit(EXIT_FAILURE);
+
+            case 1:
+                fprintf(stderr, "ERROR : Non-option argument : %s\n", optarg);
+                usage();
+                return -1;
+                break;
+
+            default:
+                usage();
+                fprintf(stderr, "FATAL ERROR : Couldn't parse command line arguments\n");
+                return -1;
+        }
+    }
+
+    return 0;
 
 }
 
@@ -448,4 +485,3 @@ void usage(){
     printf("\nExample : ./raw_sock -i wlp4s0 -r strings_log -f \"not ipx\" -t 1024 -c 0\n");
     printf(" Binding to one device, recording strings to file, applying filters to the capture and setting timeout\n");
 }
-
