@@ -258,7 +258,7 @@ int main(int argc, char **argv)
 
     pcap_close(handle);
     free(opt_args);
-    int_handler(0);
+    int_handler(-1);
 
     return EXIT_SUCCESS;
 
@@ -450,12 +450,14 @@ void int_handler(int signum)
     int min_elapsed = (int)(total_time / 60);
     int sec_elapsed = (int)(total_time % 60);
 
-    printf("Capture time duration : %02d min %02d sec\n", min_elapsed, sec_elapsed);
+    printf("\nTotal packets captured 	: %u\n", num_packet);
+
+    printf("\nCapture time duration		: %02d min %02d sec\n", min_elapsed, sec_elapsed);
 
     /* closing the string record file and exiting */
     close_record_file();
     
-    printf("Exiting program with SIGINT [%d]: OK\n", signum);
+    printf("Exiting program with SIGINT [%x]: OK\n", signum);
     exit(EXIT_SUCCESS);
 }
 
