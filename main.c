@@ -258,7 +258,7 @@ int main(int argc, char **argv)
 
     pcap_close(handle);
     free(opt_args);
-    int_handler(-1);
+    int_handler(0);
 
     return EXIT_SUCCESS;
 
