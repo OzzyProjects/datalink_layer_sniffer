@@ -18,13 +18,14 @@ typedef struct opt_args_main {
 	unsigned int max_packets;
 	int timeout;
 
-	uint8_t is_filter       : 2;	/* bpf filter or not */
+	uint8_t is_filter       : 1;	/* bpf filter or not */
 	uint8_t is_file         : 1;	/* rec file or not */
 	uint8_t is_itf          : 1;	/* net device or not */
 	uint8_t is_monitor_mode : 1;	/* mon mode enabled or not */
 	uint8_t is_godmode      : 1;	/* any device or single device */
 	uint8_t is_limited      : 1;	/* limit numb pckts or not (0 or neg) */
 	uint8_t is_verbose_mode : 1;	/* verbose mode or not */
+	uint8_t futur_use		: 1;	/* or padding, absolotly no idea*/
 
 
 } opt_args_main;
@@ -35,6 +36,9 @@ void int_handler(int);
 
 /* function to parse the command line */
 int parse_cmd_line(int, char**, struct opt_args_main*);
+
+/* displaying message if an non optional arg is missing */
+void manage_missing_arg(int);
 
 /* callback function for the PCAP session */
 void handle_packet(u_char*, const struct pcap_pkthdr*, const u_char*);
@@ -50,7 +54,7 @@ void usage();
 static const char* DEFAULT_RECORD_FILENAME = "strlog";
 
 /* starter capture timer */
-time_t begin_capture;
+time_t t_begin_capture;
 
 /* counter : number of packets sniffed */
 static unsigned int num_packet = 0;
@@ -121,13 +125,12 @@ int main(int argc, char **argv)
     /* let's open the string record file now */
     init_string_record_file(opt_args->record_file);
 
-#if DEBUG
+#ifdef DEBUG
         	printf("\nRecord file successfully set\n");
 #endif
 
-    // one and only one interface sniffing mode, just do a soft capture
-
-    if (opt_args->is_godmode == 0){
+    /* one and only one interface sniffing mode, just do a soft capture */
+    if (!opt_args->is_godmode){
 
         /* opening session in promiscuous mode with defined timeout or not (default) */
         handle = pcap_open_live(opt_args->device, BUFSIZE, -1, opt_args->timeout, errbuf);
@@ -143,7 +146,7 @@ int main(int argc, char **argv)
             goto fatal_error;
         }
 
-#if DEBUG
+#ifdef DEBUG
         	printf("\nPCAP session successfully opened\n");
 #endif
 
@@ -168,14 +171,14 @@ int main(int argc, char **argv)
 
             assert(pcap_set_timeout(handle, opt_args->timeout) == 0);
        
-#if DEBUG
+#ifdef DEBUG
         	printf("\nTimeout successfully set\n");
 #endif
 
         } else{
             assert(pcap_setnonblock(handle, -1, errbuf) != -1);
 
-#if DEBUG
+#ifdef DEBUG
         	printf("\nNon blocking mode successfully set\n");
 #endif
             
@@ -208,7 +211,7 @@ int main(int argc, char **argv)
             goto fatal_error;
         }
 
-#if DEBUG
+#ifdef DEBUG
         printf("\nGod PCAP mode enabled\n");
 #endif
 
@@ -232,7 +235,7 @@ int main(int argc, char **argv)
             goto fatal_error;
         }
 
-#if DEBUG
+#ifdef DEBUG
         printf("\nFilters has been successfully applied\n");
 #endif
 
@@ -245,7 +248,7 @@ int main(int argc, char **argv)
     dll_type_ptr = INT_TO_UCHAR_PTR(datalink_type);
 
     /* starting the timer here */
-    begin_capture = time(NULL);
+    t_begin_capture = time(NULL);
 
     /* let's loop throughtout the network */
     if (opt_args->is_limited){
@@ -365,19 +368,7 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
             
             /* some options need an argument, no argument -> error */
             case '?':
-                if (optopt == 'i')
-                    fprintf(stderr, "Option -%c requires an argument [interface_name] !\n", optopt);
-                else if (optopt == 'r')
-                    fprintf(stderr, "Option -%c requires an argument [record_file_name] !\n", optopt);
-                else if (optopt == 'f')
-                    fprintf(stderr, "Option -%c requires an argument [pcap_filters] !\n", optopt);
-                else if (optopt == 'c')
-                    fprintf(stderr, "Option -%c requires an argument [max packets] !\n", optopt);
-                else if (optopt == 't')
-                    fprintf(stderr, "Option -%c requires an argument [timeout] | 0 for non blocking mode!\n", optopt);
-                else
-                    fprintf(stderr, "Unknown option -%c | -h for help\n", optopt);
-
+                manage_missing_arg(optopt);
                 free(opt_args);
                 exit(EXIT_FAILURE);
 
@@ -397,6 +388,25 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 
 }
 
+
+/* displaying message if an non optional arg is missing */
+void manage_missing_arg(int optopt)
+{
+
+    if (optopt == 'i')
+        fprintf(stderr, "Option -%c requires an argument [interface_name] !\n", optopt);
+    else if (optopt == 'r')
+        fprintf(stderr, "Option -%c requires an argument [record_file_name] !\n", optopt);
+    else if (optopt == 'f')
+        fprintf(stderr, "Option -%c requires an argument [pcap_filters] !\n", optopt);
+    else if (optopt == 'c')
+        fprintf(stderr, "Option -%c requires an argument [max packets] !\n", optopt);
+    else if (optopt == 't')
+        fprintf(stderr, "Option -%c requires an argument [timeout] | 0 for non blocking mode!\n", optopt);
+    else
+        fprintf(stderr, "Unknown option -%c | -h for help\n", optopt);
+
+}
 
 /* the callback function used to manage every frame sniffed */
 void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
@@ -445,8 +455,8 @@ void int_handler(int signum)
 {
 
     /* printing the capture time duration */
-    time_t end_capture = time(NULL);
-    long total_time = end_capture - begin_capture;
+    time_t t_end_capture = time(NULL);
+    long total_time = t_end_capture - t_begin_capture;
     int min_elapsed = (int)(total_time / 60);
     int sec_elapsed = (int)(total_time % 60);
 
