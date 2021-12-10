@@ -48,6 +48,108 @@
     (((u_int32_t)(x) & (u_int32_t)0x00ff0000UL) >>  8) | \
     (((u_int32_t)(x) & (u_int32_t)0xff000000UL) >> 24) ))
 
+// get low or high nibble from byte
+
+#define HIGH_NI(X) ((uint8_t)(X) >> 4) & 0xF
+#define LOW_NI(X) (uint8_t)(X) & 0xF
+#define SWP_NI(X) (((uint8_t)(X) & 0x0F) << 4) | (((uint8_t)(X) & 0xF0) >> 4)
+
+// Check whether the "len" bytes of data starting at "offset" is entirely 
+// inside the captured data for this packet
+
+#define BYTE_IN_FRM(offset, captured_len, len) \
+    ((uint32_t)(offset) + (uint32_t)(len) > (uint32_t)(offset) && \
+    (uint32_t)(offset) + (uint32_t)(len) <= (uint32_t)(captured_len))
+
+
+// Number of bytes between two pointers
+
+#define NB_B_PTR(ptr1, ptr2) ((uint32_t)(((const uint8_t *)(ptr1) - \
+    (const uint8_t *)(ptr2)))
+
+// IP Address packing
+
+#define IP_PCK(ip) (((ip) << 0 * 10) | ((ip) << 1 * 10) | \
+    ((ip) << 2 * 10) | ((ip) << 3 * 10))
+
+// Bitwise Operations Macros
+
+// check for one bit at nth offset
+#define CK_BIT(X, n) (((X) >> (n)) & 0x1)
+
+// set the nth bit (X : integer, n : offset)
+#define SET_BIT(X, n) ((X) |= (1U << (n)))
+
+#define CLR_BIT(X, n) ((X) &= (~(1U << (n))))
+
+#define GET_F_LW_B(X, n) ((X) & ~(~0x0UL << (n)))
+
+#define FST_2_BY(X) __my_swab16(*((uint16_t*)(X)))
+
+#define FST_4_BY(X) __my_swab32(*((uint32_t*)(X)))
+
+#define B_AT_OFF(buff, off) (uint8_t)(*((uint8_t*)((buff) + (off))))
+
+#define FR_B_OFF(buff, off) __my_swab32(*(((uint32_t*)((buff) + (off))))) 
+
+#define T_B_OFF(buff, off) __my_swab16(*(((uint16_t*)((buff) + (off))))) 
+
+#define F_B_OFF(buff, off) (uint8_t)(*(((uint8_t*)((buff) + (off)))))
+
+
+// ETHERCAT macros field extractors
+
+#define E_CAT_LEN(X) (uint16_t)(((__my_swab16(X)) & 0x7FFUL))
+
+#define E_CAT_RES(X) (uint8_t)((((__my_swab16(X)) >> 11UL) & 0x1UL))
+
+#define E_CAT_COM(X) (uint8_t)(((__my_swab16(X)) >> 12UL))
+
+// -------------------------------------- HOMEPLUG macros extractor
+
+// extract message ID
+#define HM_PLG_ID(X) (uint8_t)((GET_F_LW_B((X), 6)))
+
+// extract direction
+#define HM_PLG_DIR(X) (uint8_t)((((X) >> 6) & 0x2))
+
+#define HM_AV_LT_FRG(X) (uint8_t)(((X) & MSK_HI_BIT))
+
+#define HM_AV_REL_IND(X) (uint8_t)(((X) & MSK_2NH_HI_BIT))
+
+// ---------------- NBNS macros extractor (flags)
+
+
+#define MDNS_TYPE_M(X) (uint16_t)(((X) & (1 << 15)))
+
+#define MDNS_TYPE_Q(X) (uint16_t)((((X) >> 7) & 0x78))
+
+#define MDNS_IS_RC(X) (uint16_t)((((X) >> 9) & 0x1))
+
+#define MDNS_IS_BRCT(X) (uint16_t)((((X) >> 4) & 0x1))
+
+
+// ----------------- DNS macros extractor (flags) 
+
+#define DNS_TYPE_M(X) (uint16_t)((((X) >> 15) & 0x1))
+
+#define DNS_OPC(X) (uint16_t)((((X) >> 11) & 0xF))
+
+#define DNS_IS_AUTH(X) (uint16_t)((((X) >> 10) & 0x1))
+
+#define DNS_IS_REC(X) (uint16_t)((((X) >> 8) & 0x1))
+
+#define DNS_RPL_CD(X) (uint16_t)((X) & 0xF)
+
+
+// ----------------- NTP Macros extractor (flags)
+
+#define NTP_IS_WRN(X) (uint8_t)((((X) >> 6) & 0x3))
+
+#define NTP_VER(X) (uint8_t)((((X) >> 3) & 0x7))
+
+#define NTP_MODE(X) (uint8_t)((X) & 0x7)
+
 #define __INT_TO_UCHAR_PTR(x) ((u_char*)(intptr_t)(x))
 #define __UCHAR_PTR_TO_INT(x) ((int)(intptr_t)(x))
 
