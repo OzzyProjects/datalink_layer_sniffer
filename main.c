@@ -383,7 +383,6 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 
             case 1:
                 fprintf(stderr, "FATAL ERROR : Non-option argument : %s | -h for help\n", optarg);
-                usage();
                 return -1;
                 break;
 
