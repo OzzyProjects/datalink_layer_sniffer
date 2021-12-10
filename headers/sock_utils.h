@@ -782,11 +782,11 @@ int print_devices_list(uint8_t);
 char* get_readable_device_flags(int);
 int get_random_device(char*);
 
-uint16_t in_cksum(uint16_t *, int);
-void print_current_time();
+uint16_t in_cksum(uint16_t*, int);
+void print_info_packet(unsigned int);
 
 void print_char_to_hex(unsigned char*, int, int);
-void print_data(unsigned char* , int);
+void print_data(unsigned char*, int);
 
 
 // ---------------- OSI Layer 2/3 Protocol Functions
