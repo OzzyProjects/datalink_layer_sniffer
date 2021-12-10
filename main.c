@@ -1,6 +1,3 @@
-
-/* "DLL" sniffer without pretention (a tiny one) */
-
 #include <signal.h>
 #include <limits.h>
 #include <time.h>
