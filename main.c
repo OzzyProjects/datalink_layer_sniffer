@@ -27,7 +27,7 @@ typedef struct opt_args_main {
 	uint8_t is_godmode      : 1;	/* any device or single device */
 	uint8_t is_limited      : 1;	/* limit numb pckts or not (0 or neg) */
 	uint8_t is_verbose_mode : 1;	/* verbose mode or not */
-	uint8_t futur_use		: 1;	/* or padding, absolotly no idea*/
+	uint8_t futur_use	: 1;	/* or padding */
 
 
 } opt_args_main;
