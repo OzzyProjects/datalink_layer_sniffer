@@ -1618,7 +1618,8 @@ return NULL if an error occured or a char pointer to the string
 
 char* get_readable_device_flags(int device_flags){
 
-    const char* flags[] = {"LOOPBACK, ", "UP, ", "RUNNING, ", "WIRELESS, ", "STATUS_CONNECTED, ""STATUS_NOT_AVAILABLE, ",  "STATUS_UNKNOWN, ", "STATUS_NOT_APPLICABLE, "};
+    const char* flags[] = {"LOOPBACK, ", "UP, ", "RUNNING, ", "WIRELESS, ", "STATUS_CONNECTED, ""STATUS_NOT_AVAILABLE, ",
+			   "STATUS_UNKNOWN, ", "STATUS_NOT_APPLICABLE, "};
 
     int index = 0;
     char* readable_flags = malloc(sizeof(char) * READABLE_DEVICE_FLAGS_LENGTH);
@@ -1744,17 +1745,17 @@ void print_data(unsigned char* data , int size){
     }
 }
 
-
 /* 
-Printing current time of the capture for each frame to in the end , get the most infos as possible
-Usefull to do post traitment of the logs with AWK, Perl or Python
+printing current timestamp + number for each frame to get the most infos as possible
+Usefull for post-traitment with AWK, Perl or Python
 */
 
-void print_current_time(){
+void print_info_packet(unsigned int num_pckt){
 
     time_t now = time(NULL);
-    struct tm *tm_struct = localtime(&now);
-    printf("\n[LOCAL TIME %02d:%02d:%02d]\n", tm_struct->tm_hour , tm_struct->tm_min , tm_struct->tm_sec);
+    struct tm*tm_struct = localtime(&now);
+    printf("\n+ LOCAL TIME [%02d:%02d:%02d] | PACKET NBR : [%u]\n", tm_struct->tm_hour,
+        tm_struct->tm_min , tm_struct->tm_sec, num_pckt);
 
 }
 
