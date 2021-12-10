@@ -1696,7 +1696,7 @@ int get_random_device(char* device){
 }
 
 
-// print raw data in ASCII and hex values to get a basic but clear first aspect of the packet itself
+/* print raw data in ASCII and hex values */
 
 void print_data(unsigned char* data , int size){
 
@@ -1708,39 +1708,29 @@ void print_data(unsigned char* data , int size){
             printf("         ");
             for(j=i-16 ; j<i ; j++)
             {
-                if(data[j]>=32 && data[j]<=128)
+                if(data[j]>=32 && data[j]<=127)
                     printf("%c",(unsigned char)data[j]); //if its a number or alphabet
-                
-                else printf("."); //otherwise print a dot
+                               else printf("."); //otherwise print a dot
             }
             printf("\n");
-        } 
-        
-        if(i%16==0) printf("   ");
+        }               if(i%16==0) printf("   ");
             printf(" %02X",(unsigned int)data[i]);
-                
-        if( i==size-1)  //print the last spaces
+                       if( i==size-1)  //print the last spaces
         {
-            for(j=0;j<15-i%16;j++) 
-            {
+            for(j=0;j<15-i%16;j++){
               printf("   "); //extra spaces
             }
-            
-            printf("         ");
-            
-            for(j=i-i%16 ; j<=i ; j++)
+                       printf("         ");
+                       for(j=i-i%16 ; j<=i ; j++)
             {
-                if(data[j]>=32 && data[j]<=128) 
-                {
+                if(data[j]>=32 && data[j]<=127){
                     printf("%c",(unsigned char)data[j]);
                 }
-                else 
-                {
+                else                {
                   printf(".");
                 }
             }
-            
-            printf( "\n" );
+        printf( "\n" );
         }
     }
 }
