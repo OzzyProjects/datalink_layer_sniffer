@@ -368,7 +368,7 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
             
             /* some options need an argument, no argument -> error */
             case '?':
-                manage_missing_arg(optopt);
+                manage_missing_arg(opt);
                 free(opt_args);
                 exit(EXIT_FAILURE);
 
