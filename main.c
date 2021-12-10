@@ -277,10 +277,10 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 {
 
 	/* temp buffer to convert opt to int with strtol */
-    char* temp;
+    char *temp, *temp2;
     int opt;
-    unsigned int max_packet;
-    int defined_timeout; 
+    long max_packet;
+    long defined_timeout; 
 
     while ((opt = getopt(argc, argv, "i:r:f:d:t:c:vgmlh")) != -1){
 
@@ -328,7 +328,7 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
                     opt_args->is_limited = 1;
 
                 } else {
-                    fprintf(stderr, "ERROR : Incorrect number for max packet (unsigned int required)\n");
+                    fprintf(stderr, "ERROR : Incorrect number for max packets (uint required)\n");
                     return -1;
                 }
 
@@ -336,9 +336,9 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 
             /* setting up a provided timeout, 0 by default = non blocking mode */
             case 't':
-                defined_timeout = strtol(optarg, &temp, 10);
+                defined_timeout = strtol(optarg, &temp2, 10);
 
-                if (optarg != temp && *temp == '\0' && defined_timeout <= UINT_MAX){
+                if (optarg != temp2 && *temp2 == '\0' && defined_timeout <= UINT_MAX){
                     opt_args->timeout = defined_timeout;
 
                 } else{
