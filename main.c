@@ -386,39 +386,25 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 {
 
-    unsigned char* raw_packet = (unsigned char*)packet;
-   
-    int datalink_type = UCHAR_PTR_TO_INT(args);
-
     ++num_packet;
 
-    print_current_time();
+    unsigned char* raw_packet = (unsigned char*)packet;
+   
+    int dll_type = UCHAR_PTR_TO_INT(args);
 
-    // let's process the frames now
-    process_layer2_packet(raw_packet, datalink_type, header->caplen);
+    /* timestamping and counting */
+    print_info_packet(num_packet);
 
-    // printing raw datas in hex format 
-    printf("\nRaw Datas : \n\n");
+    /* let's process the frames now */
+    process_layer2_packet(raw_packet, dll_type, header->caplen);
 
-    size_t i = 0;
+    /* printing raw datas in hex format */ 
+    printf("\nRAW DATAS : \n\n");
+    print_char_to_hex(raw_packet, 0, header->caplen);
 
-    while(i < header->caplen){
-
-        // every 32 bytes, print a line feed to get a clean output
-        if (i % 32 == 0)
-            printf("\n");
-
-        printf("%02X ", *(raw_packet + i));
-        i++;
-    }
-
-    printf("\n");
-
-    // extracting revelant strings and saving them into record file
-    
+    /* extracting revelant strings and saving them into record file */
     printf("\n\nRevelant strings : \n");
     print_strings(raw_packet, header->caplen);
-    printf("\n");
 
 }
 
