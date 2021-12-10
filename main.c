@@ -17,7 +17,7 @@ typedef struct opt_args_main {
 
 	unsigned int max_packets;
 	int timeout;
-	
+
 	uint8_t is_filter       : 2;	/* bpf filter or not */
 	uint8_t is_file         : 1;	/* rec file or not */
 	uint8_t is_itf          : 1;	/* net device or not */
@@ -324,7 +324,7 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
                 max_packet = strtol(optarg, &temp, 10);
 
                 if (optarg != temp && *temp == '\0' && max_packet <= UINT_MAX){
-                    opt_args->max_packets = max_packet;
+                    opt_args->max_packets = (unsigned int)max_packet;
                     opt_args->is_limited = 1;
 
                 } else {
