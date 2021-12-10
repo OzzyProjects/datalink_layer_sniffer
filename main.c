@@ -456,7 +456,7 @@ void int_handler(int signum)
     /* closing the string record file and exiting */
     close_record_file();
     
-    printf("Exiting program with SIGINT [%x]: OK\n", signum);
+    printf("Exiting program with SIGINT [%d]: OK\n", signum);
     exit(EXIT_SUCCESS);
 }
 
