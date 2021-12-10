@@ -17,7 +17,7 @@ typedef struct opt_args_main {
 	unsigned int max_packets;
 	unsigned int timeout;
 
-	int error_code;					/* futur use */
+	int error_code;			/* futur use */
 
 	uint8_t is_filter       : 1;	/* bpf filter or not */
 	uint8_t is_file         : 1;	/* rec file or not */
