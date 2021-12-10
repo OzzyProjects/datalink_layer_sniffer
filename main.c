@@ -1,3 +1,6 @@
+
+/* "DLL" sniffer without pretention (a tiny one) */
+
 #include <signal.h>
 #include <limits.h>
 #include <time.h>
@@ -15,16 +18,18 @@ typedef struct opt_args_main {
 	char pcap_filters[PCAP_FILTER_SIZE];
 
 	unsigned int max_packets;
-	int timeout;
+	unsigned int timeout;
+
+	int error_code;					/* futur use */
 
 	uint8_t is_filter       : 1;	/* bpf filter or not */
 	uint8_t is_file         : 1;	/* rec file or not */
+	uint8_t is_file_opened	: 1;	/* if str record file is already opened */
 	uint8_t is_itf          : 1;	/* net device or not */
 	uint8_t is_monitor_mode : 1;	/* mon mode enabled or not */
 	uint8_t is_godmode      : 1;	/* any device or single device */
 	uint8_t is_limited      : 1;	/* limit numb pckts or not (0 or neg) */
 	uint8_t is_verbose_mode : 1;	/* verbose mode or not */
-	uint8_t futur_use	: 1;	/* or padding */
 
 
 } opt_args_main;
@@ -42,6 +47,9 @@ int parse_cmd_line(int, char**, struct opt_args_main*);
 /* printing command line */
 void print_cmd_line(int, char**);
 
+/* casting char pointer to long (and after to uint) */
+long char_to_long(const char*);
+
 /* displaying all options available */
 void usage();
 
@@ -49,11 +57,11 @@ void usage();
 /* default filemane for string record file */
 static const char* DEFAULT_RECORD_FILENAME = "strlog";
 
+/* counter : number of packets sniffed at time t */
+static unsigned int num_packet = 0;
+
 /* starter capture timer */
 time_t t_begin_capture;
-
-/* counter : number of packets sniffed */
-static unsigned int num_packet = 0;
 
 
 int main(int argc, char **argv)
@@ -105,7 +113,7 @@ int main(int argc, char **argv)
 
     }
 
-    /* setting up the string record filename if it was provided */
+    /* setting up the string record filename if it was not provided */
     if (!opt_args->is_file){
         strncpy(opt_args->record_file, DEFAULT_RECORD_FILENAME, RECORD_FILENAME_SIZE - 1);
     }
@@ -118,8 +126,9 @@ int main(int argc, char **argv)
     printf("\nTimeout set         : %u\t%s\n", opt_args->timeout, 
     	(!opt_args->timeout) ? "non blocking mode" : "");
 
-    /* let's open the string record file now */
+    /* let's open the string record file now and setting the flag on */
     init_string_record_file(opt_args->record_file);
+    opt_args->is_file_opened = 1;
 
 #ifdef DEBUG
         	printf("\nRecord file successfully set\n");
@@ -132,7 +141,7 @@ int main(int argc, char **argv)
         handle = pcap_open_live(opt_args->device, BUFSIZE, -1, opt_args->timeout, errbuf);
 
         if (handle == NULL){
-            fprintf(stderr, "ERROR : Couldn't open device %s: %s\n", opt_args->device, errbuf);
+            fprintf(stderr, "FATAL ERROR : couldn't open device %s: %s\n", opt_args->device, errbuf);
             goto fatal_error;
         }
 
@@ -187,8 +196,8 @@ int main(int argc, char **argv)
         /* setting the device in monitor mode if it was selected */
         if (opt_args->is_monitor_mode){
 
-            /* if we can't put the device in monitor mode, so display a warning 
-            but keep continue the capture */
+            /* if we can't put the device in monitor mode, so we display a warning 
+            but keep doing the capture */
 
             if (pcap_can_set_rfmon(handle) != 1){
                 fprintf(stderr, "WARNING : device can't be set up in monitor mode : %s\n", 
@@ -239,6 +248,7 @@ int main(int argc, char **argv)
 
     /* getting the data link type to properly dissect frames */
     datalink_type = pcap_datalink(handle);
+    /* datalink type is not available -> abording */
     assert(datalink_type != PCAP_ERROR_NOT_ACTIVATED);
 
     dll_type_ptr = INT_TO_UCHAR_PTR(datalink_type);
@@ -255,33 +265,39 @@ int main(int argc, char **argv)
         pcap_loop(handle, -1, handle_packet, dll_type_ptr);
     }
 
+
+#ifdef DEBUG
+        printf("\nClosing programm normally with no major issues\n");
+#endif
+
     pcap_close(handle);
     free(opt_args);
     int_handler(0);
 
     return EXIT_SUCCESS;
 
-/* freeing memory before quitting */
-
+/* freeing opt_args struct before quitting and closing record file if opened */
 fatal_error:
 
  	free(opt_args);
+ 	if (opt_args->is_file_opened)
+ 		close_record_file();
+
  	return EXIT_FAILURE;
 
 }
 
-// function used to parse the command line
+
+/* function used to parse the command line */
 
 int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 {
 
-	/* temp buffer to convert opt to int with strtol */
-    char *temp, *temp2;
     int opt;
-    long max_packet;
-    long defined_timeout; 
+    long max_packet = 0;
+    long defined_timeout = 0;
 
-    while ((opt = getopt(argc, argv, "i:r:f:d:t:c:vgmlh")) != -1){
+    while ((opt = getopt(argc, argv, "i:r:f:c:t:vgmlh")) != -1){
 
         switch (opt){
 
@@ -320,31 +336,19 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 
             /* limit the number of sniffed packets : -c [number-max-packets] */
             case 'c':
-                max_packet = strtol(optarg, &temp, 10);
+            	if ((max_packet = char_to_long(optarg)) == -1)
+            		return -1;
 
-                if (optarg != temp && *temp == '\0' && max_packet <= UINT_MAX){
-                    opt_args->max_packets = (unsigned int)max_packet;
-                    opt_args->is_limited = 1;
-
-                } else {
-                    fprintf(stderr, "ERROR : Incorrect number for max packets (uint required)\n");
-                    return -1;
-                }
-
+                opt_args->max_packets = (unsigned int)max_packet;
+                opt_args->is_limited = 1;
                 break;
 
             /* setting up a provided timeout, 0 by default = non blocking mode */
             case 't':
-                defined_timeout = strtol(optarg, &temp2, 10);
+                if ((defined_timeout = char_to_long(optarg)) == -1)
+                	return -1;
 
-                if (optarg != temp2 && *temp2 == '\0' && defined_timeout <= UINT_MAX){
-                    opt_args->timeout = defined_timeout;
-
-                } else{
-                    fprintf(stderr, "ERROR : Timeout value format error !\n");
-                    return -1;
-                }
-
+                opt_args->timeout = (unsigned int)defined_timeout;
                 break;
 
             /* just an option to print the list of interfaces available. Add option -v (verbose mode)
@@ -382,14 +386,36 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 
 }
 
+
+/* converting char pointer to long for some command line args */
+
+long char_to_long(const char* opt_chr)
+{
+	char* buff_temp;
+	long long_res = 0;
+
+    long_res = strtol(opt_chr, &buff_temp, 10);
+
+    if (opt_chr != buff_temp && *buff_temp == '\0' && long_res >= 0 && long_res <= UINT_MAX){
+        return long_res;
+
+    } else {
+    	/* error while casting (incorrect value) */
+        fprintf(stderr, "ERROR : Incorrect number provided (uint required)\n");
+        return -1;
+    }
+
+}
+
 /* the callback function used to manage every frame sniffed */
+
 void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 {
 
-    ++num_packet;
+	++num_packet;
 
+    /* QUESTION : is this cast constness useless ? CKAAAAAAAAAAAAA TEAM */
     unsigned char* raw_packet = (unsigned char*)packet;
-   
     int dll_type = UCHAR_PTR_TO_INT(args);
 
     /* timestamping and counting */
@@ -399,11 +425,11 @@ void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char 
     process_layer2_packet(raw_packet, dll_type, header->caplen);
 
     /* printing raw datas in hex format */ 
-    printf("\nRAW DATAS : \n\n");
+    printf("\n<!> RAW DATAS :\n\n");
     print_char_to_hex(raw_packet, 0, header->caplen);
 
     /* extracting revelant strings and saving them into record file */
-    printf("\n\nRevelant strings : \n");
+    printf("\n\nRevelant strings :\n");
     print_strings(raw_packet, header->caplen);
 
 }
@@ -420,9 +446,9 @@ void int_handler(int signum)
     int min_elapsed = (int)(total_time / 60);
     int sec_elapsed = (int)(total_time % 60);
 
-    printf("\nTotal packets captured 	: %u\n", num_packet);
+    printf("\n+ Total packets captured		: %u\n", num_packet);
 
-    printf("\nCapture time duration		: %02d min %02d sec\n", min_elapsed, sec_elapsed);
+    printf("\n+ Capture time duration		: %02d min %02d sec\n", min_elapsed, sec_elapsed);
 
     /* closing the string record file and exiting */
     close_record_file();
