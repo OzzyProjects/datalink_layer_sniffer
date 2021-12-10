@@ -10,13 +10,14 @@
 /* opts struct for the capture session */
 
 typedef struct opt_args_main {
-
+	
 	char device[IFNAMSIZ];
-    char record_file[RECORD_FILENAME_SIZE];
+	char record_file[RECORD_FILENAME_SIZE];
 	char pcap_filters[PCAP_FILTER_SIZE];
 
 	unsigned int max_packets;
 	int timeout;
+	
 	uint8_t is_filter       : 2;	/* bpf filter or not */
 	uint8_t is_file         : 1;	/* rec file or not */
 	uint8_t is_itf          : 1;	/* net device or not */
@@ -239,6 +240,8 @@ int main(int argc, char **argv)
 
     /* getting the data link type to properly dissect frames */
     datalink_type = pcap_datalink(handle);
+    assert(datalink_type != PCAP_ERROR_NOT_ACTIVATED);
+
     dll_type_ptr = INT_TO_UCHAR_PTR(datalink_type);
 
     /* starting the timer here */
