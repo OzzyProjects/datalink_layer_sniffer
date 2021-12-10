@@ -1,4 +1,6 @@
 
+/* "DLL" sniffer without pretention (a tiny one) */
+
 #include <signal.h>
 #include <limits.h>
 #include <time.h>
@@ -34,14 +36,11 @@ typedef struct opt_args_main {
 /* SIGINT function to proper exit freeing memory */
 void int_handler(int);
 
-/* function to parse the command line */
-int parse_cmd_line(int, char**, struct opt_args_main*);
-
-/* displaying message if an non optional arg is missing */
-void manage_missing_arg(int);
-
 /* callback function for the PCAP session */
 void handle_packet(u_char*, const struct pcap_pkthdr*, const u_char*);
+
+/* function to parse the command line */
+int parse_cmd_line(int, char**, struct opt_args_main*);
 
 /* printing command line */
 void print_cmd_line(int, char**);
@@ -261,7 +260,7 @@ int main(int argc, char **argv)
 
     pcap_close(handle);
     free(opt_args);
-    int_handler(-1);
+    int_handler(0);
 
     return EXIT_SUCCESS;
 
@@ -357,18 +356,16 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
                 print_devices_list(opt_args->is_verbose_mode);
                 free(opt_args);
                 exit(EXIT_SUCCESS);
-                break;
 
             /* option -h (help) : displays all options available */
             case 'h':
                 usage();
                 free(opt_args);
                 exit(EXIT_SUCCESS);
-                break;
             
             /* some options need an argument, no argument -> error */
             case '?':
-                manage_missing_arg(opt);
+                fprintf(stderr, "FATAL ERROR : Couldn't parse command line arguments\n");
                 free(opt_args);
                 exit(EXIT_FAILURE);
 
@@ -385,26 +382,6 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
     }
 
     return 0;
-
-}
-
-
-/* displaying message if an non optional arg is missing */
-void manage_missing_arg(int optopt)
-{
-
-    if (optopt == 'i')
-        fprintf(stderr, "Option -%c requires an argument [interface_name] !\n", optopt);
-    else if (optopt == 'r')
-        fprintf(stderr, "Option -%c requires an argument [record_file_name] !\n", optopt);
-    else if (optopt == 'f')
-        fprintf(stderr, "Option -%c requires an argument [pcap_filters] !\n", optopt);
-    else if (optopt == 'c')
-        fprintf(stderr, "Option -%c requires an argument [max packets] !\n", optopt);
-    else if (optopt == 't')
-        fprintf(stderr, "Option -%c requires an argument [timeout] | 0 for non blocking mode!\n", optopt);
-    else
-        fprintf(stderr, "Unknown option -%c | -h for help\n", optopt);
 
 }
 
