@@ -291,7 +291,7 @@ fatal_error:
  		close_record_file();
     
     free(opt_args);
- 	return EXIT_FAILURE;
+    return EXIT_FAILURE;
 
 }
 
