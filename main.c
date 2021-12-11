@@ -1,3 +1,6 @@
+
+/* "DLL" sniffer without pretention (a tiny one) */
+
 #include <signal.h>
 #include <limits.h>
 #include <time.h>
@@ -14,12 +17,12 @@ typedef struct opt_args_main {
 	
 	char device[IFNAMSIZ];
 	char pcap_filters[PCAP_FILTER_MAX_SIZE];
-    	char record_file[RECORD_PATH_MAX_SIZE];
+    char record_file[RECORD_PATH_MAX_SIZE];
 
-	unsigned int max_packets;	/* limit of max packets to capture */
-	unsigned int timeout;		/* timeout : 0 = non blocking mode */
+	unsigned int max_packets;		/* limit of max packets to capture */
+	unsigned int timeout;			/* timeout : 0 = non blocking mode */
 
-	int error_code;			/* futur use */
+	int error_code;					/* futur use */
 
 	uint8_t is_filter       : 1;	/* bpf filter or not */
 	uint8_t is_file         : 1;	/* rec file or not */
@@ -160,7 +163,7 @@ int main(int argc, char **argv)
         }
 
 #ifdef DEBUG
-    printf("\nPCAP session successfully opened\n");
+        printf("\nPCAP session successfully opened\n");
 #endif
 
     }
@@ -196,9 +199,10 @@ int main(int argc, char **argv)
 #endif
             
     }
-	    
-    /* setting the device in promiscuous mode */
-    assert(pcap_set_promisc(handle, 1) == 0);
+
+    /*
+    assert(pcap_set_promisc(handle, 1) != -1);
+    */
 
         /* setting the device in monitor mode if it was selected */
         if (opt_args->is_monitor_mode){
@@ -288,15 +292,15 @@ fatal_error:
 
  	if (opt_args->is_file_opened)
  		close_record_file();
-
- 	free(opt_args); 	
-	return EXIT_FAILURE;
+    
+    free(opt_args);
+ 	return EXIT_FAILURE;
 
 }
 
+/*---------------------------------------------------*/
 
 /* function used to parse the command line */
-
 int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 {
 
@@ -393,9 +397,9 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 
 }
 
+/*---------------------------------------------------*/
 
 /* converting char pointer to long for some command line args */
-
 long char_to_long(const char* opt_chr)
 {
 	char* buff_temp;
@@ -414,12 +418,15 @@ long char_to_long(const char* opt_chr)
 
 }
 
-/* the callback function used to manage every frame sniffed */
+/*---------------------------------------------------*/
 
+/* the callback function used to manage every frame sniffed */
 void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 {
 
-    ++num_packet;
+	++num_packet;
+
+    /* QUESTION : is this cast constness useless ? CKAAAAAAAAAAAAA TEAM */
     unsigned char* raw_packet = (unsigned char*)packet;
     int dll_type = UCHAR_PTR_TO_INT(args);
 
@@ -439,9 +446,9 @@ void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char 
 
 }
 
+/*---------------------------------------------------*/
 
-// updating the last params, closing file etc... before closing
-
+/* updating the last params, closing file etc... before closing */
 void int_handler(int signum)
 {
 
@@ -462,6 +469,7 @@ void int_handler(int signum)
     exit(EXIT_SUCCESS);
 }
 
+/*---------------------------------------------------*/
 
 /* printing command line to begin the capture file */
 void print_cmd_line(int argc, char** argv)
@@ -477,6 +485,7 @@ void print_cmd_line(int argc, char** argv)
     }
 }
 
+/*---------------------------------------------------*/
 
 /* helping function */
 void usage()
