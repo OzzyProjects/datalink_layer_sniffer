@@ -1,16 +1,16 @@
 # Datalink layer sniffer for Linux
 
-# PayPal Donation
-
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/ozzyprojects?cmd=_s-xclick)
-
 + **LAST UPDATE : NTP, SMB/Mailslot/Browser, the obscure one Canon BJNP and 802.3 frames with LLC**
 
 NEW RELEASE WITH BLUETOOTH IMPLEMENTATION - WORK IN PROGRESS
 
 **/!\ <ins>THE MODULE ENGINE FOR BLUETOOTH</ins> IS DEVELOPPED IN THE EXPERIMENTAL BRANCH. NO REAL BUG CHECKS, JUST THINKING ABOUT NEW APPROACHS AND CONCEPTS/!\ !**
 
-DO NOT HESITATE TO LEAVE YOUR FEEDBACK TO LET ME DO SOME IMPROVEMENTS
+DO NOT HESITATE TO LEAVE YOUR FEEDBACK TO LET ME DO SOME IMPROVEMENTS OR BY A PAYPAL DONATION FOR THE SUPPORT
+
+# PayPal Donation
+
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/ozzyprojects?cmd=_s-xclick)
 
 **New release working with libpcap. The older one dealt with raw sockets only**
 
