@@ -8,7 +8,7 @@ NEW RELEASE WITH BLUETOOTH IMPLEMENTATION - WORK IN PROGRESS
 
 DO NOT HESITATE TO LEAVE YOUR FEEDBACK TO LET ME DO SOME IMPROVEMENTS OR BY A PAYPAL DONATION FOR THE SUPPORT
 
-# Support
+# Support Donation
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/ozzyprojects?cmd=_s-xclick)
 
