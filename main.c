@@ -160,7 +160,7 @@ int main(int argc, char **argv)
         }
 
 #ifdef DEBUG
-        printf("\nPCAP session successfully opened\n");
+    printf("\nPCAP session successfully opened\n");
 #endif
 
     }
@@ -192,13 +192,13 @@ int main(int argc, char **argv)
             assert(pcap_setnonblock(handle, -1, errbuf) != -1);
 
 #ifdef DEBUG
-        	printf("\nNon blocking mode successfully set\n");
+            printf("\nNon blocking mode successfully set\n");
 #endif
             
     }
 
     /* setting the device in promiscuous mode */
-    assert(pcap_set_promisc(handle, 1) != -1);
+    assert(pcap_set_promisc(handle, 1) == 0);
 
         /* setting the device in monitor mode if it was selected */
         if (opt_args->is_monitor_mode){
