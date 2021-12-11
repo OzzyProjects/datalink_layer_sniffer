@@ -196,8 +196,9 @@ int main(int argc, char **argv)
 #endif
             
     }
-
-    assert(pcap_set_promisc(handle, 1) != -1);
+	    
+    /* setting the device in promiscuous mode */
+    assert(pcap_set_promisc(handle, 1) == 0);
 
         /* setting the device in monitor mode if it was selected */
         if (opt_args->is_monitor_mode){
