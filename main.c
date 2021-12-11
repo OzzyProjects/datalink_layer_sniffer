@@ -287,11 +287,11 @@ int main(int argc, char **argv)
 /* freeing opt_args struct before quitting and closing record file if opened */
 fatal_error:
 
- 	free(opt_args);
  	if (opt_args->is_file_opened)
  		close_record_file();
 
- 	return EXIT_FAILURE;
+ 	free(opt_args); 	
+	return EXIT_FAILURE;
 
 }
 
