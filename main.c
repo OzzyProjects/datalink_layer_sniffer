@@ -1,6 +1,3 @@
-
-/* "DLL" sniffer without pretention (a tiny one) */
-
 #include <signal.h>
 #include <limits.h>
 #include <time.h>
@@ -17,12 +14,12 @@ typedef struct opt_args_main {
 	
 	char device[IFNAMSIZ];
 	char pcap_filters[PCAP_FILTER_MAX_SIZE];
-    char record_file[RECORD_PATH_MAX_SIZE];
+    	char record_file[RECORD_PATH_MAX_SIZE];
 
-	unsigned int max_packets;		/* limit of max packets to capture */
-	unsigned int timeout;			/* timeout : 0 = non blocking mode */
+	unsigned int max_packets;	/* limit of max packets to capture */
+	unsigned int timeout;		/* timeout : 0 = non blocking mode */
 
-	int error_code;					/* futur use */
+	int error_code;			/* futur use */
 
 	uint8_t is_filter       : 1;	/* bpf filter or not */
 	uint8_t is_file         : 1;	/* rec file or not */
@@ -186,7 +183,7 @@ int main(int argc, char **argv)
             assert(pcap_set_timeout(handle, opt_args->timeout) == 0);
        
 #ifdef DEBUG
-        	printf("\nTimeout successfully set\n");
+        printf("\nTimeout successfully set\n");
 #endif
 
         } else{
@@ -198,9 +195,8 @@ int main(int argc, char **argv)
             
     }
 
-    /*
-    assert(pcap_set_promisc(handle, 1) != -1);
-    */
+    /* promiscuous mode */
+    assert(pcap_set_promisc(handle, 1) == 0);
 
         /* setting the device in monitor mode if it was selected */
         if (opt_args->is_monitor_mode){
@@ -422,9 +418,7 @@ long char_to_long(const char* opt_chr)
 void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 {
 
-	++num_packet;
-
-    /* QUESTION : is this cast constness useless ? CKAAAAAAAAAAAAA TEAM */
+    ++num_packet;
     unsigned char* raw_packet = (unsigned char*)packet;
     int dll_type = UCHAR_PTR_TO_INT(args);
 
