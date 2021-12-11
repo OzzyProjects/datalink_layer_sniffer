@@ -270,7 +270,7 @@ unsigned char *clean_str(unsigned char *restrict str){
     unsigned char* tmp = str;
 
     while(*str){
-        if (*str < 0x20 || *str & 0x7f)
+        if (*str < 0x20 || *str == 0x7f)
             *str = '.';
         ++str;
     }
