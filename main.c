@@ -1,3 +1,4 @@
+
 #include <signal.h>
 #include <limits.h>
 #include <time.h>
@@ -5,30 +6,37 @@
 #include "sock_utils.h" 
 #include "string_utils.h"
 
+
+/* status codes (in progress, to implement) */
+#define DLL_SNI_OK              0
+#define DLL_SNI_FATAL_ERR       (-1)
+#define DLL_SNI_PCAP_ERR        (-2)
+
 /* record path file and bpf filters are limited to 128 bytes each */
 #define RECORD_PATH_MAX_SIZE    0x80
-#define PCAP_FILTER_MAX_SIZE    0x80
+#define PCAP_FILTER_MAX_SIZE    0x40
+
 
 /* opts struct for the capture session */
 typedef struct opt_args_main {
 	
 	char device[IFNAMSIZ];
 	char pcap_filters[PCAP_FILTER_MAX_SIZE];
-    	char record_file[RECORD_PATH_MAX_SIZE];
+    char record_file[RECORD_PATH_MAX_SIZE];
 
-	unsigned int max_packets;	/* limit of max packets to capture */
-	unsigned int timeout;		/* timeout : 0 = non blocking mode */
+	unsigned int max_packets;          /* limit of max packets to capture */
+	unsigned int timeout;			   /* timeout : 0 = non blocking mode */
 
-	int error_code;			/* futur use */
+	int error_code;                    /* futur use */
 
-	uint8_t is_filter       : 1;	/* bpf filter or not */
-	uint8_t is_file         : 1;	/* rec file or not */
-	uint8_t is_file_opened	: 1;	/* if str record file is already opened */
-	uint8_t is_itf          : 1;	/* net device or not */
-	uint8_t is_monitor_mode : 1;	/* mon mode enabled or not */
-	uint8_t is_godmode      : 1;	/* any device or single device */
-	uint8_t is_limited      : 1;	/* limit numb pckts or not (0 or neg) */
-	uint8_t is_verbose_mode : 1;	/* verbose mode or not */
+	uint8_t is_filter       : 1;       /* bpf filter or not */
+	uint8_t is_file         : 1;       /* rec file or not */
+	uint8_t is_file_opened	: 1;       /* if str record file is already opened */
+	uint8_t is_itf          : 1;       /* net device or not */
+	uint8_t is_monitor_mode : 1;       /* mon mode enabled or not */
+	uint8_t is_godmode      : 1;       /* any device or single device */
+	uint8_t is_limited      : 1;       /* limit numb pckts or not (0 or neg) */
+	uint8_t is_verbose_mode : 1;       /* verbose mode or not */
 
 
 } opt_args_main;
@@ -103,14 +111,14 @@ int main(int argc, char **argv)
     /* parsing the command line and setting up capture options */
     parsing_status = parse_cmd_line(argc, argv, opt_args);
 
-    if (parsing_status < 0){
+    if (parsing_status < DLL_SNI_OK){
         fprintf(stderr, "FATAL ERROR : error while parsing the command line\n");
 		goto fatal_error;
     }
 
     /* no interface provided by user, prog will try to find one's available 
     no device available -> aborting */
-    if (!opt_args->is_itf && get_random_device(opt_args->device) == -1){
+    if (!opt_args->is_itf && get_random_device(opt_args->device) < DLL_SNI_OK){
         fprintf(stderr, "FATAL ERROR : couldn't find a network device to bind to\n");
         goto fatal_error;
 
@@ -137,28 +145,33 @@ int main(int argc, char **argv)
     opt_args->is_file_opened = 1;
 
 #ifdef DEBUG
-    printf("\nRecord file successfully set\n");
+    printf("\nDEBUG : Record file successfully set\n");
 #endif
 
     /* one and only one interface sniffing mode, just do a soft capture */
     if (!opt_args->is_godmode){
 
         /* opening session in promiscuous mode with defined timeout or not (default) */
-        handle = pcap_open_live(opt_args->device, BUFSIZE, -1, opt_args->timeout, errbuf);
+        handle = pcap_open_live(opt_args->device, BUFSIZE, -1,
+            opt_args->timeout, errbuf);
 
         if (handle == NULL){
-            fprintf(stderr, "FATAL ERROR : couldn't open device %s: %s\n", opt_args->device, errbuf);
+            fprintf(stderr, "FATAL ERROR : couldn't open device %s: %s\n", 
+                opt_args->device, errbuf);
+
             goto fatal_error;
         }
 
         /* finding properties for device */
         if (pcap_lookupnet(opt_args->device, &net, &mask, errbuf) == -1){
-            fprintf(stderr, "FATAL ERROR : couldn't get netmask for device : %s\n", errbuf);
+            fprintf(stderr, "FATAL ERROR : couldn't get netmask for device : %s\n",
+                errbuf);
+
             goto fatal_error;
         }
 
 #ifdef DEBUG
-        printf("\nPCAP session successfully opened\n");
+        printf("\nDEBUG : PCAP session successfully opened\n");
 #endif
 
     }
@@ -170,7 +183,7 @@ int main(int argc, char **argv)
         handle = pcap_create(opt_args->device, errbuf);
 
         if (handle == NULL){
-            fprintf(stderr, "FATAL ERROR : Couldn't create socket handle : %s\n", errbuf);
+            fprintf(stderr, "FATAL ERROR : couldn't create sock handle : %s\n", errbuf);
             goto fatal_error;
         }
 
@@ -183,21 +196,21 @@ int main(int argc, char **argv)
             assert(pcap_set_timeout(handle, opt_args->timeout) == 0);
        
 #ifdef DEBUG
-        printf("\nTimeout successfully set\n");
+        	printf("\nDEBUG : Timeout successfully set\n");
 #endif
 
         } else{
             assert(pcap_setnonblock(handle, -1, errbuf) != -1);
 
 #ifdef DEBUG
-        	printf("\nNon blocking mode successfully set\n");
+        	printf("\nDEBUG : Non blocking mode successfully set\n");
 #endif
             
     }
 
-    /* promiscuous mode */
-    assert(pcap_set_promisc(handle, 1) == 0);
-
+    /*
+    assert(pcap_set_promisc(handle, 1) != -1);
+    */
         /* setting the device in monitor mode if it was selected */
         if (opt_args->is_monitor_mode){
 
@@ -222,7 +235,7 @@ int main(int argc, char **argv)
         }
 
 #ifdef DEBUG
-        printf("\nGod PCAP mode enabled\n");
+        printf("\nDEBUG : God PCAP mode enabled\n");
 #endif
 
     }
@@ -230,23 +243,23 @@ int main(int argc, char **argv)
     /* if a filter has been chosen for the capture, it's time to apply it */
     if (opt_args->is_filter){
 
-        if (pcap_compile(handle, &fp, opt_args->pcap_filters, 1, PCAP_NETMASK_UNKNOWN) == -1){
-            fprintf(stderr, "counldn't parse capture filters %s: %s\n", 
-            	opt_args->pcap_filters, pcap_geterr(handle));
+        if (pcap_compile(handle, &fp, opt_args->pcap_filters, 1, PCAP_NETMASK_UNKNOWN) != 0){
+            fprintf(stderr, "counldn't parse capture filters : %s\n", 
+                pcap_geterr(handle));
 
             goto fatal_error;
         }
 
         /* applying filters */
-        if (pcap_setfilter(handle, &fp) == -1){
-            fprintf(stderr, "ERROR : couldn't install the filter %s: %s\n", 
-            	opt_args->pcap_filters, pcap_geterr(handle));
+        if (pcap_setfilter(handle, &fp) != 0){
+            fprintf(stderr, "ERROR : couldn't set up filters : %s\n",
+                pcap_geterr(handle));
 
             goto fatal_error;
         }
 
 #ifdef DEBUG
-        printf("\nFilters has been successfully applied\n");
+        printf("\nDEBUG : Filters has been successfully applied\n");
 #endif
 
     }
@@ -272,23 +285,27 @@ int main(int argc, char **argv)
 
 
 #ifdef DEBUG
-        printf("\nClosing programm normally with no major issues\n");
+        printf("\nDEBUG : Closing programm normally with no major issues\n");
 #endif
 
     pcap_close(handle);
     free(opt_args);
-    int_handler(0);
+    int_handler(DLL_SNI_OK);
 
     return EXIT_SUCCESS;
 
 /* freeing opt_args struct before quitting and closing record file if opened */
 fatal_error:
 
- 	if (opt_args->is_file_opened)
- 		close_record_file();
+#ifdef DEBUG
+    printf("\nDEBUG : Fatal error occured ! Aborting...\n");
+#endif
+
+    if (opt_args->is_file_opened)
+        close_record_file();
     
     free(opt_args);
- 	return EXIT_FAILURE;
+    return EXIT_FAILURE;
 
 }
 
@@ -320,7 +337,7 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 
             /* applying capture filters here -f [bpf-filter] */
             case 'f':
-                strlcpy(opt_args->pcap_filters, optarg, PCAP_FILTER_MAX_SIZE);
+                strncpy(opt_args->pcap_filters, optarg, PCAP_FILTER_MAX_SIZE - 1);
                 opt_args->is_filter= 1;
                 break;
 
@@ -341,8 +358,8 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 
             /* limit the number of sniffed packets : -c [number-max-packets] */
             case 'c':
-            	if ((max_packet = char_to_long(optarg)) == -1)
-            		return -1;
+            	if ((max_packet = char_to_long(optarg)) < DLL_SNI_OK)
+            		return DLL_SNI_FATAL_ERR;
 
                 opt_args->max_packets = (unsigned int)max_packet;
                 opt_args->is_limited = 1;
@@ -350,14 +367,14 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 
             /* setting up a provided timeout, 0 by default = non blocking mode */
             case 't':
-                if ((defined_timeout = char_to_long(optarg)) == -1)
-                	return -1;
+                if ((defined_timeout = char_to_long(optarg)) < DLL_SNI_OK)
+                	return DLL_SNI_FATAL_ERR;
 
                 opt_args->timeout = (unsigned int)defined_timeout;
                 break;
 
-            /* just an option to print the list of interfaces available. Add option -v (verbose mode)
-            for more details about device flags */
+            /* just an option to print the list of interfaces available. 
+            Add option -v (verbose mode) for more details about device flags */
             case 'l':
                 print_devices_list(opt_args->is_verbose_mode);
                 free(opt_args);
@@ -369,25 +386,18 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
                 free(opt_args);
                 exit(EXIT_SUCCESS);
             
-            /* some options need an argument, no argument -> error */
+            /* some options need an argument, no argument -> error 
+             * same treatment for default value */
             case '?':
-                fprintf(stderr, "FATAL ERROR : Couldn't parse command line arguments\n");
-                free(opt_args);
-                exit(EXIT_FAILURE);
-
-            case 1:
-                fprintf(stderr, "FATAL ERROR : Non-option argument : %s | -h for help\n", optarg);
-                return -1;
-                break;
+                fprintf(stderr, "Invalid option or missing argument !\n");
 
             default:
-                usage();
-                fprintf(stderr, "FATAL ERROR : Couldn't parse command line arguments\n");
-                return -1;
+                return DLL_SNI_FATAL_ERR;
         }
     }
 
-    return 0;
+    /* return 0 = no error */
+    return DLL_SNI_OK;
 
 }
 
@@ -401,13 +411,15 @@ long char_to_long(const char* opt_chr)
 
     long_res = strtol(opt_chr, &buff_temp, 10);
 
-    if (opt_chr != buff_temp && *buff_temp == '\0' && long_res >= 0 && long_res <= UINT_MAX){
+    /* after that, the cast from long to u_int should be done successfully */
+    if (opt_chr != buff_temp && *buff_temp == '\0' && long_res >= 0 && 
+        long_res <= UINT_MAX){
         return long_res;
 
     } else {
     	/* error while casting (incorrect value) */
-        fprintf(stderr, "ERROR : Incorrect number provided (uint required)\n");
-        return -1;
+        fprintf(stderr, "ERROR : Incorrect number provided (u_int required)\n");
+        return DLL_SNI_FATAL_ERR;
     }
 
 }
@@ -418,7 +430,9 @@ long char_to_long(const char* opt_chr)
 void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 {
 
-    ++num_packet;
+	++num_packet;
+
+    /* QUESTION : is this cast constness useless ? CKAAAAAAAAAAAAA TEAM */
     unsigned char* raw_packet = (unsigned char*)packet;
     int dll_type = UCHAR_PTR_TO_INT(args);
 
@@ -429,7 +443,7 @@ void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char 
     process_layer2_packet(raw_packet, dll_type, header->caplen);
 
     /* printing raw datas in hex format */ 
-    printf("\n<!> RAW DATAS :\n\n");
+    printf("\n<!> RAW DATAS :\n");
     print_char_to_hex(raw_packet, 0, header->caplen);
 
     /* extracting revelant strings and saving them into record file */
@@ -457,7 +471,7 @@ void int_handler(int signum)
     /* closing the string record file and exiting */
     close_record_file();
     
-    printf("Exiting program with SIGINT [%x]: OK\n", signum);
+    printf("Exiting program with SIGINT [%d]: OK\n", signum);
     exit(EXIT_SUCCESS);
 }
 
