@@ -12,16 +12,6 @@
 
 #define isunicode(c) (((c) & 0xc0) == 0xc0)
 
-#define _strcpy_exptal(dst, src)    \
-    do {                            \
-        const char *_src = (src);   \
-        char *_dst = (dst);         \
-                                    \
-        while ((*_dst++ = *_src++)) \
-                ;                   \
-    } while (0)
-
-
 /* minimum lenght for a revelant string */
 #define STRING_REVELANT_MIN_SIZE       0x7
 
