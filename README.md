@@ -1,5 +1,9 @@
 # Datalink layer sniffer for Linux
 
+# PayPal Donation
+
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/ozzyprojects?cmd=_s-xclick)
+
 + **LAST UPDATE : NTP, SMB/Mailslot/Browser, the obscure one Canon BJNP and 802.3 frames with LLC**
 
 NEW RELEASE WITH BLUETOOTH IMPLEMENTATION - WORK IN PROGRESS
@@ -75,8 +79,6 @@ It works on Debian Buster/Bullseye and Ubuntu 20.04+.
 I haven't checked yet for other versions or distros.
 
 You can also check the complete valgrind memcheck report. No memory leaks or other memory problems.
-
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/ozzyprojects?cmd=_s-xclick)
 
 ![](valgrind/valgrind.png)
 
