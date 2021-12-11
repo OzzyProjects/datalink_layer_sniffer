@@ -9,27 +9,36 @@ static unsigned char heap_memory[1024 * 1024];
 static size_t next_index = 0;
 
 // revelant puncts in network
-static const char* network_punct = "/=[](){}:<>; ";
+static const char* network_punct = "/=[]\\(){}:<>; ";
 
 // file descriptor for the string extractor
 static FILE* file = NULL;
 
-void init_string_record_file(const char* filename){
+/*---------------------------------------------------*/
+
+void init_string_record_file(const char* filename)
+{
 
     file = fopen(filename, "w");
+
     if (file == NULL){
         perror("Fatal error while creating string extractor file\n");
         exit(EXIT_FAILURE);
     }
 }
 
-void close_record_file(){
+/*---------------------------------------------------*/
+
+void close_record_file()
+{
     fclose(file);
 }
 
-// fake malloc allocating nothing on the heap
+/*---------------------------------------------------*/
 
-void *fake_malloc(const size_t size){
+/* fake malloc allocating nothing on the heap */
+void *fake_malloc(const size_t size)
+{
 
     void *mem_ptr;
 
@@ -42,7 +51,10 @@ void *fake_malloc(const size_t size){
     return mem_ptr;
 }
 
-void copy_small(uint8_t *restrict dst, const uint8_t *restrict src, size_t n){
+/*---------------------------------------------------*/
+
+void copy_small(uint8_t *restrict dst, const uint8_t *restrict src, size_t n)
+{
 
     if (n >= 8){
         *(uint64_t *restrict)dst = *(const uint64_t *restrict)src;
@@ -65,7 +77,10 @@ void copy_small(uint8_t *restrict dst, const uint8_t *restrict src, size_t n){
         *dst = *src;
 }
 
-void copy_large(uint64_t *restrict dst, const uint64_t *restrict src, size_t n){
+/*---------------------------------------------------*/
+
+void copy_large(uint64_t *restrict dst, const uint64_t *restrict src, size_t n)
+{
     
     size_t chunks, offset;
 
@@ -88,7 +103,10 @@ void copy_large(uint64_t *restrict dst, const uint64_t *restrict src, size_t n){
         *dst++ = *src++;
 }
 
-void *memcpy_s(void *restrict dst, const void *restrict src, size_t size){
+/*---------------------------------------------------*/
+
+void *memcpy_s(void *restrict dst, const void *restrict src, size_t size)
+{
 
     uint8_t *dst8;
     const uint8_t *src8;
@@ -113,7 +131,10 @@ void *memcpy_s(void *restrict dst, const void *restrict src, size_t size){
     return dst;
 }
 
-void *memset_s(void* restrict ptr, const unsigned int init, size_t size){
+/*---------------------------------------------------*/
+
+void *memset_s(void* restrict ptr, const unsigned int init, size_t size)
+{
 
     unsigned char* p = (unsigned char*)ptr;
     unsigned char value = init & 0xff;
@@ -124,7 +145,10 @@ void *memset_s(void* restrict ptr, const unsigned int init, size_t size){
     return ptr;
 }
 
-int memcmp_s(void *restrict ptr1, void *restrict ptr2, size_t size){
+/*---------------------------------------------------*/
+
+int memcmp_s(void *restrict ptr1, void *restrict ptr2, size_t size)
+{
 
     unsigned char *tmp_ptr1 = ptr1;
     unsigned char *tmp_ptr2 = ptr2;
@@ -141,6 +165,8 @@ int memcmp_s(void *restrict ptr1, void *restrict ptr2, size_t size){
     return 0;
 }
 
+/*---------------------------------------------------*/
+
 char *fake_strndup(const char* restrict string, size_t size)
 {
     char *str = fake_malloc(size);
@@ -153,25 +179,43 @@ char *fake_strndup(const char* restrict string, size_t size)
     return str;
 }
 
-char *safe_strcpy(char *restrict dest, size_t size, const char *restrict src) {
+/*---------------------------------------------------*/
+
+char *safe_strcpy(char *restrict dest, const char *restrict src, size_t size)
+{
     
     if (size > 0){
         size_t len = strnlen(src, size - 1);
         memcpy_s(dest, src, len);
-        *(dest+len) = '\0';
+        *(dest + len) = '\0';
     }
 
     return dest;
 }
 
-// memcpy in inline assembly, just for the fun
+/*---------------------------------------------------*/
 
-void *memcpy_asm(void *dest, const void *src, size_t n){
+size_t strlcpy(char *dst, const char *src, size_t dst_size)
+{
+    size_t len = strlen(src);
+
+    if (dst_size) {
+        size_t bl = (len < dst_size-1 ? len : dst_size - 1);
+        ((char*)memcpy(dst, src, bl))[bl] = 0;
+    }
+
+    return len;
+}
+
+/*---------------------------------------------------*/
+
+void *memcpy_asm(void *dest, const void *src, size_t n)
+{
 
     long d0, d1, d2;
      
     __asm__ __volatile__(
-    "rep ; movsq\n\t""movq %4,%%rcx\n\t""rep ; movsb\n\t": "=&c" (d0),                                                                                   
+    "rep ; movsq\n\t""movq %4,%%rcx\n\t""rep ; movsb\n\t": "=&c" (d0),
     "=&D" (d1),
     "=&S" (d2): "0" (n >> 3), 
     "g" (n & 7), 
@@ -181,7 +225,7 @@ void *memcpy_asm(void *dest, const void *src, size_t n){
     return dest;
 }
 
-// the same for strcpy
+/*---------------------------------------------------*/
 
 char *strcpy_asm(char *restrict dst, const char *restrict src) {
 
@@ -198,8 +242,9 @@ char *strcpy_asm(char *restrict dst, const char *restrict src) {
     return dst;
 }
 
-// remove duplicate a char passed by argument to the function in the string
+/*---------------------------------------------------*/
 
+/* remove duplicate a char passed by argument to the function in the string */
 unsigned char *remove_dup(unsigned char* input, unsigned char to_remove){
 
     unsigned char* tmp = input, *older = input;
@@ -217,23 +262,25 @@ unsigned char *remove_dup(unsigned char* input, unsigned char to_remove){
     return output;
 }
 
-// replace ASCII non printable chars (from 0x1 to 0x15) by a dot
+/*---------------------------------------------------*/
 
+/* replace ASCII control chars (0x1 to 0x20 and 0x7f) by a dot */
 unsigned char *clean_str(unsigned char *restrict str){
 
     unsigned char* tmp = str;
 
     while(*str){
-        if (*str < 0x20)
+        if (*str < 0x20 || *str & 0x7f)
             *str = '.';
-        str++;
+        ++str;
     }
 
     return remove_dup(tmp, '.');
 }
 
-// print all clean substrings from packets like url, domain names avoiding garbage datas
+/*---------------------------------------------------*/
 
+/* print all clean substrings from packets like url, domain names avoiding garbage datas */
 void print_strings(unsigned char *restrict buffer, int size){
 
     unsigned char* tmp = buffer;
@@ -265,11 +312,11 @@ void print_strings(unsigned char *restrict buffer, int size){
             
             // if the substring is long enough (< 8) = revelant string content
 
-            if (j > STRING_MIN_SIZE){
+            if (j > STRING_REVELANT_MIN_SIZE){
 
                 *(substr + j) = '\0';
 		    
-		// avoiding division by zeo here
+		        /* avoiding division by zero here */
                 nbr_punct = (!nbr_punct) ? 1 : nbr_punct;
 
                 // print only revelant strings
@@ -286,4 +333,8 @@ void print_strings(unsigned char *restrict buffer, int size){
         }
     }
 
+    printf("\n");
+
 }
+
+/*---------------------------------------------------*/
