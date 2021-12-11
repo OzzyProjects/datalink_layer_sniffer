@@ -17,7 +17,7 @@ typedef struct opt_args_main {
 	
 	char device[IFNAMSIZ];
 	char pcap_filters[PCAP_FILTER_MAX_SIZE];
-    char record_file[RECORD_PATH_MAX_SIZE];
+    	char record_file[RECORD_PATH_MAX_SIZE];
 
 	unsigned int max_packets;	/* limit of max packets to capture */
 	unsigned int timeout;		/* timeout : 0 = non blocking mode */
