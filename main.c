@@ -197,9 +197,7 @@ int main(int argc, char **argv)
             
     }
 
-    /*
     assert(pcap_set_promisc(handle, 1) != -1);
-    */
 
         /* setting the device in monitor mode if it was selected */
         if (opt_args->is_monitor_mode){
