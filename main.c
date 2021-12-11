@@ -1,23 +1,28 @@
+
+/* "DLL" sniffer without pretention (a tiny one) */
+
 #include <signal.h>
 #include <limits.h>
 #include <time.h>
 
 #include "sock_utils.h" 
-#include "string_utils.h"	
+#include "string_utils.h"
 
+/* record path file and bpf filters are limited to 128 bytes each */
+#define RECORD_PATH_MAX_SIZE    0x80
+#define PCAP_FILTER_MAX_SIZE    0x80
 
 /* opts struct for the capture session */
-
 typedef struct opt_args_main {
 	
 	char device[IFNAMSIZ];
-	char record_file[RECORD_FILENAME_SIZE];
-	char pcap_filters[PCAP_FILTER_SIZE];
+	char pcap_filters[PCAP_FILTER_MAX_SIZE];
+    char record_file[RECORD_PATH_MAX_SIZE];
 
-	unsigned int max_packets;	/* limit of max packets to capture */
-	unsigned int timeout;		/* timeout : 0 = non blocking mode */
+	unsigned int max_packets;		/* limit of max packets to capture */
+	unsigned int timeout;			/* timeout : 0 = non blocking mode */
 
-	int error_code;			/* futur use */
+	int error_code;					/* futur use */
 
 	uint8_t is_filter       : 1;	/* bpf filter or not */
 	uint8_t is_file         : 1;	/* rec file or not */
@@ -63,7 +68,12 @@ time_t t_begin_capture;
 
 int main(int argc, char **argv)
 {
-    
+
+
+#ifdef DEBUG
+    printf("\nDEBUG : main's entry point\n");
+#endif 
+
     /* setting the signal handler to proper close the record file */
     signal(SIGINT, int_handler);
 
@@ -112,8 +122,12 @@ int main(int argc, char **argv)
 
     /* setting up the string record filename if it was not provided */
     if (!opt_args->is_file){
-        strncpy(opt_args->record_file, DEFAULT_RECORD_FILENAME, RECORD_FILENAME_SIZE - 1);
+        strncpy(opt_args->record_file, DEFAULT_RECORD_FILENAME, RECORD_PATH_MAX_SIZE - 1);
     }
+
+#ifdef DEBUG
+    printf("\nDEBUG : no issue until command line parsing\n");
+#endif 
 
     print_cmd_line(argc, argv);
 
@@ -128,7 +142,7 @@ int main(int argc, char **argv)
     opt_args->is_file_opened = 1;
 
 #ifdef DEBUG
-        	printf("\nRecord file successfully set\n");
+    printf("\nRecord file successfully set\n");
 #endif
 
     /* one and only one interface sniffing mode, just do a soft capture */
@@ -184,11 +198,11 @@ int main(int argc, char **argv)
         	printf("\nNon blocking mode successfully set\n");
 #endif
             
-        }
+    }
 
-        /*
-        assert(pcap_set_promisc(handle, 1) != -1);
-        */
+    /*
+    assert(pcap_set_promisc(handle, 1) != -1);
+    */
 
         /* setting the device in monitor mode if it was selected */
         if (opt_args->is_monitor_mode){
@@ -306,13 +320,13 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 
             /* recording string file -r [path-record-file] */
             case 'r':
-                strncpy(opt_args->record_file, optarg, RECORD_FILENAME_SIZE - 1);
+                strncpy(opt_args->record_file, optarg, RECORD_PATH_MAX_SIZE - 1);
                 opt_args->is_file = 1;
                 break;
 
             /* applying capture filters here -f [bpf-filter] */
             case 'f':
-                strncpy(opt_args->pcap_filters, optarg, PCAP_FILTER_SIZE - 1);
+                strncpy(opt_args->pcap_filters, optarg, PCAP_FILTER_MAX_SIZE - 1);
                 opt_args->is_filter= 1;
                 break;
 
@@ -409,8 +423,9 @@ long char_to_long(const char* opt_chr)
 void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 {
 
-    ++num_packet;
-	
+	++num_packet;
+
+    /* QUESTION : is this cast constness useless ? CKAAAAAAAAAAAAA TEAM */
     unsigned char* raw_packet = (unsigned char*)packet;
     int dll_type = UCHAR_PTR_TO_INT(args);
 
