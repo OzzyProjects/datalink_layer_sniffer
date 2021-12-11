@@ -1,4 +1,3 @@
-
 #include <signal.h>
 #include <limits.h>
 #include <time.h>
@@ -22,10 +21,10 @@ typedef struct opt_args_main {
 	
 	char device[IFNAMSIZ];
 	char pcap_filters[PCAP_FILTER_MAX_SIZE];
-    char record_file[RECORD_PATH_MAX_SIZE];
+    	char record_file[RECORD_PATH_MAX_SIZE];
 
 	unsigned int max_packets;          /* limit of max packets to capture */
-	unsigned int timeout;			   /* timeout : 0 = non blocking mode */
+	unsigned int timeout;		   /* timeout : 0 = non blocking mode */
 
 	int error_code;                    /* futur use */
 
@@ -113,7 +112,7 @@ int main(int argc, char **argv)
 
     if (parsing_status < DLL_SNI_OK){
         fprintf(stderr, "FATAL ERROR : error while parsing the command line\n");
-		goto fatal_error;
+	goto fatal_error;
     }
 
     /* no interface provided by user, prog will try to find one's available 
@@ -203,7 +202,7 @@ int main(int argc, char **argv)
             assert(pcap_setnonblock(handle, -1, errbuf) != -1);
 
 #ifdef DEBUG
-        	printf("\nDEBUG : Non blocking mode successfully set\n");
+        printf("\nDEBUG : Non blocking mode successfully set\n");
 #endif
             
     }
@@ -406,8 +405,8 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 /* converting char pointer to long for some command line args */
 long char_to_long(const char* opt_chr)
 {
-	char* buff_temp;
-	long long_res = 0;
+    char* buff_temp;
+    long long_res = 0;
 
     long_res = strtol(opt_chr, &buff_temp, 10);
 
@@ -430,9 +429,7 @@ long char_to_long(const char* opt_chr)
 void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 {
 
-	++num_packet;
-
-    /* QUESTION : is this cast constness useless ? CKAAAAAAAAAAAAA TEAM */
+    ++num_packet;
     unsigned char* raw_packet = (unsigned char*)packet;
     int dll_type = UCHAR_PTR_TO_INT(args);
 
