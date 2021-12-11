@@ -76,6 +76,8 @@ I haven't checked yet for other versions or distros.
 
 You can also check the complete valgrind memcheck report. No memory leaks or other memory problems.
 
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/ozzyprojects?cmd=_s-xclick)
+
 ![](valgrind/valgrind.png)
 
 **TODO : accept bpf filters files or propose some of them by default and capturing radiotap packets and other layers 2 protos **
