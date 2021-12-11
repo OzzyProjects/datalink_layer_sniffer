@@ -12,6 +12,8 @@ DO NOT HESITATE TO LEAVE YOUR FEEDBACK TO LET ME DO SOME IMPROVEMENTS OR BY A PA
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/paypalme/ozzyprojects?cmd=_s-xclick)<br/>
 
+# News
+
 **New release working with libpcap. The older one dealt with raw sockets only**
 
 **Linux libpcap datalink layer sniffer being able to sniff all TCP, IP, ICMP, ARP, IGMP and some frames from OSI Layer 2/3.**
