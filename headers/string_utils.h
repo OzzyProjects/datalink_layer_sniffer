@@ -2,23 +2,31 @@
 #define STRUTILS_H
 
 #include <stdint.h>
-#include <assert.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <stdint.h>
 #include <ctype.h>
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
-#define isunicode(c) (((c)&0xc0)==0xc0)
+#define isunicode(c) (((c) & 0xc0) == 0xc0)
 
-// minimum lenght for a revelant string
-#define STRING_MIN_SIZE 8
+#define _strcpy_exptal(dst, src)    \
+    do {                            \
+        const char *_src = (src);   \
+        char *_dst = (dst);         \
+                                    \
+        while ((*_dst++ = *_src++)) \
+                ;                   \
+    } while (0)
+
+
+/* minimum lenght for a revelant string */
+#define STRING_REVELANT_MIN_SIZE       0x7
+
 
 void init_string_record_file(const char*);
-void close_record_file();
 void close_record_file();
 void *fake_malloc(const size_t);
 void copy_small(uint8_t *restrict, const uint8_t *restrict, size_t) __attribute__((nonnull)) ;
@@ -26,9 +34,10 @@ void copy_large(uint64_t *restrict, const uint64_t *restrict, size_t) __attribut
 void *memcpy_s(void *restrict, const void *restrict, size_t) __attribute__((nonnull));
 void *memset_s(void* restrict, const unsigned int, size_t) __attribute__((nonnull));
 int memcmp_s(void *restrict, void *restrict, size_t) __attribute__((nonnull));
+size_t strlcpy(char*, const char*, size_t);
 char *fake_strndup(const char* restrict, size_t) __attribute__((nonnull));
-char *safe_strcpy(char *restrict , size_t, const char *restrict) __attribute__((nonnull));
-void *memcpy_asm(void *, const void*, size_t) ;
+char *safe_strcpy(char *restrict, const char *restrict, size_t) __attribute__((nonnull));
+void *memcpy_asm(void*, const void*, size_t) ;
 char *strcpy_asm(char *restrict, const char *restrict) __attribute__((nonnull));
 unsigned char *remove_dup(unsigned char*, unsigned char) __attribute__((nonnull));
 unsigned char *clean_str(unsigned char *restrict) __attribute__((nonnull));
