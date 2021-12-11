@@ -1,3 +1,6 @@
+
+/* "DLL" sniffer without pretention (a tiny one) */
+
 #include <signal.h>
 #include <limits.h>
 #include <time.h>
@@ -14,12 +17,12 @@ typedef struct opt_args_main {
 	
 	char device[IFNAMSIZ];
 	char pcap_filters[PCAP_FILTER_MAX_SIZE];
-    	char record_file[RECORD_PATH_MAX_SIZE];
+    char record_file[RECORD_PATH_MAX_SIZE];
 
-	unsigned int max_packets;	/* limit of max packets to capture */
-	unsigned int timeout;		/* timeout : 0 = non blocking mode */
+	unsigned int max_packets;		/* limit of max packets to capture */
+	unsigned int timeout;			/* timeout : 0 = non blocking mode */
 
-	int error_code;			/* futur use */
+	int error_code;					/* futur use */
 
 	uint8_t is_filter       : 1;	/* bpf filter or not */
 	uint8_t is_file         : 1;	/* rec file or not */
@@ -111,16 +114,14 @@ int main(int argc, char **argv)
     /* no interface provided by user, prog will try to find one's available 
     no device available -> aborting */
     if (!opt_args->is_itf && get_random_device(opt_args->device) == -1){
-
         fprintf(stderr, "FATAL ERROR : couldn't find a network device to bind to\n");
         goto fatal_error;
 
     }
 
     /* setting up the string record filename if it was not provided */
-    if (!opt_args->is_file){
-        strncpy(opt_args->record_file, DEFAULT_RECORD_FILENAME, RECORD_PATH_MAX_SIZE - 1);
-    }
+    if (!opt_args->is_file)
+        strlcpy(opt_args->record_file, DEFAULT_RECORD_FILENAME, RECORD_PATH_MAX_SIZE);
 
 #ifdef DEBUG
     printf("\nDEBUG : no issue until command line parsing\n");
@@ -160,7 +161,7 @@ int main(int argc, char **argv)
         }
 
 #ifdef DEBUG
-    printf("\nPCAP session successfully opened\n");
+        printf("\nPCAP session successfully opened\n");
 #endif
 
     }
@@ -168,7 +169,7 @@ int main(int argc, char **argv)
     /* sniffing on "any" device chosen */
     else{
 
-        strncpy(opt_args->device, "any", IFNAMSIZ -1);
+        strlcpy(opt_args->device, "any", IFNAMSIZ);
         handle = pcap_create(opt_args->device, errbuf);
 
         if (handle == NULL){
@@ -192,13 +193,14 @@ int main(int argc, char **argv)
             assert(pcap_setnonblock(handle, -1, errbuf) != -1);
 
 #ifdef DEBUG
-            printf("\nNon blocking mode successfully set\n");
+        	printf("\nNon blocking mode successfully set\n");
 #endif
             
     }
 
-    /* setting the device in promiscuous mode */
-    assert(pcap_set_promisc(handle, 1) == 0);
+    /*
+    assert(pcap_set_promisc(handle, 1) != -1);
+    */
 
         /* setting the device in monitor mode if it was selected */
         if (opt_args->is_monitor_mode){
@@ -290,7 +292,7 @@ fatal_error:
  		close_record_file();
     
     free(opt_args);
-    return EXIT_FAILURE;
+ 	return EXIT_FAILURE;
 
 }
 
@@ -310,19 +312,19 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 
             /* device name to bind to -i [iface-name] */
             case 'i':
-                strncpy(opt_args->device, optarg, IFNAMSIZ - 1);
+                strlcpy(opt_args->device, optarg, IFNAMSIZ);
                 opt_args->is_itf = 1;
                 break;
 
             /* recording string file -r [path-record-file] */
             case 'r':
-                strncpy(opt_args->record_file, optarg, RECORD_PATH_MAX_SIZE - 1);
+                strlcpy(opt_args->record_file, optarg, RECORD_PATH_MAX_SIZE);
                 opt_args->is_file = 1;
                 break;
 
             /* applying capture filters here -f [bpf-filter] */
             case 'f':
-                strncpy(opt_args->pcap_filters, optarg, PCAP_FILTER_MAX_SIZE - 1);
+                strlcpy(opt_args->pcap_filters, optarg, PCAP_FILTER_MAX_SIZE);
                 opt_args->is_filter= 1;
                 break;
 
@@ -420,7 +422,9 @@ long char_to_long(const char* opt_chr)
 void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 {
 
-    ++num_packet;
+	++num_packet;
+
+    /* QUESTION : is this cast constness useless ? CKAAAAAAAAAAAAA TEAM */
     unsigned char* raw_packet = (unsigned char*)packet;
     int dll_type = UCHAR_PTR_TO_INT(args);
 
@@ -452,9 +456,9 @@ void int_handler(int signum)
     int min_elapsed = (int)(total_time / 60);
     int sec_elapsed = (int)(total_time % 60);
 
-    printf("\n+ Total packets captured : %u\n", num_packet);
+    printf("\n+ Total packets captured		: %u\n", num_packet);
 
-    printf("\n+ Capture time duration  : %02d min %02d sec\n", min_elapsed, sec_elapsed);
+    printf("\n+ Capture time duration		: %02d min %02d sec\n", min_elapsed, sec_elapsed);
 
     /* closing the string record file and exiting */
     close_record_file();
