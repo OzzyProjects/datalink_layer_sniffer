@@ -420,9 +420,7 @@ long char_to_long(const char* opt_chr)
 void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 {
 
-	++num_packet;
-
-    /* QUESTION : is this cast constness useless ? CKAAAAAAAAAAAAA TEAM */
+    ++num_packet;
     unsigned char* raw_packet = (unsigned char*)packet;
     int dll_type = UCHAR_PTR_TO_INT(args);
 
