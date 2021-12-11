@@ -1,6 +1,3 @@
-
-/* "DLL" sniffer without pretention (a tiny one) */
-
 #include <signal.h>
 #include <limits.h>
 #include <time.h>
@@ -424,9 +421,7 @@ long char_to_long(const char* opt_chr)
 void handle_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 {
 
-	++num_packet;
-
-    /* QUESTION : is this cast constness useless ? CKAAAAAAAAAAAAA TEAM */
+    ++num_packet;
     unsigned char* raw_packet = (unsigned char*)packet;
     int dll_type = UCHAR_PTR_TO_INT(args);
 
@@ -458,9 +453,9 @@ void int_handler(int signum)
     int min_elapsed = (int)(total_time / 60);
     int sec_elapsed = (int)(total_time % 60);
 
-    printf("\n+ Total packets captured		: %u\n", num_packet);
+    printf("\n+ Total packets captured : %u\n", num_packet);
 
-    printf("\n+ Capture time duration		: %02d min %02d sec\n", min_elapsed, sec_elapsed);
+    printf("\n+ Capture time duration  : %02d min %02d sec\n", min_elapsed, sec_elapsed);
 
     /* closing the string record file and exiting */
     close_record_file();
