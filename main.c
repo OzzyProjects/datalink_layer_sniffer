@@ -160,7 +160,7 @@ int main(int argc, char **argv)
         }
 
 #ifdef DEBUG
-        	printf("\nPCAP session successfully opened\n");
+    printf("\nPCAP session successfully opened\n");
 #endif
 
     }
