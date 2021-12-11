@@ -19,10 +19,10 @@ typedef struct opt_args_main {
 	char pcap_filters[PCAP_FILTER_MAX_SIZE];
     char record_file[RECORD_PATH_MAX_SIZE];
 
-	unsigned int max_packets;		/* limit of max packets to capture */
-	unsigned int timeout;			/* timeout : 0 = non blocking mode */
+	unsigned int max_packets;	/* limit of max packets to capture */
+	unsigned int timeout;		/* timeout : 0 = non blocking mode */
 
-	int error_code;					/* futur use */
+	int error_code;			/* futur use */
 
 	uint8_t is_filter       : 1;	/* bpf filter or not */
 	uint8_t is_file         : 1;	/* rec file or not */
