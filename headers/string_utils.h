@@ -12,6 +12,7 @@
 
 #define isunicode(c) (((c) & 0xc0) == 0xc0)
 
+
 /* minimum lenght for a revelant string */
 #define STRING_REVELANT_MIN_SIZE       0x7
 
