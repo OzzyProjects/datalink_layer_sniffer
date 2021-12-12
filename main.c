@@ -24,19 +24,19 @@ typedef struct opt_args_main {
 	char pcap_filters[PCAP_FILTER_MAX_SIZE]; 
 	char record_file[RECORD_PATH_MAX_SIZE]; 
 
-	unsigned int max_packets;			/* limit of max packets to capture */
-	unsigned int timeout;				/* timeout : 0 = non blocking mode */
+	unsigned int max_packets;	/* limit of max packets to capture */
+	unsigned int timeout;		/* timeout : 0 = non blocking mode */
 
-	int error_code;						/* futur use */
+	int error_code;			/* futur use */
 
-	uint8_t is_filter       : 1;		/* bpf filter or not */
-	uint8_t is_file         : 1;        /* rec file or not */
-	uint8_t is_file_opened	: 1;        /* if str record file is already opened */
-	uint8_t is_itf          : 1;        /* net device or not */
-	uint8_t is_monitor_mode : 1;        /* mon mode enabled or not */
-	uint8_t is_godmode      : 1;        /* any device or single device */
-	uint8_t is_limited      : 1;        /* limit numb pckts or not (0 or neg) */
-	uint8_t is_verbose_mode : 1;        /* verbose mode or not */
+	uint8_t is_filter       : 1;	/* bpf filter or not */
+	uint8_t is_file         : 1;	/* rec file or not */
+	uint8_t is_file_opened	: 1;	/* if str record file is already opened */
+	uint8_t is_itf          : 1;	/* net device or not */
+	uint8_t is_monitor_mode : 1;	/* mon mode enabled or not */
+	uint8_t is_godmode  	: 1;	/* any device or single device */
+	uint8_t is_limited      : 1;	/* limit numb pckts or not (0 or neg) */
+	uint8_t is_verbose_mode : 1;	/* verbose mode or not */
 
 
 } opt_args_main; 
