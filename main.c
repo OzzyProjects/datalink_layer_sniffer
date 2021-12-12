@@ -325,13 +325,13 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 
 			/* device name to bind to -i [iface-name] */
 			case 'i':
-				strlcpy(opt_args->device, optarg, IFNAMSIZ); 
+				strncpy(opt_args->device, optarg, IFNAMSIZ - 1); 
 				opt_args->is_itf = 1; 
 				break; 
 
 			/* recording string file -r [path-record-file] */
 			case 'r':
-				strlcpy(opt_args->record_file, optarg, RECORD_PATH_MAX_SIZE); 
+				strncpy(opt_args->record_file, optarg, RECORD_PATH_MAX_SIZE - 1); 
 				opt_args->is_file = 1; 
 				break; 
 
