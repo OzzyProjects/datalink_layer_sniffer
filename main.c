@@ -25,7 +25,7 @@ typedef struct opt_args_main {
 	char record_file[RECORD_PATH_MAX_SIZE]; 
 
 	unsigned int max_packets;           /* limit of max packets to capture */
-	unsigned int timeout; 			   /* timeout : 0 = non blocking mode */
+	unsigned int timeout; 		    /* timeout : 0 = non blocking mode */
 
 	int error_code;                     /* futur use */
 
