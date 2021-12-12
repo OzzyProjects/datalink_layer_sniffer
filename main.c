@@ -24,12 +24,12 @@ typedef struct opt_args_main {
 	char pcap_filters[PCAP_FILTER_MAX_SIZE]; 
 	char record_file[RECORD_PATH_MAX_SIZE]; 
 
-	unsigned int max_packets;           /* limit of max packets to capture */
-	unsigned int timeout; 		    /* timeout : 0 = non blocking mode */
+	unsigned int max_packets;			/* limit of max packets to capture */
+	unsigned int timeout;				/* timeout : 0 = non blocking mode */
 
-	int error_code;                     /* futur use */
+	int error_code;						/* futur use */
 
-	uint8_t is_filter       : 1;        /* bpf filter or not */
+	uint8_t is_filter       : 1;		/* bpf filter or not */
 	uint8_t is_file         : 1;        /* rec file or not */
 	uint8_t is_file_opened	: 1;        /* if str record file is already opened */
 	uint8_t is_itf          : 1;        /* net device or not */
@@ -325,13 +325,17 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 
 			/* device name to bind to -i [iface-name] */
 			case 'i':
-				strncpy(opt_args->device, optarg, IFNAMSIZ - 1); 
+				snprintf(opt_args->device, IFNAMSIZ, "%.*s",
+					(int)IFNAMSIZ - 1, optarg);
+
 				opt_args->is_itf = 1; 
 				break; 
 
 			/* recording string file -r [path-record-file] */
 			case 'r':
-				strncpy(opt_args->record_file, optarg, RECORD_PATH_MAX_SIZE - 1); 
+				snprintf(opt_args->record_file, RECORD_PATH_MAX_SIZE, "%.*s",
+					(int)RECORD_PATH_MAX_SIZE - 1, optarg);
+
 				opt_args->is_file = 1; 
 				break; 
 
