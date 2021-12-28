@@ -126,7 +126,7 @@ int main(int argc, char **argv)
 
 	/* setting up the string record filename if it was not provided */
 	if (!opt_args->is_file)
-		strlcpy(opt_args->record_file, DEFAULT_FILENAME, RECORD_PATH_MAX_SIZE); 
+		strncpy(opt_args->record_file, DEFAULT_FILENAME, RECORD_PATH_MAX_SIZE - 1); 
 
 #if DEBUG
 	printf("\nDEBUG : no issue until command line parsing\n"); 
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
 	/* sniffing on "any" device chosen */
 	else{
 
-		strlcpy(opt_args->device, "any", IFNAMSIZ); 
+		strncpy(opt_args->device, "any", IFNAMSIZ -1); 
 		handle = pcap_create(opt_args->device, errbuf); 
 
 		if (handle == NULL){
