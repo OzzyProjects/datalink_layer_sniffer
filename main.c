@@ -319,7 +319,7 @@ int parse_cmd_line(int argc, char** argv, struct opt_args_main* opt_args)
 	long max_packet = 0; 
 	long defined_timeout = 0; 
 
-	while ((opt = getopt(argc, argv, "i:r:f:c:t:vgmlh")) != -1){
+	while ((opt = getopt(argc, argv, "vi:r:f:c:t:gmlh")) != -1){
 
 		switch (opt){
 
