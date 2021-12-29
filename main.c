@@ -106,7 +106,7 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE; 
 	}
 
-	memset(opt_args, 0, sizeof(opt_args_main)); 
+	memset(opt_args, 0, sizeof(struct opt_args_main)); 
 
 	/* parsing the command line and setting up capture options */
 	parsing_status = parse_cmd_line(argc, argv, opt_args); 
