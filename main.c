@@ -75,10 +75,6 @@ int main(int argc, char **argv)
 {
 
 
-#if DEBUG
-	printf("\nDEBUG : main's entry point\n"); 
-#endif 
-
 	/* setting the signal handler to proper close the record file */
 	signal(SIGINT, int_handler); 
 
